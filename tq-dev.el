@@ -304,7 +304,6 @@ buildscript {
 				  project-name
 				  compile-sdk-version
 				  build-tools-version
-				  application-id
 				  package
 				  activity
 				  label
@@ -316,14 +315,21 @@ root-path 项目路径
 project-name 工程名称
 compile-sdk-version AndroidSDK版本
 build-tools-version BuildTools版本
-application-id 应用id
 version-code 版本代码
 version-name 版本名称
 package 包
 activity Activity
 label label
 "
-  (interactive "sRootPath: \nsProjectName: \nsCompileSDKVersion: \nsBuildToolsVersion: \nsApplicationID: \nsPackage: \nsActivity: \nsLabel: \nsVersionCode: \nsVersionName: ")
+  (interactive "sRootPath: 
+sProjectName: 
+sCompileSDKVersion: 
+sBuildToolsVersion: 
+sPackage: 
+sActivity: 
+sLabel: 
+sVersionCode: 
+sVersionName: ")
   (let* ((absolute-root-path (expand-file-name root-path))
 	 (project-path (expand-file-name project-name absolute-root-path))
 	 (subdirs (list "app/src/main/java" "app/src/main/res/layout")))
@@ -356,7 +362,8 @@ include ':app'
 ")
     ;; 生成app/build.gradle
     (tq-create-file (expand-file-name "app/build.gradle" project-path)
-		    (tq-replace-regexp-pairs (list "${compileSdkVersion}" compile-sdk-version
+		    (tq-replace-regexp-pairs (list "${applicationId}" package
+						   "${compileSdkVersion}" compile-sdk-version
 						   "${buildToolsVersion}" build-tools-version
 						   "${versionCode}" version-code
 						   "${versionName}" version-name)
@@ -366,9 +373,9 @@ android {
         compileSdkVersion ${compileSdkVersion}
         buildToolsVersion '${buildToolsVersion}'
         defaultConfig {
-                applicationId 'org.tq.test'
-                //minSdkVersion 15
-                //targetSdkVersion 15
+                applicationId '${applicationId}'
+                minSdkVersion 19
+                targetSdkVersion 19
                 versionCode ${versionCode}
                 versionName '${versionName}'
         }
