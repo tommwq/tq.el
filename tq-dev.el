@@ -699,7 +699,7 @@ sVersionName: ")
 	 (subdirs (list "app/src/main/java/"
 			"app/src/main/res/layout")))
     ;; 创建工程目录
-    (print "创建工作目录")
+    (print "建立工作目录")
     (when (file-exists-p project-path)
       (error "Directory existed. path: %s." project-path))
     (make-directory project-path t)
@@ -707,22 +707,25 @@ sVersionName: ")
       (make-directory (expand-file-name subdir project-path) t))
 
     ;; 生成工程build.gradle
+    (print "建立工程build.gradle文件")
     (let ((filename
 	   (expand-file-name "build.gradle" project-path))
 	  (content tq-android-project-build-gradle-content))
       (tq-create-file filename content))
 
     ;; 生成工程settings.gradle
+    (print "建立工程settings.gradle文件")
     (let ((filename
 	   (expand-file-name "settings.gradle" project-path))
 	  (content tq-android-project-settings-gradle-content))
       (tq-create-file filename content))
 
     ;; 生成app模块build.gradle
+    (print "建立模块build.gradle文件")
     (let ((filename
 	   (expand-file-name "app/build.gradle" project-path))
 	  (content
-	   (tq-render-template (list "applicationId" package-name
+	   (tq-render-template (list "applicationId" package
 				     "compileSdkVersion" compile-sdk-version
 				     "buildToolsVersion" build-tools-version
 				     "versionCode" version-code
@@ -731,9 +734,10 @@ sVersionName: ")
       (tq-create-file filename content))
 
     ;; 生成app/src/main/AndroidManifest.xml
+    (print "建立AndroidManifest.xml文件")
     (let ((filename
 	   (expand-file-name "app/src/main/AndroidManifest.xml" project-path))
-	  (content (tq-render-template (list "package" package-name
+	  (content (tq-render-template (list "package" package
 					     "versionCode" version-code
 					     "versionName" version-name
 					     "label" label
@@ -741,42 +745,45 @@ sVersionName: ")
       (tq-create-file filename content))
 
     ;; 生成app/src/main/java/$PACKAGE/activity/$ACTIVITY.java
+    (print (concat "建立" activity ".java文件"))
     (let* ((java-file-name (expand-file-name
 			    (concat
 			     "app/src/main/java/"
-			     (replace-regexp-in-string "\\." "/" package-name)
+			     (replace-regexp-in-string "\\." "/" package)
 			     "/activity/"
 			     (replace-regexp-in-string "\\." "/" activity)
 			     ".java")
 			    project-path))
 	   (parent-directory (file-name-directory java-file-name))
 	   (content
-	    (tq-render-template (list "package" package-name
+	    (tq-render-template (list "package" package
 				      "activity" activity) tq-android-activity-class-template)))
       (unless (file-exists-p parent-directory)
 	(make-directory parent-directory t))
       (tq-create-file java-file-name content))
 
     ;; 生成app/src/main/java/$PACKAGE/State.java
+    (print "建立State.java文件")
     (let* ((java-file-name (expand-file-name
 			    (concat
 			     "app/src/main/java/"
-			     (replace-regexp-in-string "\\." "/" package-name)
+			     (replace-regexp-in-string "\\." "/" package)
 			     "/State.java")
 			    project-path))
 	   (parent-directory (file-name-directory java-file-name))
 	   (content
-	    (tq-render-template (list "package" package-name)
+	    (tq-render-template (list "package" package)
 				tq-android-databinding-state-class-template)))
       (unless (file-exists-p parent-directory)
 	(make-directory parent-directory t))
       (tq-create-file java-file-name content))
     
     ;; 生成app/src/main/res/layout/activity_main.xml
+    (print "建立布局文件")
     (let ((filename
 	   (expand-file-name "app/src/main/res/layout/activity_main.xml" project-path))
 	  (content
-	   (tq-render-template (list "package" package-name) tq-android-layout-xml-template)))
+	   (tq-render-template (list "package" package) tq-android-layout-xml-template)))
       (tq-create-file filename content))
 
     ;; TODO 生成State类。
