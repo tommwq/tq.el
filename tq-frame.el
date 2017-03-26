@@ -16,16 +16,15 @@
   (fset 'yes-or-no-p 'y-or-n-p)
   
   ;; 设置字体
-  (set-frame-font "Source Code Pro-14")
-  ;; (set-frame-font "Consolas-12")
+  (set-frame-font "Liberation Mono-12")
+  ;; (set-frame-font "Source Code Pro-10")
   ;; (set-frame-font "PT Mono-12")
-  ;; (set-frame-font "Liberation Mono-12")
   ;; (set-frame-font "Roboto Mono-12")
 
   ;; 设置中文字体
   (dolist (charset '(kana han symbol cjk-misc bopomofo))
     (set-fontset-font t charset
-		      (font-spec :family "新宋体" :size 18)))
+		      (font-spec :family "新宋体" :size 14)))
 
   ;; 关闭启动界面
   (setq inhibit-startup-message t)
@@ -33,9 +32,6 @@
   
   ;; 显示行号
   (global-linum-mode t)
-
-  ;; 显示列号
-  (setq column-number-mode t)
 
   ;; 设置工作目录
   (setq default-directory "C:\\Users\\WangQian\\Workspace")
@@ -81,7 +77,7 @@
   (global-set-key [f3] 'isearch-forward)
 
   ;; 光标样式
-  (setq default-cursor-type 'box)
+  (setq default-cursor-type 'hbar)
 
   ;; 
   (setq visible-bell t)
@@ -131,5 +127,6 @@
   (prefer-coding-system 'chinese-gbk-unix)
   (prefer-coding-system 'utf-8-dos)
   (prefer-coding-system 'utf-8-unix))
+
 
 
