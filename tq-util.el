@@ -2,9 +2,9 @@
 ;; Description: Utility functions.
 ;; Author: Wang Qian
 ;; Create: 2016-09-10
-;; Modify: 2016-12-11
+;; Modify: 2017-02-03
 
-(provide 'tq-util)
+(provide 'tq)
 
 (defun w32-maximize-window ()
   "全屏显示。"
@@ -23,16 +23,4 @@
   (interactive)
   (insert
    (format-time-string "%Y年%m月%d日")))
-
-(defun tq-init-org-file (title)
-  "初始化org文件。"
-  (interactive "stitle: ")
-  (beginning-of-buffer)
-  (let ((date-string (format-time-string "%Y年%m月%d日")))
-    (dolist (line (list "# -*- mode: org -*-"
-			(format "#+title %s" title)
-			(format "#+date %s" date-string)))
-      (insert (format "%s\n" line))))
-  (org-mode))
-
 
