@@ -299,180 +299,6 @@ buildscript {
     (dolist (subdir subdirs)
       (make-directory (expand-file-name subdir project-path) t))))
 
-;; TODO 增加app/libs目录。
-(defun tq-create-android-project (root-path
-				  project-name
-				  compile-sdk-version
-				  build-tools-version
-				  application-id
-				  package
-				  activity
-				  label
-				  version-code
-				  version-name)
-  "创建Android工程。
-
-root-path 项目路径
-project-name 工程名称
-compile-sdk-version AndroidSDK版本
-build-tools-version BuildTools版本
-application-id 应用id
-version-code 版本代码
-version-name 版本名称
-package 包
-activity Activity
-label label
-"
-  (interactive "sRootPath: \nsProjectName: \nsCompileSDKVersion: \nsBuildToolsVersion: \nsApplicationID: \nsPackage: \nsActivity: \nsLabel: \nsVersionCode: \nsVersionName: ")
-  (let* ((absolute-root-path (expand-file-name root-path))
-	 (project-path (expand-file-name project-name absolute-root-path))
-	 (subdirs (list "app/src/main/java" "app/src/main/res/layout")))
-    ;; 创建工程目录
-    (when (file-exists-p project-path)
-      (error "Directory existed. path: %s." project-path))
-    (make-directory project-path t)
-    (dolist (subdir subdirs)
-      (make-directory (expand-file-name subdir project-path) t))
-    ;; 生成根build.gradle
-    (tq-create-file (expand-file-name "build.gradle" project-path) "
-buildscript {
-        repositories {
-                jcenter()
-        }
-        dependencies {
-                classpath 'com.android.tools.build:gradle:+'
-        }
-}
-
-allprojects {
-        repositories {
-                jcenter()
-        }
-}
-")
-    ;; 生成根settings.gradle
-    (tq-create-file (expand-file-name "settings.gradle" project-path) "
-include ':app'
-")
-    ;; 生成app/build.gradle
-    (tq-create-file (expand-file-name "app/build.gradle" project-path)
-		    (tq-replace-regexp-pairs (list "${compileSdkVersion}" compile-sdk-version
-						   "${buildToolsVersion}" build-tools-version
-						   "${versionCode}" version-code
-						   "${versionName}" version-name)
-					     "apply plugin: 'com.android.application'
-
-android {
-        compileSdkVersion ${compileSdkVersion}
-        buildToolsVersion '${buildToolsVersion}'
-        defaultConfig {
-                applicationId 'org.tq.test'
-                //minSdkVersion 15
-                //targetSdkVersion 15
-                versionCode ${versionCode}
-                versionName '${versionName}'
-        }
-        buildTypes {
-                debug {
-                        resValue 'string', 'app_name', 'Example DEBUG'
-                }
-                release {
-                        resValue 'string', 'app_name', 'Example'
-                        
-                        minifyEnabled false
-                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-                }
-        }
-}
-
-dependencies {
-        compile fileTree(dir: 'libs', include: ['*.jar'])
-}
-
-buildscript {
-        repositories {
-                jcenter()
-        }
-
-        dependencies {
-                classpath 'com.android.tools.build:gradle:+'
-        }
-}
-"))
-    ;; 生成app/src/main/AndroidManifest.xml
-    (tq-create-file (expand-file-name "app/src/main/AndroidManifest.xml" project-path)
-		    (tq-replace-regexp-pairs (list "${package}" package
-						   "${versionCode}" version-code
-						   "${versionName}" version-name
-						   "${label}" label
-						   "${activity}" activity)
-					     "<?xml version=\"1.0\" encoding=\"utf-8\"?>
-<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"
-	  package=\"${package}\"
-	  android:versionCode=\"${versionCode}\"
-	  android:versionName=\"${versionName}\">
-
-	<application android:label=\"${label}\">
-		<activity android:name=\"${activity}\"
-			  android:label=\"${label}\">
-			<intent-filter>
-				<action android:name=\"android.intent.action.MAIN\" />
-				<category android:name=\"android.intent.category.LAUNCHER\" />
-			</intent-filter>
-		</activity>
-	</application>
-
- 	<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>
-</manifest> 
-"))
-    ;; 生成app/src/main/java/$ACTIVITY.java
-    (let* ((java-file-name (expand-file-name
-			    (concat
-			     "app/src/main/java/"
-			     (replace-regexp-in-string "\\." "/" activity)
-			     ".java")
-			    project-path))
-	   (parent-directory (file-name-directory java-file-name)))
-      (unless (file-exists-p parent-directory)
-	(make-directory parent-directory t))
-      (tq-create-file java-file-name
-		      (tq-replace-regexp-pairs (list "${package}" package
-						     "${activityName}" (file-name-base java-file-name))
-					       "package ${package};
-
-import android.app.Activity;
-import android.os.Bundle;
-
-public class ${activityName} extends Activity {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-                super.onCreate(savedInstanceState);
-                setContentView(R.layout.main);
-        }
-}
-")))
-    
-    ;; 生成app/src/main/res/layout/main.xml
-    (tq-create-file (expand-file-name "app/src/main/res/layout/main.xml" project-path)
-		    "<?xml version=\"1.0\" encoding=\"utf-8\"?>
-<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"
-	      android:orientation=\"vertical\"
-	      android:layout_width=\"fill_parent\"
-	      android:layout_height=\"fill_parent\"
-	      >
-	<TextView
-		android:layout_width=\"fill_parent\"
-		android:layout_height=\"wrap_content\"
-		android:text=\"HELLO WORLD!\"
-		/>
-</LinearLayout>
-")
-    ;; TODO
-    ;; 初始化git仓库
-    ;; 提交git仓库
-    ))
-
-;; TODO
 (defun create-maven-project (root-path
 			     group-id
 			     artifact-id
@@ -678,3 +504,299 @@ return this;
 		   ,class-name
 		   ,@field-pairs)))
      (tq-create-file-then-open filename content)))
+
+(defconst tq-android-layout-xml-template
+  "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<layout xmlns:android=\"http://schemas.android.com/apk/res/android\">
+        <data>
+                <variable name=\"state\" type=\"${package}.State\" />
+        </data>
+        <LinearLayout android:orientation=\"vertical\"
+        	      android:layout_width=\"fill_parent\"
+        	      android:layout_height=\"fill_parent\"
+        	      >
+        	<TextView
+        		android:layout_width=\"fill_parent\"
+        		android:layout_height=\"wrap_content\"
+        		android:text=\"@{state.message}\"
+        		/>
+        </LinearLayout>
+</layout>
+"
+  "Android工程布局文件模板。")
+
+(defconst tq-android-activity-class-template
+  "package ${package};
+
+import android.app.Activity;
+import android.databinding.DataBindingUtil;
+import android.os.Bundle;
+import ${package}.R;
+import ${package}.databinding.ActivityMainBinding;
+
+public class ${activity} extends Activity {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        }
+}
+"
+  "Android工程activity源代码模板。")
+
+(defconst tq-android-manifest-xml-template
+  "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"
+	  package=\"${package}\"
+	  android:versionCode=\"${versionCode}\"
+	  android:versionName=\"${versionName}\">
+
+	<application android:label=\"${label}\">
+		<activity android:name=\".activity.${activity}\"
+			  android:label=\"${label}\">
+			<intent-filter>
+				<action android:name=\"android.intent.action.MAIN\" />
+				<category android:name=\"android.intent.category.LAUNCHER\" />
+			</intent-filter>
+		</activity>
+	</application>
+
+ 	<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>
+</manifest> 
+"
+  "AndroidManifest.xml文件模板。")
+
+(defconst tq-android-project-build-gradle-content
+  "buildscript {
+        repositories {
+                jcenter()
+        }
+        dependencies {
+                classpath 'com.android.tools.build:gradle:2.2.3+'
+        }
+}
+
+allprojects {
+        repositories {
+                jcenter()
+                mavenCentral()
+        }
+}
+"
+  "Android工程build.gradle脚本文件内容。")
+
+
+(defconst tq-android-project-settings-gradle-content
+  "include ':app'"
+  "Android工程settings.gradle脚本文件内容。")
+
+(defconst tq-android-app-build-gradle-template
+  "apply plugin: 'com.android.application'
+
+android {
+        compileSdkVersion ${compileSdkVersion}
+        buildToolsVersion '${buildToolsVersion}'
+        defaultConfig {
+                applicationId '${applicationId}'
+                minSdkVersion 19
+                targetSdkVersion 19
+                versionCode ${versionCode}
+                versionName '${versionName}'
+        }
+        buildTypes {
+                debug {
+                        resValue 'string', 'app_name', 'Example DEBUG'
+                }
+                release {
+                        resValue 'string', 'app_name', 'Example'
+                        
+                        minifyEnabled false
+                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                }
+        }
+        dataBinding {
+                enabled = true
+        }
+}
+
+dependencies {
+        compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+buildscript {
+        repositories {
+                jcenter()
+        }
+
+        dependencies {
+                classpath 'com.android.tools.build:gradle:+'
+        }
+}
+"
+  "Android工程app模块build.gradle文件模板。")
+
+(defun tq-render-template (variable-pairs template)
+  "渲染模板。将模板中的${foo}替换为variable-pairs中foo对应的值。"
+  (let ((pairs nil)
+	(pattern "")
+	(replace ""))
+    (while variable-pairs
+      (setf pattern (format "${%s}" (pop variable-pairs)))
+      (setf replace (pop variable-pairs))
+      (push replace pairs)
+      (push pattern pairs))
+    (tq-replace-regexp-pairs pairs template)))
+
+(defun tq-create-android-project (root-path
+				  project-name
+				  compile-sdk-version
+				  build-tools-version
+				  package
+				  activity
+				  label
+				  version-code
+				  version-name)
+  "创建Android工程。
+
+参数
+
+root-path 工程路径
+project-name 工程名称
+compile-sdk-version AndroidSDK版本
+build-tools-version BuildTools版本
+version-code 版本代码
+version-name 版本名称
+package 包
+activity Activity名，不含包名
+label 应用名
+
+工程目录结构
+
+新建的工程位于root-path下的project-name目录。project-name目录结构同gradle要求的一致，并增加了一些新的子目录。其结构如下
+build.gradle 工程的Gradle脚本
+app/ 应用目录
+app/build.gradle 应用的Gradle脚本
+app/src/main/java/${package}/ 应用源代码目录
+app/src/main/java/${package}/activity Activity源代码目录
+app/src/main/res 资源文件目录
+app/src/main/res/layout/ 布局文件目录
+app/src/main/res/layout/activity_*.xml Activity布局文件
+
+"
+  (interactive "sRootPath: 
+sProjectName: 
+sCompileSDKVersion: 
+sBuildToolsVersion: 
+sPackage: 
+sActivity: 
+sLabel: 
+sVersionCode: 
+sVersionName: ")
+  (let* ((project-path
+	  (expand-file-name
+	   project-name
+	   (expand-file-name root-path)))
+	 (subdirs (list "app/src/main/java/"
+			"app/src/main/res/layout")))
+    ;; 创建工程目录
+    (print "建立工作目录")
+    (when (file-exists-p project-path)
+      (error "Directory existed. path: %s." project-path))
+    (make-directory project-path t)
+    (dolist (subdir subdirs)
+      (make-directory (expand-file-name subdir project-path) t))
+
+    ;; 生成工程build.gradle
+    (print "建立工程build.gradle文件")
+    (let ((filename
+	   (expand-file-name "build.gradle" project-path))
+	  (content tq-android-project-build-gradle-content))
+      (tq-create-file filename content))
+
+    ;; 生成工程settings.gradle
+    (print "建立工程settings.gradle文件")
+    (let ((filename
+	   (expand-file-name "settings.gradle" project-path))
+	  (content tq-android-project-settings-gradle-content))
+      (tq-create-file filename content))
+
+    ;; 生成app模块build.gradle
+    (print "建立模块build.gradle文件")
+    (let ((filename
+	   (expand-file-name "app/build.gradle" project-path))
+	  (content
+	   (tq-render-template (list "applicationId" package
+				     "compileSdkVersion" compile-sdk-version
+				     "buildToolsVersion" build-tools-version
+				     "versionCode" version-code
+				     "versionName" version-name)
+			       tq-android-app-build-gradle-template)))
+      (tq-create-file filename content))
+
+    ;; 生成app/src/main/AndroidManifest.xml
+    (print "建立AndroidManifest.xml文件")
+    (let ((filename
+	   (expand-file-name "app/src/main/AndroidManifest.xml" project-path))
+	  (content (tq-render-template (list "package" package
+					     "versionCode" version-code
+					     "versionName" version-name
+					     "label" label
+					     "activity" activity) tq-android-manifest-xml-template)))
+      (tq-create-file filename content))
+
+    ;; 生成app/src/main/java/$PACKAGE/activity/$ACTIVITY.java
+    (print (concat "建立" activity ".java文件"))
+    (let* ((java-file-name (expand-file-name
+			    (concat
+			     "app/src/main/java/"
+			     (replace-regexp-in-string "\\." "/" package)
+			     "/activity/"
+			     (replace-regexp-in-string "\\." "/" activity)
+			     ".java")
+			    project-path))
+	   (parent-directory (file-name-directory java-file-name))
+	   (content
+	    (tq-render-template (list "package" package
+				      "activity" activity) tq-android-activity-class-template)))
+      (unless (file-exists-p parent-directory)
+	(make-directory parent-directory t))
+      (tq-create-file java-file-name content))
+
+    ;; 生成app/src/main/java/$PACKAGE/State.java
+    (print "建立State.java文件")
+    (let* ((java-file-name (expand-file-name
+			    (concat
+			     "app/src/main/java/"
+			     (replace-regexp-in-string "\\." "/" package)
+			     "/State.java")
+			    project-path))
+	   (parent-directory (file-name-directory java-file-name))
+	   (content
+	    (tq-render-template (list "package" package)
+				tq-android-databinding-state-class-template)))
+      (unless (file-exists-p parent-directory)
+	(make-directory parent-directory t))
+      (tq-create-file java-file-name content))
+    
+    ;; 生成app/src/main/res/layout/activity_main.xml
+    (print "建立布局文件")
+    (let ((filename
+	   (expand-file-name "app/src/main/res/layout/activity_main.xml" project-path))
+	  (content
+	   (tq-render-template (list "package" package) tq-android-layout-xml-template)))
+      (tq-create-file filename content))
+
+    ;; TODO 生成State类。
+    ;; TODO 初始化git仓库
+    ;; TODO 提交git仓库
+    ;; TODO 生成strings.xml
+    ))
+
+
+(defconst tq-android-databinding-state-class-template
+  "package ${package};
+
+public class State {
+        public final String message = \"HELLO, WORLD!\";
+}
+")

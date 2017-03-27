@@ -4,4 +4,5 @@
 (load "tq-dev.el")
 (load "tq-style.el")
 (load "tq-frame.el")
+(load "tq-note.el")
 
