@@ -7,15 +7,15 @@
 (setq org-publish-project-alist
       `(
         ("org-notes"
-         :base-directory ,(concat tq-note-path "Text")
+         :base-directory ,tq-note-path
          :base-extension "txt"
-         :publishing-directory ,(concat tq-note-path "HTML")
+         :publishing-directory ,tq-note-path
          :recursive t
          :publishing-function org-html-publish-to-html
          :headline-levels 4          
          :auto-preamble nil
          :auto-sitemap t
-         ;; :sitemap-filename "sitemap.org"
+	 :sitemap-filename "sitemap.txt"
          :sitemap-title "sitemap"
          :section-numbers nil
          :table-of-contents t
