@@ -647,15 +647,16 @@ buildscript {
       (push pattern pairs))
     (tq-replace-regexp-pairs pairs template)))
 
-(defun tq-create-android-project (root-path
-				  project-name
-				  compile-sdk-version
-				  build-tools-version
-				  package
-				  activity
-				  label
-				  version-code
-				  version-name)
+(defun tq-create-android-app-project (root-path
+				      project-name
+				      compile-sdk-version
+				      build-tools-version
+				      package
+				      activity
+				      label
+				      version-code
+				      version-name
+				      )
   "创建Android工程。
 
 参数
