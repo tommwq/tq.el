@@ -8,37 +8,29 @@
         classpath 'com.android.tools.build:gradle:2.3.0+'
     }
 }
-apply plugin: 'android-library'
 
-android {
-    compileSdkVersion '${compileSdkVersion}'
-    buildToolsVersion '${buildToolsVersion}'
-}
+apply plugin: 'java'
+
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
 ")
 
-(defun tq-create-android-jar-project (
-				      root-path
+(defun tq-create-android-jar-project (root-path
 				      project-name
-				      compile-sdk-version
-				      build-tools-version)
+				      )
   "建立Android JAR库工程。
 
 参数
 
 root-path 根目录
 project-name 工程名
-compile-sdk-version SDK版本
-build-tools-version 构建工具版本"
+"
   (interactive
    "sRootPath: 
-sProjectName: 
-sCompileSDKVersion: 
-sBuildToolsVersion: ")
+sProjectName: ")
 
   ;; 初始化环境。
-  (setenv "PATH"
-	  (concat (getenv "PATH") ";C:/Program Files/Git/bin/")
-	  )
+  (setenv "PATH" (concat (getenv "PATH") ";C:/Program Files/Git/bin/"))
 
   ;; 初始化工程根目录。
   ;; Android JAR工程目录结构如下：
@@ -49,9 +41,10 @@ sBuildToolsVersion: ")
     (when (file-exists-p path)
       (error "Project directory existed. path: %s" path))
     (make-directory path t)
-    (dolist (subdir '(
-		     "src/main/java"
-		     "src/test/java"))
+    (dolist (subdir '("src/main/java"
+		      "src/test/java"
+		      )
+		    )
       (make-directory (expand-file-name subdir path) t)
       (print (expand-file-name path subdir))
       )
@@ -59,13 +52,7 @@ sBuildToolsVersion: ")
   ;; 生成build.gradle。
   (let* ((path (expand-file-name project-name root-path))
 	 (filename (expand-file-name "build.gradle" path))
-	 (content (tq-render-template
-		   (list "compileSdkVersion" compile-sdk-version
-			 "buildToolsVersion" build-tools-version
-			 )
-		   tq-android-jar-build-gradle-template
-		   )
-		  )
+	 (content tq-android-jar-build-gradle-template)
 	 )
     (tq-create-file filename content)
     )
