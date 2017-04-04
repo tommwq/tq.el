@@ -16,16 +16,20 @@
   (fset 'yes-or-no-p 'y-or-n-p)
   
   ;; 设置字体
-  ;; (set-frame-font "Liberation Mono-12")
-  (set-frame-font "Source Code Pro-11")
-  ;; (set-frame-font "PT Mono-12")
-  ;; (set-frame-font "Roboto Mono-12")
+  (progn
+    ;; (set-frame-font "Liberation Mono-12")
+    (set-frame-font "Source Code Pro-10.5")
+    ;; (set-frame-font "PT Mono-12")
+    ;; (set-frame-font "Roboto Mono-12")
 
-  ;; 设置中文字体
-  (dolist (charset '(kana han symbol cjk-misc bopomofo))
-    (set-fontset-font t charset
-		      (font-spec :family "华文细黑" :size 16)))
-
+    ;; 设置中文字体
+    (dolist (charset '(kana han symbol cjk-misc bopomofo))
+      (set-fontset-font t
+			charset
+			(font-spec :family "华文细黑" :size 16)
+			)
+      )
+    )
   ;; 关闭启动界面
   (setq inhibit-startup-message t)
   (setq gnus-inhibit-startup-message t)
