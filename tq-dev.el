@@ -896,3 +896,120 @@ nCompileSDKVersion: ")
   )
 
 
+(defconst tq-android-aar-build-gradle-template
+  "
+buildscript {
+        repositories {
+                jcenter()
+        }
+        dependencies {
+                classpath 'com.android.tools.build:gradle:2.3+'
+        }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+        compileSdkVersion ${compileSdkVersion}
+        buildToolsVersion '${buildToolsVersion}'
+}
+"
+  "Android工程aar模块build.gradle文件模板。")
+
+(defconst tq-android-aar-manifest-xml-template
+  "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"
+	  package=\"${package}\"
+	  android:versionCode=\"${versionCode}\"
+	  android:versionName=\"${versionName}\">
+</manifest> 
+"
+  "AAR工程的AndroidManifest.xml文件模板。")
+
+(defun tq-create-android-aar-project (root-path
+				      project-name
+				      compile-sdk-version
+				      build-tools-version
+				      package
+				      version-code
+				      version-name
+				      )
+  "创建Android AAR工程。
+
+参数
+
+root-path 工程路径
+project-name 工程名称
+compile-sdk-version AndroidSDK版本
+build-tools-version BuildTools版本
+package
+version-code
+version-name
+
+工程目录结构
+
+新建的工程位于root-path下的project-name目录。project-name目录结构同gradle要求的一致，并增加了一些新的子目录。其结构如下
+build.gradle 工程的Gradle脚本
+build.gradle 应用的Gradle脚本
+src/main/java/ 应用源代码目录
+src/main/res 资源文件目录
+"
+  (interactive "sRootPath: 
+sProjectName: 
+sCompileSDKVersion: 
+sBuildToolsVersion: 
+sPackage: 
+sVersionCode: 
+sVersionName: ")
+  (let* ((project-path (expand-file-name
+			project-name
+			(expand-file-name root-path)
+			))
+	 (subdirs (list
+		   "src/main/java/"
+		   "src/main/res/layout"
+		   )))
+    ;; 创建工程目录
+    (print "建立工作目录")
+    (when (file-exists-p project-path)
+      (error "Directory existed. path: %s." project-path))
+    (make-directory project-path t)
+    (dolist (subdir subdirs)
+      (make-directory (expand-file-name subdir project-path) t))
+
+    ;; 生成aar模块build.gradle
+    (print "建立模块build.gradle文件")
+    (let ((filename
+	   (expand-file-name "build.gradle" project-path))
+	  (content
+	   (tq-render-template (list "applicationId" package
+				     "compileSdkVersion" compile-sdk-version
+				     "buildToolsVersion" build-tools-version
+				     "versionCode" version-code
+				     "versionName" version-name)
+			       tq-android-aar-build-gradle-template)))
+      (tq-create-file filename content))
+
+    ;; 生成src/main/AndroidManifest.xml
+    (print "建立AndroidManifest.xml文件")
+    (let ((filename (expand-file-name
+		     "src/main/AndroidManifest.xml"
+		     project-path
+		     ))
+	  (content (tq-render-template
+		    (list
+		     "package" package
+		     "versionCode" version-code
+		     "versionName" version-name
+		     )
+		    tq-android-aar-manifest-xml-template
+		    )
+		   )
+	  )
+      (tq-create-file filename content)
+      )
+    )
+  )
+
+
+
