@@ -526,7 +526,7 @@ return this;
   "Android工程布局文件模板。")
 
 (defconst tq-android-activity-class-template
-  "package ${package};
+  "package ${package}.activity;
 
 import android.app.Activity;
 import android.databinding.DataBindingUtil;
@@ -802,8 +802,6 @@ public class State {
 }
 ")
 
-
-
 (defconst tq-android-jar-build-gradle-template
   "buildscript {
     repositories {
@@ -818,10 +816,27 @@ apply plugin: 'java'
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
+
+// see http://stackoverflow.com/questions/25040445/which-is-the-proper-gradle-plugin-to-support-provided-method
+configurations {
+        provided
+}
+
+sourceSets {
+        main {
+                compileClasspath += configurations.provided
+        }
+}
+
+dependencies {
+        provided files('${androidJar}')
+}
+
 ")
 
 (defun tq-create-android-jar-project (root-path
 				      project-name
+				      compile-sdk-version
 				      )
   "建立Android JAR库工程。
 
@@ -829,10 +844,12 @@ targetCompatibility = JavaVersion.VERSION_1_7
 
 root-path 根目录
 project-name 工程名
+compile-sdk-version 编译SDK版本
 "
   (interactive
    "sRootPath: 
-sProjectName: ")
+sProjectName: 
+nCompileSDKVersion: ")
 
   ;; 初始化环境。
   (setenv "PATH" (concat (getenv "PATH") ";C:/Program Files/Git/bin/"))
@@ -857,7 +874,15 @@ sProjectName: ")
   ;; 生成build.gradle。
   (let* ((path (expand-file-name project-name root-path))
 	 (filename (expand-file-name "build.gradle" path))
-	 (content tq-android-jar-build-gradle-template)
+	 (content
+	  (tq-render-template (list "androidJar"
+				    (concat (getenv "ANDROID_HOME")
+					    (format "/platforms/android-%d/android.jar" compile-sdk-version)
+					    )
+				    )
+			      tq-android-jar-build-gradle-template
+			      )
+	  )
 	 )
     (tq-create-file filename content)
     )
@@ -869,4 +894,5 @@ sProjectName: ")
 
   ;; TODO 提交git。
   )
+
 
