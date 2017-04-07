@@ -3,3 +3,4 @@
 
 (setq tq-font "Source Code Pro-10.5")
 (setq tq-chinese-font "方正小标宋简体")
+(setq tq-work-directory "~/Data/")
