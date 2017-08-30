@@ -1,6 +1,19 @@
 (provide 'tq)
 
-(defun init-frame ()
+(defun set-encodings ()
+  "设置字符编码。"
+  (setf file-name-coding-system 'utf-8
+        default-file-name-coding-system 'utf-8-unix
+        default-buffer-file-coding-system 'utf-8-unix)
+  (set-language-environment "UTF-8")
+  ;; 设置文件缓冲区默认保存编码。
+  (set-buffer-file-coding-system 'utf-8-unix)
+  (prefer-coding-system 'chinese-gbk-dos)
+  (prefer-coding-system 'chinese-gbk-unix)
+  (prefer-coding-system 'utf-8-dos)
+  (prefer-coding-system 'utf-8-unix))
+
+(defun tq-init-frame ()
   "初始化窗口。"
 
   ;; 隐藏菜单栏
@@ -16,25 +29,13 @@
   (fset 'yes-or-no-p 'y-or-n-p)
   
   ;; 设置字体
-  (let ((font (if
-		  (boundp 'tq-font)
-		  tq-font
-		"Consolas-10.5"))
-	(chinese-font (if
-			  (boundp 'tq-chinese-font)
-			  tq-chinese-font
-			"微软雅黑"))
-	)
-    (set-frame-font font)
+  (set-frame-font tq-font)
 
-    ;; 设置中文字体
-    (dolist (charset '(kana han symbol cjk-misc bopomofo))
-      (set-fontset-font t
-			charset
-			(font-spec :family chinese-font :size 14)
-			)
-      )
-    )
+  ;; 设置中文字体
+  (dolist (charset '(kana han symbol cjk-misc bopomofo))
+    (set-fontset-font t
+		      charset
+		      (font-spec :family tq-chinese-font :size tq-chinese-font-size)))
 
   ;; 关闭启动界面
   (setq inhibit-startup-message t)
@@ -43,14 +44,14 @@
   ;; 显示行号
   (global-linum-mode t)
 
+  ;; 显示列号
+  (setq column-number-mode t)
+
   ;; 设置工作目录
   (setq default-directory "C:\\Users\\WangQian\\Workspace")
   
   ;; 设置备份目录
   (setq backup-directory-alist (quote (("." . "C:/Users/WangQian/Workspace/AutoBackup"))))
-  
-  ;; 设置日记目录
-  (setq diary-file "C:\\Users\\WangQian\\Workspace\\Diary")
   
   ;; 设置命令搜索路径
   (add-to-list 'exec-path "C:\\Program Files\\Git\\bin")
@@ -65,7 +66,7 @@
   
   ;; 高亮当前行
   (global-hl-line-mode t)
-  ;;(set-cursor-color "white")
+  (set-cursor-color "white")
   
   ;; 启用自动保存
   (setq auto-save-mode t)
@@ -87,7 +88,8 @@
   (global-set-key [f3] 'isearch-forward)
 
   ;; 光标样式
-  (setq default-cursor-type 'hbar)
+  (setq default-cursor-type 'box)
+  (set-cursor-color "orange")
 
   ;; 
   (setq visible-bell t)
@@ -123,20 +125,6 @@
   (setf nxml-attribute-indent 8)
 
   ;; 编码
-  (set-encodings))
+  (set-encodings)
 
-(defun set-encodings ()
-  "设置字符编码。"
-  (setf file-name-coding-system 'utf-8
-        default-file-name-coding-system 'utf-8-unix
-        default-buffer-file-coding-system 'utf-8-unix)
-  (set-language-environment "UTF-8")
-  ;; 设置文件缓冲区默认保存编码。
-  (set-buffer-file-coding-system 'utf-8-unix)
-  (prefer-coding-system 'chinese-gbk-dos)
-  (prefer-coding-system 'chinese-gbk-unix)
-  (prefer-coding-system 'utf-8-dos)
-  (prefer-coding-system 'utf-8-unix))
-
-
-
+  (message "TQ-INIT-FRAME DONE."))

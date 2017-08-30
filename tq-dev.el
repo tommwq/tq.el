@@ -1013,3 +1013,175 @@ sVersionName: ")
 
 
 
+
+(defun tq-java-package-to-directory (package)
+  (replace-regexp-in-string "\\." "/" package))
+
+(defconst kotlin-android-gitignore-content "
+build/
+.gradle
+")
+
+(defconst kotlin-android-build-gradle-content "
+
+buildscript {
+        ext.kotlin_version = \"1.1.2-2\"
+
+        repositories {
+                mavenCentral()
+                jcenter()
+        }
+
+        dependencies {
+                classpath \"com.android.tools.build:gradle:2.2.0\"
+                classpath \"org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version\"
+        }
+}
+
+
+apply plugin: \"com.android.application\"
+apply plugin: \"kotlin-android\"
+
+repositories {
+        mavenCentral()
+        jcenter()
+}
+
+dependencies {
+        compile \"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version\"
+}
+
+// kotlin.incremental = true
+android {
+        compileSdkVersion 19
+        buildToolsVersion \"25.0.2\"
+
+        compileOptions {
+                sourceCompatibility JavaVersion.VERSION_1_7
+                targetCompatibility JavaVersion.VERSION_1_7
+        }
+        
+}
+
+")
+
+(defconst kotlin-android-layout-xml-content "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"
+	      android:orientation=\"vertical\"
+	      android:layout_width=\"fill_parent\"
+	      android:layout_height=\"fill_parent\"
+	      >
+	<TextView
+		android:layout_width=\"fill_parent\"
+		android:layout_height=\"wrap_content\"
+		android:text=\"HELLO WORLD!\"
+		/>
+</LinearLayout>
+")
+
+(defconst kotlin-android-androidmanifest-xml-format
+  "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"
+	  package=\"${package}\"
+	  android:versionCode=\"1\"
+	  android:versionName=\"1.00\">
+
+	<application android:label=\"helloworld\">
+		<activity android:name=\".activity.MainActivity\"
+			  android:label=\"helloworld\">
+			<intent-filter>
+				<action android:name=\"android.intent.action.MAIN\" />
+				<category android:name=\"android.intent.category.LAUNCHER\" />
+			</intent-filter>
+		</activity>
+	</application>
+
+ 	<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>
+</manifest> 
+
+")
+
+
+
+(defconst kotlin-android-activity-format
+  "package ${package}.activity;
+
+import android.os.Bundle
+import android.app.Activity
+import ${package}.R
+
+class MainActivity: Activity() {
+
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		setContentView(R.layout.main)
+	}
+}
+")
+
+(defun tq-create-kotlin-android-app-project (project-name
+					     package)
+  (interactive "sProjectName: 
+sPackage: ")
+
+  ;; create project directory
+  (make-directory project-name t)
+
+  ;; create .gitignore
+  (tq-create-file
+   (expand-file-name
+    ".gitignore"
+    project-name)
+   kotlin-android-gitignore-content)
+
+  ;; create build.gradle
+  (tq-create-file
+   (expand-file-name
+    "build.gradle"
+    project-name)
+   kotlin-android-build-gradle-content)
+
+  ;; mkdir src/main/res/layout
+  (make-directory
+   (expand-file-name
+    "src/main/res/layout"
+    project-name)
+   t)
+
+  ;; mkdir src/main/java/{package}/activity
+  (make-directory
+   (expand-file-name
+    (concat "src/main/java/"
+	    (tq-java-package-to-directory package)
+	    "/activity/")
+    project-name)
+   t)
+
+  ;; create src/main/java/{package}/activity/MainActivity.kt
+  (let ((filename (expand-file-name
+		   (concat "src/main/java/"
+			   (tq-java-package-to-directory package)
+			   "/activity/MainActivity.kt")
+		   project-name))
+	(content
+	 (tq-replace-regexp-pairs
+	  (list "${package}" package)
+	  kotlin-android-activity-format)))
+    (tq-create-file filename content))
+
+  ;; create src/main/AndroidManifest.xml
+  (tq-create-file
+   (expand-file-name
+    "src/main/AndroidManifest.xml"
+    project-name)
+   (tq-replace-regexp-pairs
+    (list "${package}" package)
+    kotlin-android-androidmanifest-xml-format))
+
+  ;; create src/main/res/layout/main.xml
+  (tq-create-file
+   (expand-file-name
+    "src/main/res/layout/main.xml"
+    project-name)
+   kotlin-android-layout-xml-content))
+
