@@ -23,5 +23,3 @@
   (interactive)
   (insert
    (format-time-string "%Y年%m月%d日")))
-
-

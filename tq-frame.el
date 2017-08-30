@@ -16,25 +16,17 @@
   (fset 'yes-or-no-p 'y-or-n-p)
   
   ;; 设置字体
-  (let ((font (if
-		  (boundp 'tq-font)
+  (let ((font (if (boundp 'tq-font)
 		  tq-font
 		"Consolas-10.5"))
-	(chinese-font (if
-			  (boundp 'tq-chinese-font)
+	(chinese-font (if (boundp 'tq-chinese-font)
 			  tq-chinese-font
-			"微软雅黑"))
-	)
+			"微软雅黑")))
     (set-frame-font font)
 
     ;; 设置中文字体
     (dolist (charset '(kana han symbol cjk-misc bopomofo))
-      (set-fontset-font t
-			charset
-			(font-spec :family chinese-font :size 14)
-			)
-      )
-    )
+      (set-fontset-font t charset (font-spec :family chinese-font :size 22))))
 
   ;; 关闭启动界面
   (setq inhibit-startup-message t)
@@ -65,7 +57,7 @@
   
   ;; 高亮当前行
   (global-hl-line-mode t)
-  ;;(set-cursor-color "white")
+  (set-cursor-color "white")
   
   ;; 启用自动保存
   (setq auto-save-mode t)
@@ -87,8 +79,8 @@
   (global-set-key [f3] 'isearch-forward)
 
   ;; 光标样式
-  (setq default-cursor-type 'hbar)
-
+  (setq default-cursor-type 'box)
+  (set-cursor-color "orange")
   ;; 
   (setq visible-bell t)
 
