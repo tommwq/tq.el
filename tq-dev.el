@@ -95,30 +95,24 @@ the even ones are replacements."
     (save-buffer)))
 
 (defun tq-gen-org-file (title)
-  "Generate org file header."
+  "生成org文件头。"
   (let* ((lines '("# -*- mode: org -*-\n"
-		  "#+title: ${title}\n"
-		  "#+author: Wang Qian\n"
-		  "#+date: ${date}\n"
-		  "#+startup: showeverything\n"
+		  "#+TITLE: ${title}\n"
+		  "#+AUTHOR: 汪千\n"
+		  "#+DATE: ${date}\n"
+		  "#+STARTUP: SHOWEVERYTHING\n"
+		  "#+TODO: TODO(t) WAIT(w@/!) | DONE(d!) CANCELED(c@)"
 		  "\n"))
 	 (date (format-time-string "%Y-%m-%d"))
 	 (replace-pairs (list "${date}" date
 			      "${title}" title)))
     (tq-replace-regexp-pairs replace-pairs (apply #'concat lines))))
 
-(defun tq-init-org-file (title)
-  "Initialize a org file, insert org header lines, and switch on org-mode."
-  (interactive "sTitle: ")
-  (let ((text (tq-gen-org-file title)))
-    (beginning-of-buffer)
-    (insert text)
-    (org-mode)))
-
-(defun tq-create-org-file (filename title)
-  "Create and initialize a org file."
-  (interactive "sFilename: \nsTitle: ")
-  (let ((text (tq-gen-org-file title)))
+(defun tq-create-org-file (filename)
+  "建立并初始化org文件。"
+  (interactive "sFileName: ")
+  (let* ((title (file-name-base filename))
+	 (text (tq-gen-org-file title)))
     (tq-create-file-then-open filename text)
     (org-mode)))
 

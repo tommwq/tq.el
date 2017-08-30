@@ -1,5 +1,6 @@
 (provide 'tq)
 
+
 (defun set-encodings ()
   "设置字符编码。"
   (setf file-name-coding-system 'utf-8
@@ -12,6 +13,7 @@
   (prefer-coding-system 'chinese-gbk-unix)
   (prefer-coding-system 'utf-8-dos)
   (prefer-coding-system 'utf-8-unix))
+
 
 (defun tq-init-frame ()
   "初始化窗口。"
@@ -48,7 +50,7 @@
   (setq column-number-mode t)
 
   ;; 设置工作目录
-  (setq default-directory "C:\\Users\\WangQian\\Workspace")
+  (setq default-directory tq-work-directory)
   
   ;; 设置备份目录
   (setq backup-directory-alist (quote (("." . "C:/Users/WangQian/Workspace/AutoBackup"))))
@@ -78,7 +80,7 @@
   (mouse-avoidance-mode 'animate)
 
   ;; 全屏显示
-  (w32-maximize-window)
+  ;; (w32-maximize-window)
 
   ;;(desktop-save-mode 1)
   ;;(setq desktop-dirname "~/")
@@ -90,7 +92,6 @@
   ;; 光标样式
   (setq default-cursor-type 'box)
   (set-cursor-color "orange")
-
   ;; 
   (setq visible-bell t)
 

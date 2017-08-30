@@ -24,7 +24,6 @@
   (insert
    (format-time-string "%Y年%m月%d日")))
 
-
 (defun inch-to-centimeter (inch)
   "将英寸转换为厘米。"
   (* inch 2.54))
@@ -79,3 +78,4 @@ height-pixels 屏幕长像素数。
   (if (zerop (length s))
       ""
     (string (nth 0 (string-to-list s)))))
+
