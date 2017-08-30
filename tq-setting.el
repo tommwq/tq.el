@@ -13,5 +13,5 @@
 (setq tq-font "Georgia-16")
 (setq tq-chinese-font "华文宋体")
 
-
+(setq tq-work-directory "c:/Users/WangQian/Workspace/")
 
