@@ -101,7 +101,7 @@ the even ones are replacements."
 		  "#+AUTHOR: 汪千\n"
 		  "#+DATE: ${date}\n"
 		  "#+STARTUP: SHOWEVERYTHING\n"
-		  "#+TODO: TODO(t) WAIT(w@/!) | DONE(d!) CANCELED(c@)"
+		  "#+TODO: TODO(t) IN-ACTION(i@/!) WAIT(w@/!) | DONE(d!) CANCELED(c@)"
 		  "\n"))
 	 (date (format-time-string "%Y-%m-%d"))
 	 (replace-pairs (list "${date}" date

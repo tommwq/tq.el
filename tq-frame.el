@@ -1,5 +1,10 @@
 (provide 'tq)
 
+(defun set-org-todo-keywords ()
+  (setq org-todo-keywords
+	'((sequence "TODO(t)" "IN-ACTION(i@/!)" "WAIT(w@/!)"
+		    "|"
+		    "DONE(d!)" "CANCELED(c@)"))))
 
 (defun set-encodings ()
   "设置字符编码。"
@@ -128,4 +133,5 @@
   ;; 编码
   (set-encodings)
 
-  (message "TQ-INIT-FRAME DONE."))
+  (message "TQ-INIT-FRAME DONE.")
+  (set-org-todo-keywords))
