@@ -140,5 +140,8 @@
   ;; 添加shell-mode钩子。
   (add-hook 'shell-mode-hook 'tq-initialize-shell-mode)
 
+  ;; 显示时间
+  (setq display-time-mode t)
+
   (message "TQ-INIT-FRAME DONE.")
   (set-org-todo-keywords))
