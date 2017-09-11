@@ -1,5 +1,9 @@
 (provide 'tq)
 
+(defun tq-initialize-shell-mode ()
+  "避免使用shell模式启动PowerShell时中文文件名出现乱码。"
+  (set-buffer-process-coding-system 'gbk 'gbk))
+
 (defun set-org-todo-keywords ()
   (setq org-todo-keywords
 	'((sequence "TODO(t)" "IN-ACTION(i@/!)" "WAIT(w@/!)"
@@ -132,6 +136,9 @@
 
   ;; 编码
   (set-encodings)
+
+  ;; 添加shell-mode钩子。
+  (add-hook 'shell-mode-hook 'tq-initialize-shell-mode)
 
   (message "TQ-INIT-FRAME DONE.")
   (set-org-todo-keywords))
