@@ -78,6 +78,7 @@
   ;; 高亮当前行
   (global-hl-line-mode t)
   (set-cursor-color "white")
+  (set-face-attribute hl-line-face nil :underline t)
   
   ;; 启用自动保存
   (setq auto-save-mode t)
@@ -142,6 +143,7 @@
 
   ;; 显示时间
   (setq display-time-mode t)
+  (display-time-mode 1)
 
   (message "TQ-INIT-FRAME DONE.")
   (set-org-todo-keywords))
