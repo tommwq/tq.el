@@ -1179,3 +1179,20 @@ sPackage: ")
     project-name)
    kotlin-android-layout-xml-content))
 
+(defun gen-latex-code-sample (code)
+  "生成LaTeX代码示例。"
+(let ((fmt "
+\\begin{tabular}{@{} l @{} l @{}}
+\\begin{minipage}{3in}
+\\begin{verbatim}
+%s
+\\end{verbatim}
+\\end{minipage}
+&
+\\begin{minipage}{3in}
+%s
+\\end{minipage}
+\\end{tabular}
+"))
+  (format fmt code code)))
+

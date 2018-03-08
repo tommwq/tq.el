@@ -35,6 +35,11 @@
   
   ;; 隐藏滚动条
   (scroll-bar-mode -1)
+
+  (setq display-time-day-and-date 1)
+  (display-time-mode 1)
+
+  ;; (setq display-time-24hr-format t)
   
   ;; 启用缩写
   (fset 'yes-or-no-p 'y-or-n-p)
@@ -78,7 +83,8 @@
   ;; 高亮当前行
   (global-hl-line-mode t)
   (set-cursor-color "white")
-  
+  (set-face-attribute hl-line-face nil :underline t)
+
   ;; 启用自动保存
   (setq auto-save-mode t)
 
