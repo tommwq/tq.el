@@ -3,7 +3,7 @@
 ;; 2018年03月08日
 
 ;; todo
-  ;; TODO init shell env
+;; TODO init shell env
 ;; tq-gradle-program
 ;; tq-gen-lisp-file
 ;; tq-init-lisp-file
@@ -754,7 +754,7 @@ buildscript {
 "
   "Android工程app模块build.gradle文件模板。")
 
-(defun tq-render-template (variable-pairs template)
+(defun tq-execute-template (variable-pairs template)
   "渲染模板。将模板中的${foo}替换为variable-pairs中foo对应的值。"
   (let ((pairs nil)
 	(pattern "")
@@ -845,23 +845,23 @@ sVersionName: ")
     (let ((filename
 	   (expand-file-name "app/build.gradle" project-path))
 	  (content
-	   (tq-render-template (list "applicationId" package
-				     "compileSdkVersion" compile-sdk-version
-				     "buildToolsVersion" build-tools-version
-				     "versionCode" version-code
-				     "versionName" version-name)
-			       tq-android-app-build-gradle-template)))
+	   (tq-execute-template (list "applicationId" package
+				      "compileSdkVersion" compile-sdk-version
+				      "buildToolsVersion" build-tools-version
+				      "versionCode" version-code
+				      "versionName" version-name)
+				tq-android-app-build-gradle-template)))
       (tq-create-file filename content))
 
     ;; 生成app/src/main/AndroidManifest.xml
     (print "建立AndroidManifest.xml文件")
     (let ((filename
 	   (expand-file-name "app/src/main/AndroidManifest.xml" project-path))
-	  (content (tq-render-template (list "package" package
-					     "versionCode" version-code
-					     "versionName" version-name
-					     "label" label
-					     "activity" activity) tq-android-manifest-xml-template)))
+	  (content (tq-execute-template (list "package" package
+					      "versionCode" version-code
+					      "versionName" version-name
+					      "label" label
+					      "activity" activity) tq-android-manifest-xml-template)))
       (tq-create-file filename content))
 
     ;; 生成app/src/main/java/$PACKAGE/activity/$ACTIVITY.java
@@ -876,8 +876,8 @@ sVersionName: ")
 			    project-path))
 	   (parent-directory (file-name-directory java-file-name))
 	   (content
-	    (tq-render-template (list "package" package
-				      "activity" activity) tq-android-activity-class-template)))
+	    (tq-execute-template (list "package" package
+				       "activity" activity) tq-android-activity-class-template)))
       (unless (file-exists-p parent-directory)
 	(make-directory parent-directory t))
       (tq-create-file java-file-name content))
@@ -892,8 +892,8 @@ sVersionName: ")
 			    project-path))
 	   (parent-directory (file-name-directory java-file-name))
 	   (content
-	    (tq-render-template (list "package" package)
-				tq-android-databinding-state-class-template)))
+	    (tq-execute-template (list "package" package)
+				 tq-android-databinding-state-class-template)))
       (unless (file-exists-p parent-directory)
 	(make-directory parent-directory t))
       (tq-create-file java-file-name content))
@@ -903,7 +903,7 @@ sVersionName: ")
     (let ((filename
 	   (expand-file-name "app/src/main/res/layout/activity_main.xml" project-path))
 	  (content
-	   (tq-render-template (list "package" package) tq-android-layout-xml-template)))
+	   (tq-execute-template (list "package" package) tq-android-layout-xml-template)))
       (tq-create-file filename content))
 
     ;; TODO 生成State类。
@@ -994,13 +994,13 @@ nCompileSDKVersion: ")
   (let* ((path (expand-file-name project-name root-path))
 	 (filename (expand-file-name "build.gradle" path))
 	 (content
-	  (tq-render-template (list "androidJar"
-				    (concat (getenv "ANDROID_HOME")
-					    (format "/platforms/android-%d/android.jar" compile-sdk-version)
-					    )
-				    )
-			      tq-android-jar-build-gradle-template
-			      )
+	  (tq-execute-template (list "androidJar"
+				     (concat (getenv "ANDROID_HOME")
+					     (format "/platforms/android-%d/android.jar" compile-sdk-version)
+					     )
+				     )
+			       tq-android-jar-build-gradle-template
+			       )
 	  )
 	 )
     (tq-create-file filename content)
@@ -1101,12 +1101,12 @@ sVersionName: ")
     (let ((filename
 	   (expand-file-name "build.gradle" project-path))
 	  (content
-	   (tq-render-template (list "applicationId" package
-				     "compileSdkVersion" compile-sdk-version
-				     "buildToolsVersion" build-tools-version
-				     "versionCode" version-code
-				     "versionName" version-name)
-			       tq-android-aar-build-gradle-template)))
+	   (tq-execute-template (list "applicationId" package
+				      "compileSdkVersion" compile-sdk-version
+				      "buildToolsVersion" build-tools-version
+				      "versionCode" version-code
+				      "versionName" version-name)
+				tq-android-aar-build-gradle-template)))
       (tq-create-file filename content))
 
     ;; 生成src/main/AndroidManifest.xml
@@ -1115,7 +1115,7 @@ sVersionName: ")
 		     "src/main/AndroidManifest.xml"
 		     project-path
 		     ))
-	  (content (tq-render-template
+	  (content (tq-execute-template
 		    (list
 		     "package" package
 		     "versionCode" version-code
@@ -1609,7 +1609,7 @@ sPackage: ")
                      nil)
                     root))
 
-(setf tq-spring-config-template "
+(defconst tq-spring-config-template "
 <beans xmlns=\"http://www.springframework.org/schema/beans\"
        xmlns:context=\"http://www.springframework.org/schema/context\"
        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
@@ -1632,14 +1632,14 @@ sPackage: ")
 
 	<mvc:resources mapping=\"/resources/**\" location=\"/resources/\" />
         <context:annotation-config/>
-        <bean id=\"helloService\" class=\"${Package}.service.HelloServiceProvider\" />        
+        <bean id=\"helloService\" class=\"${Package}.serviceprovider.HelloServiceProvider\" />        
 
 	<mvc:annotation-driven />
 
 </beans>
 ")
 
-(setf tq-spring-mvc-web-xml-content "
+(defconst tq-spring-mvc-web-xml-content "
 <web-app version=\"3.1\"
 	 xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"
 	 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
@@ -1663,7 +1663,7 @@ sPackage: ")
 ")
 
 
-(setf tq-spring-mvc-build-gradle "
+(defconst tq-spring-web-build-gradle "
 apply plugin: 'java'
 apply plugin: 'war'
 
@@ -1680,12 +1680,12 @@ dependencies {
 }  
 ")
 
-(setf tq-service-template "
-package ${Package}.service;
+(defconst tq-spring-web-serviceprovider-template "
+package ${Package}.serviceprovider;
 
-import ${Package}.api.HelloService;
-import ${Package}.api.HelloService.Request;
-import ${Package}.api.HelloService.Response;
+import ${Package}.service.HelloService;
+import ${Package}.service.HelloService.Request;
+import ${Package}.service.HelloService.Response;
 
 public class HelloServiceProvider implements HelloService {
         public Response hello(Request request) {
@@ -1697,8 +1697,8 @@ public class HelloServiceProvider implements HelloService {
 ")
 
 
-(setf tq-service-api-template "
-package ${Package}.api;
+(defconst tq-spring-web-service-template "
+package ${Package}.service;
 
 public interface HelloService {
         
@@ -1717,7 +1717,7 @@ public interface HelloService {
 }
 ")
 
-(setf tq-controller-template "
+(defconst tq-spring-web-controller-template "
 package ${Package}.controller;
 
 import java.util.Map;
@@ -1791,7 +1791,7 @@ sPackage: ")
 
     ;; 生成build.gradle
     (tq-write-file (tq-join-path project-directory "build.gradle")
-                   tq-spring-mvc-build-gradle t)
+                   tq-spring-web-build-gradle t)
 
     ;; 生成Java代码
     (tq-write-file
@@ -1799,30 +1799,30 @@ sPackage: ")
                    "src/main/java/"
                    (replace-regexp-in-string "\\." "/" package)
                    "controller/Hello.java")
-     (tq-render-template
+     (tq-execute-template
       (list "Package"
             package)
-      tq-controller-template))
+      tq-spring-web-controller-template))
 
     (tq-write-file
      (tq-join-path project-directory
                    "src/main/java/"
                    (replace-regexp-in-string "\\." "/" package)
-                   "api/HelloService.java")
-     (tq-render-template
+                   "service/HelloService.java")
+     (tq-execute-template
       (list "Package"
             package)
-      tq-service-api-template))
+      tq-spring-web-service-template))
 
     (tq-write-file
      (tq-join-path project-directory
                    "src/main/java/"
                    (replace-regexp-in-string "\\." "/" package)
-                   "service/HelloServiceProvider.java")
-     (tq-render-template
+                   "serviceprovider/HelloServiceProvider.java")
+     (tq-execute-template
       (list "Package"
             package)
-      tq-service-template))
+      tq-spring-web-serviceprovider-template))
     
     ;; 生成web.xml
     (tq-write-file (tq-join-path project-directory "src/main/webapp/WEB-INF/web.xml")
@@ -1831,12 +1831,10 @@ sPackage: ")
     
     ;; 生成context config文件
     (tq-write-file (tq-join-path project-directory "src/main/webapp/WEB-INF/spring-mvc-config.xml")
-                   (tq-render-template (list "Package" package) tq-spring-config-template)
+                   (tq-execute-template (list "Package" package) tq-spring-config-template)
                    t)
 
     ;; 初始化git仓库
-    (message project-directory)
-    (message (tq-join-path project-directory ".gitignore"))
     (tq-new-gitignore (tq-join-path project-directory ""))
     (dolist (command (list "git init ."
                            "git add ."
@@ -1845,6 +1843,83 @@ sPackage: ")
     
     ;; 使用gradle 打包
     (tq-execute-shell "gradle war" project-directory)
+
+    ;; 打开工程目录
+    (find-file project-directory)))
+
+(defconst tq-spring-boot-app-template
+  "package ${Package};
+
+public class App {
+        public static void main(String[] args) {
+                System.out.println(\"ok\");
+        }
+}
+")
+
+(defconst tq-spring-boot-build-gradle
+  "buildscript {
+  repositories {
+    maven {
+      url 'https://plugins.gradle.org/m2/'
+    }
+  }
+  dependencies {
+    classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RELEASE'
+  }
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'java'
+
+bootJar {
+        mainClassName = 'com.foo.bar.App'
+}
+
+bootJar {
+        launchScript()
+}
+")
+
+(defun tq-new-spring-boot-app (root-directory
+			       project-name
+			       package)
+  "建立Spring Boot项目。"
+  (interactive "sRootDirectory: 
+sProjectName: 
+sPackage: ")
+  
+  (let ((project-directory (expand-file-name project-name root-directory)))
+    ;; 建立目录
+    (make-directory project-directory t)
+
+    ;; 初始化gradle
+    (tq-execute-shell "gradle init" project-directory)
+
+    ;; 生成build.gradle
+    (tq-write-file (tq-join-path project-directory "build.gradle")
+                   tq-spring-boot-build-gradle t)
+
+    ;; 生成Java代码
+    (tq-write-file
+     (tq-join-path project-directory
+                   "src/main/java/"
+                   (replace-regexp-in-string "\\." "/" package)
+                   "App.java")
+     (tq-execute-template
+      (list "Package"
+            package)
+      tq-spring-boot-app-template))
+
+    ;; 初始化git仓库
+    (tq-new-gitignore (tq-join-path project-directory ""))
+    (dolist (command (list "git init ."
+                           "git add ."
+                           "git commit -m \"initial commit\""))
+      (tq-execute-shell command project-directory))
+    
+    ;; 构建
+    (tq-execute-shell "gradle bootRun" project-directory)
 
     ;; 打开工程目录
     (find-file project-directory)))
