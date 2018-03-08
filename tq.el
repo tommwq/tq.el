@@ -3,6 +3,7 @@
 ;; 2018年03月08日
 
 ;; todo
+  ;; TODO init shell env
 ;; tq-gradle-program
 ;; tq-gen-lisp-file
 ;; tq-init-lisp-file
@@ -18,18 +19,12 @@
 ;; tq-init-note
 ;; tq-create-note
 ;; tq-gen-note
-;; tq-gen-gitignore
-;; tq-init-gitignore
-;; tq-create-gitignore
 ;; tq-gen-html
 ;; tq-init-html
 ;; tq-create-html
 ;; tq-create-gradle-project
-;; tq-create-cocos2dx-project
 ;; 函数gen-xxx用于生成对应的内容。
-;; 函数init-xxx用于将生成的内容写入当前缓冲区。
-;; 函数create-xxx用于创建新文件，将对应内容写入文件，并打开该文件。
-
+;; 函数new-xxx用于创建新文件，将对应内容写入文件，并打开该文件。
 
 (defun tq-update-chinese-font (symbol value)
   "设置tq-chinese-font或tq-chinese-font-size时调用。"
@@ -1467,8 +1462,6 @@ sPackage: ")
   (setf magit-git-executable tq-git-program)
   (setf python-shell-interpreter tq-python-program)
 
-  ;; TODO init shell env
-
   
   ;; 设置备份目录
   (setq backup-directory-alist (quote (("." . "C:/Users/WangQian/Workspace/AutoBackup"))))
@@ -1587,8 +1580,6 @@ sPackage: ")
 	 )
 	)
       )
-
-
 
 (defun tq-append-env-path (path)
   (setenv "PATH" (concat path ";" (getenv "PATH")))
@@ -1762,8 +1753,12 @@ public class Hello {
         (make-directory path t))
     (append-to-file content nil absolute-filename)))
 
-(defun tq-create-gitignore-file (filename)
-  (tq-write-file filename "
+(defun tq-new-gitignore (&optional path)
+  "建立gitignore文件"
+  (interactive "sPath: ")
+  (if (string-equal path "")
+      (setf path default-directory))
+  (tq-write-file (concat path "/.gitignore") "
 .gradle
 gradle/
 build/
@@ -1779,9 +1774,9 @@ gradlew.bat
 "))
 
 
-(defun tq-create-spring-mvc-project (root-directory
-                                     project-name
-                                     package)
+(defun tq-new-spring-web (root-directory
+			  project-name
+			  package)
   "建立Spring MVC项目。"
   (interactive "sRootDirectory: 
 sProjectName: 
@@ -1842,7 +1837,7 @@ sPackage: ")
     ;; 初始化git仓库
     (message project-directory)
     (message (tq-join-path project-directory ".gitignore"))
-    (tq-create-gitignore-file (tq-join-path project-directory ".gitignore"))
+    (tq-new-gitignore (tq-join-path project-directory ""))
     (dolist (command (list "git init ."
                            "git add ."
                            "git commit -m \"initial commit\""))
@@ -1854,15 +1849,13 @@ sPackage: ")
     ;; 打开工程目录
     (find-file project-directory)))
 
-
-
-(defun tq-create-pojo (start end)  
+(defun tq-gen-pojo (start end)  
   "convert a region to pojo source code.
 example:
+
 User
 String name
 String password
-
 =>
 public class User {
   private String name;
