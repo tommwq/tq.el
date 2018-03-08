@@ -26,38 +26,57 @@
 ;; tq-create-html
 ;; tq-create-gradle-project
 ;; tq-create-cocos2dx-project
-
 ;; 函数gen-xxx用于生成对应的内容。
 ;; 函数init-xxx用于将生成的内容写入当前缓冲区。
 ;; 函数create-xxx用于创建新文件，将对应内容写入文件，并打开该文件。
 
 
+(defun tq-update-chinese-font (symbol value)
+  "设置tq-chinese-font或tq-chinese-font-size时调用。"
+  (set-default symbol value)
+  (when (and (boundp 'tq-chinese-font)
+	     (boundp 'tq-chinese-font-size))
+    (dolist (charset '(kana han symbol cjk-misc bopomofo))
+      (set-fontset-font t
+			charset
+			(font-spec :family tq-chinese-font :size tq-chinese-font-size)))))
+
+(defun tq-update-latin-font (symbol value)
+  "设置tq-latin-font或tq-latin-font-size时调用。"
+  (set-default symbol value)
+  (when (and (boundp 'tq-latin-font)
+	     (boundp 'tq-latin-font-size))
+    (set-frame-font (format "%s-%d" tq-latin-font tq-latin-font-size))))
 
 (defcustom tq-chinese-font "微软雅黑"
   "中文字体。"
   :type 'string
-  :group 'tq)
+  :group 'tq
+  :set #'tq-update-chinese-font)
 
 (defcustom tq-chinese-font-size 18
   "中文字体尺寸。"
   :type 'integer
-  :group 'tq)
+  :group 'tq
+  :set #'tq-update-chinese-font)
 
 (defcustom tq-latin-font "Source Code Pro"
   "拉丁字母字体。"
   :type 'string
-  :group 'tq)
+  :group 'tq
+  :set #'tq-update-latin-font)
 
 (defcustom tq-latin-font-size 14
   "拉丁字母字体尺寸。"
   :type 'integer
-  :group 'tq)
+  :group 'tq
+  :set #'tq-update-latin-font)
 
 (defcustom tq-working-directory "."
   "工作目录。"
   :type 'directory
   :group 'tq)
-  
+
 (defcustom tq-git-program "git"
   "git程序路径（含文件名）。会影响magit-git-executable的值。"
   :type 'file
@@ -68,18 +87,24 @@
   :type 'file
   :group 'tq)
 
-
-(defun w32-maximize-window ()
-  "全屏显示。"
+(defun windows-maximize-window ()
+  "w32全屏显示。"
   (interactive)
   (let ((sc-maximize 61488))
     (w32-send-sys-command sc-maximize)))
 
-(defun x-full-screen ()
-  "全屏显示。"
+(defun linux-maximize-window ()
+  "linux全屏显示。"
   (interactive)
   (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
 			 '(2 "_NEW_WM_STATE_FULLSCREEN" 0)))
+
+(defun maximize-window ()
+  "让窗口全屏显示。"
+  (if (string-equal system-type "windows-nt")
+      (windows-maximize-window)
+    (linux-maximize-window)))
+
 
 (defun tq-insert-date ()
   "在buffer中插入日期字符串。"
@@ -104,8 +129,8 @@ diagonal-length是屏幕尺寸，如5.2寸。
     (sqrt (/ (* dl dl) (+ 1 (* 1.78 1.78))))))
 
 (defun calculate-mobilephone-screen-height (diagonal-length)
+  "计算手机屏幕高度。"
   (* 1.78 (calculate-mobilephone-screen-width diagonal-length)))
-
 
 (defun print-mobilephone-width-and-height (x)
   "打印手机屏幕长、宽。
@@ -124,7 +149,6 @@ height-pixels是长边像素数。
   (let ((h (calculate-mobilephone-screen-height dl)))
     (/ height-pixels (centimeter-to-inch h))))
 
-
 (defun calculate-mobilephone-ppi (diagonal-length width-pixels height-pixels)
   "计算手机屏幕PPI。
 diagonal-length 屏幕尺寸。
@@ -141,9 +165,9 @@ height-pixels 屏幕长像素数。
       ""
     (string (nth 0 (string-to-list s)))))
 
-
 (defmacro tq-to-string (x)
-  "Convert object or symbol to string."
+  "Convert object or symbol to string.
+将对象或符号转换为字符串。"
   `(replace-regexp-in-string "\\\\" "" (prin1-to-string ',x)))
 
 (defun tq-upcase-first-letter (word)
@@ -236,7 +260,6 @@ the even ones are replacements."
 	    "\t<artifactId>${artifactID}</artifactId>\n"
 	    "\t<version>${version}</version>\n"
 	    "\t<packaging>${packaging}</packaging>\n"
-	    ;; TODO 增加property。
 	    "</project>"))
 	 (pattern-pairs
 	  (list "${groupID}" group-id
@@ -1288,7 +1311,7 @@ sPackage: ")
 
 (defun gen-latex-code-sample (code)
   "生成LaTeX代码示例。"
-(let ((fmt "
+  (let ((fmt "
 \\begin{tabular}{@{} l @{} l @{}}
 \\begin{minipage}{3in}
 \\begin{verbatim}
@@ -1301,7 +1324,7 @@ sPackage: ")
 \\end{minipage}
 \\end{tabular}
 "))
-  (format fmt code code)))
+    (format fmt code code)))
 
 
 
@@ -1397,7 +1420,7 @@ sPackage: ")
   (prefer-coding-system 'utf-8-unix))
 
 
-(defun tq-init-frame ()
+(defun tq-initialize ()
   "初始化窗口。"
 
   (setq-default indent-tables-mode nil)
@@ -1419,14 +1442,14 @@ sPackage: ")
   ;; 启用缩写
   (fset 'yes-or-no-p 'y-or-n-p)
   
-  ;; 设置字体
-  (set-frame-font tq-font)
+  ;; ;; 设置字体
+  ;; (set-frame-font (format "%s-%d" tq-latin-font tq-latin-font-size))
 
-  ;; 设置中文字体
-  (dolist (charset '(kana han symbol cjk-misc bopomofo))
-    (set-fontset-font t
-		      charset
-		      (font-spec :family tq-chinese-font :size tq-chinese-font-size)))
+  ;; ;; 设置中文字体
+  ;; (dolist (charset '(kana han symbol cjk-misc bopomofo))
+  ;;   (set-fontset-font t
+  ;; 		      charset
+  ;; 		      (font-spec :family tq-chinese-font :size tq-chinese-font-size)))
 
   ;; 关闭启动界面
   (setq inhibit-startup-message t)
@@ -1530,8 +1553,10 @@ sPackage: ")
   ;; 显示时间
   (setq display-time-mode t)
 
-  (message "TQ-INIT-FRAME DONE.")
-  (set-org-todo-keywords))
+  (set-org-todo-keywords)
+  (switch-to-buffer "*scratch*")
+  (delete-other-windows)
+  (delete-region (point-min) (point-max)))
 
 
 (require 'ox-publish)
@@ -1586,9 +1611,9 @@ sPackage: ")
   "Join path. "
   (expand-file-name (seq-reduce
                      (lambda (base path)
-                         (if base
-                             (concat base "/" path)
-                           path))
+		       (if base
+			   (concat base "/" path)
+			 path))
                      path-list
                      nil)
                     root))
@@ -1645,7 +1670,7 @@ sPackage: ")
 	</servlet-mapping>
 </web-app>
 ")
-    
+
 
 (setf tq-spring-mvc-build-gradle "
 apply plugin: 'java'
@@ -1865,10 +1890,10 @@ public class User {
         (source2 ""))
     (seq-reduce (lambda (value next)
                   (if (< 0 (length (string-trim next)))
-                    (if (not value)
-                        (setf pojo-name next
-                              value next)
-                      (push next members))))
+		      (if (not value)
+			  (setf pojo-name next
+				value next)
+			(push next members))))
                 (split-string (buffer-substring start end))
                 nil)
     (if (= 1 (mod (length members) 2))
@@ -1897,15 +1922,5 @@ public void set%s(%s %s) {
     (indent-region start (+ start (length source1)))
     (move-end-of-line)))
 
-
-
-;;(load "tq-dev.el")
-;;(load "tq-style.el")
-;; (load "tq-frame.el")
-;; (load "tq-note.el")
-;; (load "tq-test.el")
-
-
-
-;; (tq-initialize-frame)
-;; (provide 'tq)
+(tq-initialize)
+(provide 'tq)
