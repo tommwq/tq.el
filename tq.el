@@ -2172,7 +2172,7 @@ public void set%s(%s %s) {
                          ((string-equal buffer-type "sql") #'sql-mode)
                          (t #'text-mode)))
     (switch-to-buffer buffer-name)
-    (funcall set-mode (get-buffer buffer-name))))
+    (funcall set-mode)))
 
 (tq-initialize)
 (provide 'tq)
