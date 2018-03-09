@@ -70,6 +70,9 @@
 (defcustom tq-working-directory "."
   "工作目录。"
   :type 'directory
+  :set #'(lambda (symbol value)
+           (set-default symbol value)
+           (setf default-directory tq-working-directory))
   :group 'tq)
 
 (defcustom tq-git-program "git"
