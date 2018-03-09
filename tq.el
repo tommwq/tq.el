@@ -1871,12 +1871,10 @@ public class App {
 }
 ")
 
-(defconst tq-spring-boot-build-gradle
+(defconst tq-spring-boot-app-build-gradle
   "buildscript {
   repositories {
-    maven {
-      url 'https://plugins.gradle.org/m2/'
-    }
+    mavenCentral()
   }
   dependencies {
     classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RELEASE'
@@ -1912,7 +1910,7 @@ sPackage: ")
 
     ;; 生成build.gradle
     (tq-write-file (tq-join-path project-directory "build.gradle")
-                   tq-spring-boot-build-gradle t)
+                   tq-spring-boot-app-build-gradle t)
 
     ;; 生成Java代码
     (tq-write-file
@@ -2041,8 +2039,8 @@ public void set%s(%s %s) {
 (defun tq-delta-range (value delta)
   "计算value*(1+/-delta)的值。"
   (let* ((change (* delta value))
-        (max (+ value change))
-        (min (- value change)))
+         (max (+ value change))
+         (min (- value change)))
     (list min max)))
 
 (defun tq-in-delta-range (test-value base-value delta)
