@@ -2038,6 +2038,21 @@ public void set%s(%s %s) {
       "\\_"
     (char-to-string ch)))
 
+(defun tq-delta-range (value delta)
+  "计算value*(1+/-delta)的值。"
+  (let* ((change (* delta value))
+        (max (+ value change))
+        (min (- value change)))
+    (list min max)))
+
+(defun tq-in-delta-range (test-value base-value delta)
+  "计算test-value是否在base-value*(1+/-delta)的范围内。"
+  (let* ((range (delta-range base-value delta))
+         (max (elt range 1))
+         (min (elt range 0)))
+    (and (<= test-value max)
+         (>= test-value min))))
+
 
 (tq-initialize)
 (provide 'tq)
