@@ -2,28 +2,10 @@
 ;; 设置emacs样式，提供开发使用的辅助功能。
 ;; 2018年03月08日
 
-;; todo
-;; TODO init shell env
-;; tq-gradle-program
-;; tq-gen-lisp-file
-;; tq-init-lisp-file
-;; tq-create-lisp-file
-;; tq-gen-go-file
-;; tq-init-go-file
-;; tq-create-go-file
-;; tq-gen-bean-file
-;; tq-init-bean-file
-;; tq-create-bean-file
-;; tq-init-java-class
-;; tq-create-java-class
-;; tq-init-note
-;; tq-create-note
-;; tq-gen-note
-;; tq-gen-html
-;; tq-init-html
-;; tq-create-html
-;; tq-create-gradle-project
-;; 函数gen-xxx用于生成对应的内容。
+;; TODO
+;; 修改tq-new-spring-web中的文件模板，删除多余的import，调整服务Request和Response。
+;; 增加tq-gradle-program。
+;; 增加tq-new-go
 ;; 函数new-xxx用于创建新文件，将对应内容写入文件，并打开该文件。
 
 (defun tq-update-chinese-font (symbol value)
@@ -1744,7 +1726,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class Hello {
+public class Controller {
 	@RequestMapping(value = \"/\", method = RequestMethod.GET)
         @ResponseBody
 	public String index(Map<String, Object> model) {
@@ -1812,7 +1794,7 @@ sPackage: ")
      (tq-join-path project-directory
                    "src/main/java/"
                    (replace-regexp-in-string "\\." "/" package)
-                   "controller/Hello.java")
+                   "controller/Controller.java")
      (tq-execute-template
       (list "Package"
             package)
