@@ -103,12 +103,23 @@
       (windows-maximize-window)
     (linux-maximize-window)))
 
+(defun tq-insert-time ()
+  "在buffer中插入时间字符串。"
+  (interactive)
+  (insert
+   (format-time-string "%H时%M分%S秒")))
 
 (defun tq-insert-date ()
   "在buffer中插入日期字符串。"
   (interactive)
   (insert
    (format-time-string "%Y年%m月%d日")))
+
+(defun tq-insert-datetime ()
+  "在buffer中插入日期时间字符串。"
+  (interactive)
+  (insert
+   (format-time-string "%Y年%m月%d日 %H时%M分%S秒")))
 
 (defun inch-to-centimeter (inch)
   "将英寸转换为厘米。"
