@@ -33,7 +33,7 @@
 
 (defcustom tq-chinese-font-size 18
   "中文字体尺寸。"
-  :type 'integer
+  :type 'number
   :group 'tq
   :set #'tq-update-chinese-font)
 
@@ -45,7 +45,7 @@
 
 (defcustom tq-latin-font-size 14
   "拉丁字母字体尺寸。"
-  :type 'integer
+  :type 'number
   :group 'tq
   :set #'tq-update-latin-font)
 
