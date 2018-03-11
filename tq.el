@@ -8,6 +8,38 @@
 ;; 增加tq-new-go
 ;; 函数new-xxx用于创建新文件，将对应内容写入文件，并打开该文件。
 
+(require 'ox-publish)
+(require 'ox-html)
+
+(defun tq-set-cmd-variable (variable value)
+  (setenv variable value))
+
+(defun tq-set-powershell-variable (variable value)
+	(let ((buffer (get-buffer "*PowerShell*")))
+		(when buffer (powershell-invoke-command-silently
+									(get-buffer-process buffer)
+									(format "$env:%s='%s'" variable value)))))
+
+(defun tq-set-cmd-variables (system-variables)
+	(let ((pairs system-variables)
+				(variable "")
+				(value ""))
+		(while pairs
+			(setf variable (car pairs))
+			(setf value (car (cdr pairs)))
+			(setf pairs (cdr (cdr pairs)))
+			(tq-set-cmd-variable (prin1-to-string variable) (prin1-to-string value)))))
+
+(defun tq-set-powershell-variables (system-variables)
+	(let ((pairs system-variables)
+				(variable "")
+				(value ""))
+		(while pairs
+			(setf variable (car pairs))
+			(setf value (car (cdr pairs)))
+			(setf pairs (cdr (cdr pairs)))
+			(tq-set-powershell-variable (prin1-to-string variable) (prin1-to-string value)))))
+
 (defun tq-update-chinese-font (symbol value)
   "设置tq-chinese-font或tq-chinese-font-size时调用。"
   (set-default symbol value)
@@ -66,6 +98,21 @@
   "python程序路径（含文件名）。会影响python-shell-interpreter的值。"
   :type 'file
   :group 'tq)
+
+(defcustom tq-system-path
+	""
+	"系统路径。"
+	:type 'string
+	:group 'tq)
+
+(defcustom tq-system-variables nil
+	"系统变量。"
+	:type 'plist
+	:group 'tq
+	:set #'(lambda (symbol value)
+					 (set-default symbol value)
+					 (tq-set-cmd-variables tq-system-variables)
+					 (tq-set-powershell-variables tq-system-variables)))
 
 (defun windows-maximize-window ()
   "w32全屏显示。"
@@ -1361,7 +1408,6 @@ sPackage: ")
 
 (c-add-style "tq-c-style" tq-c-style)
 
-
 (defun tq-initialize-shell-mode ()
   "避免使用shell模式启动PowerShell时中文文件名出现乱码。"
   (set-buffer-process-coding-system 'gbk 'gbk))
@@ -1481,19 +1527,12 @@ sPackage: ")
   ;; 缩进
   (setq tab-stop-list nil)
 
-  ;; 设置钩子
-  (add-hook 'c-mode-hook 'hs-minor-mode)
-  (add-hook 'nxml-mode-hook 'hs-minor-mode)
-  (add-hook 'java-mode-hook 'hs-minor-mode)
-
   (defun tq-c-mode-hook ()
     (c-set-style "tq-c-style")
     (setq tab-width 8
           indent-tabs-mode nil)
     (c-toggle-auto-newline t))
   
-  (add-hook 'c-mode-common-hook 'tq-c-mode-hook)
-
   ;; 关联文件
   ;; Java
   (add-to-list 'auto-mode-alist '("\\.aidl\\'" . java-mode))
@@ -1511,8 +1550,14 @@ sPackage: ")
   ;; 编码
   (set-encodings)
 
-  ;; 添加shell-mode钩子。
+  ;; 设置钩子。
   (add-hook 'shell-mode-hook 'tq-initialize-shell-mode)
+	(add-hook 'c-mode-common-hook 'tq-c-mode-hook)
+  (add-hook 'c-mode-hook 'hs-minor-mode)
+  (add-hook 'nxml-mode-hook 'hs-minor-mode)
+  (add-hook 'java-mode-hook 'hs-minor-mode)
+	(add-hook 'powershell-mode-hook #'(lambda ()
+																			(tq-add-powershell-path tq-system-path)))
 
   ;; 显示时间
   (setq display-time-mode t)
@@ -1520,11 +1565,10 @@ sPackage: ")
   (set-org-todo-keywords)
   (switch-to-buffer "*scratch*")
   (delete-other-windows)
-  (delete-region (point-min) (point-max)))
+  (delete-region (point-min) (point-max))
 
-
-(require 'ox-publish)
-(require 'ox-html)
+	;; 设置环境变量。
+	(tq-add-cmd-path tq-system-path))
 
 (defvar tq-note-path "c:/Users/WangQian/Workspace/Notes/")
 
@@ -1552,12 +1596,16 @@ sPackage: ")
         )
       )
 
-(defun tq-append-env-path (path)
+(defun tq-add-cmd-path (path)
   (setenv "PATH" (concat path ";" (getenv "PATH")))
   nil)
 
-(tq-append-env-path "C:/Program Files/Git/bin")
-(tq-append-env-path "D:/Gradle/gradle-4.6/bin")
+(defun tq-add-powershell-path (path)
+	"在*PowerShell*中增加系统路径。"
+	(let ((buffer (get-buffer "*PowerShell*")))
+		(when buffer (powershell-invoke-command-silently
+									(get-buffer-process buffer)
+									(format "$env:PATH+=';%s'" path)))))
 
 (defun tq-execute-shell (command &optional work-directory)
   "execute shell command in work directory."
@@ -1729,12 +1777,12 @@ public class Controller {
 	(tq-write-file filename content overwrite)
 	(find-file filename))
 
-(defun tq-new-gitignore (&optional path)
+(defun tq-new-gitignore (&optional directory)
   "建立gitignore文件"
-  (interactive "sPath: ")
-  (if (string-equal path "")
+  (interactive "sdirectory: ")
+  (if (string-equal directory "")
       (setf path default-directory))
-  (tq-write-file (concat path "/.gitignore") "
+  (tq-write-file (concat directory "/.gitignore") "
 .gradle
 gradle/
 build/
@@ -2176,6 +2224,245 @@ sclass: ")
 													 (tq-execute-template (list "ClassName" class-name
 																											"Package" package)
 																								tq-java-class-template)))
+
+(defconst tq-android-module-aar-manifest-template
+	"<manifest xmlns:android='http://schemas.android.com/apk/res/android'
+    package='${Package}' />
+")
+
+(defconst tq-android-module-app-manifest-template
+	"
+<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"
+    package=\"${Package}\">
+
+    <application
+        android:allowBackup=\"true\"
+        android:icon=\"@mipmap/ic_launcher\"
+        android:label=\"@string/app_name\"
+        android:roundIcon=\"@mipmap/ic_launcher_round\"
+        android:supportsRtl=\"true\"
+        android:theme=\"@style/AppTheme\">
+        <activity android:name=\".MainActivity\">
+            <intent-filter>
+                <action android:name=\"android.intent.action.MAIN\" />
+                <category android:name=\"android.intent.category.LAUNCHER\" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+")
+
+(defconst tq-android-module-jar-build-gradle-template
+	"
+apply plugin: 'java-library'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
+")
+
+(defconst tq-android-module-app-build-gradle-template
+	"
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId '${Package}'
+        minSdkVersion 23
+        targetSdkVersion 26
+        versionCode 1
+        versionName '1.0'
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support:design:26.1.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}
+")
+
+(defconst tq-android-module-aar-build-gradle-template
+	"
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 26
+
+    defaultConfig {
+        minSdkVersion 23
+        targetSdkVersion 26
+        versionCode 1
+        versionName '1.0'
+
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}
+
+")
+
+(defconst tq-android-proguard-rules-pro-content
+	"# Add project specific ProGuard rules here.
+# You can control the set of applied configuration files using the
+# proguardFiles setting in build.gradle.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+
+# If your project uses WebView with JS, uncomment the following
+# and specify the fully qualified class name to the JavaScript interface
+# class:
+#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+#   public *;
+#}
+
+# Uncomment this to preserve the line number information for
+# debugging stack traces.
+#-keepattributes SourceFile,LineNumberTable
+
+# If you keep the line number information, uncomment this to
+# hide the original source file name.
+#-renamesourcefileattribute SourceFile
+
+")
+
+(defun tq-new-android-module (project-directory
+															module-type
+															module-name
+															package)
+	(interactive "sproject directory: 
+Smodule-type: 
+smodule-name: 
+spackage: ")
+	"在project-directory下建立Android模块。。模块（module-type）可以是: 'app 'aar 'jar"
+	(if (not (or (eq module-type 'app)
+							 (eq module-type 'aar)
+							 (eq module-type 'jar)))
+			(error (format "unsupported module type: %s" module-type)))
+	(message "建立模块目录。")
+	(make-directory (tq-join-path project-directory module-name) t)
+	(message "生成模块build.gralde文件。")
+	(tq-write-file (tq-join-path project-directory module-name "build.gradle")
+								 (tq-execute-template (list "Package" package)
+																			(cond ((eq 'app module-type) tq-android-module-app-build-gradle-template)
+																						((eq 'aar module-type) tq-android-module-aar-build-gradle-template)
+																						(t tq-android-module-jar-build-gradle-template))))
+	(message "生成proguard-rules.pro文件。")
+	(tq-write-file (tq-join-path project-directory module-name "proguard-rules.pro") tq-android-proguard-rules-pro-content)
+	(message "生成libs目录。")
+	(mkdir (tq-join-path project-directory module-name "libs"))
+	(message "生成.gitignore文件。")
+	(tq-new-gitignore (tq-join-path project-directory module-name))
+	(if (not (eq module-type 'jar))
+			(message "生成AndroidManifest.xml。")
+		(tq-write-file (tq-join-path project-directory module-name "src/main/AndroidManifest.xml")
+									 (tq-execute-template (list "Package" package)
+																				(if (eq 'aar module-type)
+																						tq-android-module-aar-manifest-template
+																					tq-android-module-app-manifest-template)))
+		(message "生成layout目录。")
+		(make-directory (tq-join-path project-directory module-name "src/main/res/layout") t)
+		(message "生成values目录。")
+		(make-directory (tq-join-path project-directory module-name "src/main/res/values") t)
+		(message "生成drawalbe目录。")
+		(make-directory (tq-join-path project-directory module-name "src/main/res/drawable") t)
+		(message "生成androidTest目录。")
+		(make-directory (tq-join-path project-directory module-name "src/androidTest") t))
+	(message "生成test目录。")
+	(make-directory (tq-join-path project-directory module-name "src/test") t)
+	(message "生成java目录。")
+	(make-directory (tq-join-path project-directory
+																module-name
+																"src/main/java/"
+																(replace-regexp-in-string "\\." "/" package))
+									t)
+	(find-file (tq-join-path project-directory module-name)))
+
+(defconst tq-android-root-build-gradle-content
+	"buildscript {
+    
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+")
+
+(defun tq-new-android-aar (root-directory
+													 project-name
+													 module-name
+													 package)
+	"建立Android AAR项目。"
+	(interactive "sroot directory: 
+sproject name: 
+smodule name: 
+spackage: ")
+	(let ((project-directory (tq-join-path root-directory project-name)))
+		(message "建立模块目录。")
+		(make-directory project-directory t)
+		(message "初始化gradle。")
+		(tq-execute-shell "gradle init" project-directory)
+		(message "生成根build.gralde文件。")
+		(tq-write-file (tq-join-path project-directory "build.gradle")
+									 tq-android-root-build-gradle-content
+									 t)
+		(message "生成settings.gradle文件。")
+		;; TODO
+		(message "生成模块。")
+		(tq-new-android-module project-directory 'aar module-name package)
+		(message "生成.gitignore文件。")
+		(tq-new-gitignore project-directory)
+		(find-file project-directory)))
 
 (tq-initialize)
 (provide 'tq)
