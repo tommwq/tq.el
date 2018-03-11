@@ -1,6 +1,6 @@
 ;; tq.el
 ;; 设置emacs样式，提供开发使用的辅助功能。
-;; 2018年03月08日
+;; 2018年03月11日
 
 ;; TODO
 ;; 修改tq-new-spring-web中的文件模板，删除多余的import，调整服务Request和Response。
@@ -1317,28 +1317,24 @@ sPackage: ")
 "))
     (format fmt code code)))
 
-
-
-
-
-
-
 (defconst tq-c-style
   '((c-tab-always-indent . t)
-    (c-basic-offset . 8)
+    (c-basic-offset . 2)
     (c-comment-only-line-offset . 0)
     (c-echo-syntactic-information-p . t)
-    (c-cleanup-list . (brace-else-brace
-                       brace-elseif-brace
-                       brace-catch-brace
-                       empty-defun-braces
-                       one-liner-defun
-                       defun-close-semi
-                       list-close-comma
-                       scope-operator
-                       space-before-funcall
-                       compact-empty-funcall
-                       comment-close-slash))
+    (c-cleanup-list . (
+											 ;; brace-else-brace
+                       ;; brace-elseif-brace
+                       ;; brace-catch-brace
+                       ;; empty-defun-braces
+                       ;; one-liner-defun
+                       ;; defun-close-semi
+                       ;; list-close-comma
+                       ;; scope-operator
+                       ;; space-before-funcall
+                       ;; compact-empty-funcall
+                       ;; comment-close-slash
+											 ))
     (c-hanging-braces-alist . (;; (substatement-open after)
                                ;; (inline-open after)
                                ;; (class-open after)
@@ -1355,22 +1351,23 @@ sPackage: ")
                                ;; (catch-clause after)
                                ;; (member-init-intro after)
                                ;; (brace-list-open after)
-                               (substatement-open nil)
-                               (inline-open nil)
-                               (class-open nil)
-                               (class-close nil)
-                               (defun-open nil)
-                               (defun-close nil)
-                               (brace-entry-open nil)
-                               (statement nil)
-                               (case-label nil)
-                               (else-case)
-                               (block-close nil)
-                               (access-label nil)
-                               (do-while-closure nil)
-                               (catch-clause nil)
-                               (member-init-intro nil)
-                               (brace-list-open nil)))
+                               ;; (substatement-open nil)
+                               ;; (inline-open nil)
+                               ;; (class-open nil)
+                               ;; (class-close nil)
+                               ;; (defun-open nil)
+                               ;; (defun-close nil)
+                               ;; (brace-entry-open nil)
+                               ;; (statement nil)
+                               ;; (case-label nil)
+                               ;; (else-case)
+                               ;; (block-close nil)
+                               ;; (access-label nil)
+                               ;; (do-while-closure nil)
+                               ;; (catch-clause nil)
+                               ;; (member-init-intro nil)
+                               ;; (brace-list-open nil)
+															 ))
     (c-hanging-colons-alist .  (
                                 ;;(member-init-intro before)
                                 ;;(inher-intro)
