@@ -392,28 +392,6 @@ the even ones are replacements."
     (insert content)
     (xml-mode)))
 
-(defun tq-create-gradle-project (root-path project-name)
-  "Create a gradle project for java."
-  (interactive "sRootPath: \nsProjectName: ")
-  (let ((subdirs (list "src/main/java" "src/test/java"))
-        (project-path (expand-file-name project-name root-path)))
-    (when (file-exists-p project-path)
-      (error "Project directory existed. path: %s" project-path))
-    (make-directory project-path t)
-    (tq-create-file (expand-file-name "build.gradle" project-path)
-                    "apply plugin: 'java'
-apply plugin: 'application'
-buildscript {
-        repositories {
-                jcenter()
-        }
-        dependencies {
-        }
-}
-")
-    (dolist (subdir subdirs)
-      (make-directory (expand-file-name subdir project-path) t))))
-
 (defun create-maven-project (root-path
                              group-id
                              artifact-id
@@ -1746,6 +1724,11 @@ public class Controller {
         (make-directory path t))
     (append-to-file content nil absolute-filename)))
 
+(defun tq-write-file-then-open (filename content &optional overwrite)
+  "Write content to a file, create or overwrite it in need, then open it."
+	(tq-write-file filename content overwrite)
+	(find-file filename))
+
 (defun tq-new-gitignore (&optional path)
   "建立gitignore文件"
   (interactive "sPath: ")
@@ -1765,7 +1748,6 @@ gradlew.bat
 *.exe
 *.obj
 "))
-
 
 (defun tq-new-spring-web (root-directory
                           project-name
@@ -2170,6 +2152,30 @@ public void set%s(%s %s) {
                          (t #'text-mode)))
     (switch-to-buffer buffer-name)
     (funcall set-mode)))
+
+(defconst tq-java-class-template   
+	"
+package ${Package};
+
+public class ${ClassName} {
+  public ${ClassName}() {
+  }
+}
+")
+
+(defun tq-new-java-class (root-directory
+													package
+													class-name)
+  "建立并打开Java类源代码文件。"
+  (interactive "sroot directory: 
+spackage: 
+sclass: ")
+	(tq-write-file-then-open (tq-join-path root-directory
+																				 (replace-regexp-in-string "\\." "/" package)
+																				 (concat "/" class-name ".java"))
+													 (tq-execute-template (list "ClassName" class-name
+																											"Package" package)
+																								tq-java-class-template)))
 
 (tq-initialize)
 (provide 'tq)
