@@ -1659,7 +1659,7 @@ sPackage: ")
 </beans>
 ")
 
-(defconst tq-spring-mvc-web-xml-content "
+(defconst tq-spring-web-xml-content "
 <web-app version=\"3.1\"
 	 xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"
 	 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
@@ -1681,7 +1681,6 @@ sPackage: ")
 	</servlet-mapping>
 </web-app>
 ")
-
 
 (defconst tq-spring-web-build-gradle "
 apply plugin: 'java'
@@ -1708,54 +1707,66 @@ import ${Package}.service.HelloService.Request;
 import ${Package}.service.HelloService.Response;
 
 public class HelloServiceProvider implements HelloService {
-        public Response hello(Request request) {
-                Response response = new Response();
-                response.message = \"hello, \" + request.name;
-                return response;
-        }
+  public Response hello(Request request) {
+    Response response = new Response();
+    response.setMessage(\"hello, \" + request.getName());
+    return response;
+  }
 }
 ")
 
-
-(defconst tq-spring-web-service-template "
-package ${Package}.service;
+(defconst tq-spring-web-service-template "package ${Package}.service;
 
 public interface HelloService {
-        
-        public class Request {
-                public String name;
-                public void setName(String name) {
-                        this.name = name;
-                }
-        }
-        
-        public class Response {
-                public String message;
-        }
 
-        public Response hello(Request request);
+  public class Request {
+    private String name;
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+  }
+
+  public class Response {
+    private String message;
+    public String getMessage() {
+      return message;
+    }
+
+    public void setMessage(String message) {
+      this.message = message;
+    }
+  }
+  
+  public Response hello(Request request);
 }
 ")
 
 (defconst tq-spring-web-controller-template "
 package ${Package}.controller;
 
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
+import ${Package}.service.HelloService;
+import ${Package}.service.HelloService.Request;
+import ${Package}.service.HelloService.Response;
 
 @Controller
-public class Controller {
-	@RequestMapping(value = \"/\", method = RequestMethod.GET)
-        @ResponseBody
-	public String index(Map<String, Object> model) {
-		return \"index\";
-	}
+public class Hello {
+  @Autowired
+  private HelloService helloService;
+  
+  @RequestMapping(value = \"/\", method = RequestMethod.GET)
+  @ResponseBody
+  public String hello(Request request) {
+    return helloService.hello(request).getMessage();
+  }
 }
 ")
 
@@ -1822,7 +1833,7 @@ sPackage: ")
      (tq-join-path project-directory
                    "src/main/java/"
                    (replace-regexp-in-string "\\." "/" package)
-                   "controller/Controller.java")
+                   "controller/Hello.java")
      (tq-execute-template
       (list "Package"
             package)
@@ -1850,7 +1861,7 @@ sPackage: ")
     
     ;; 生成web.xml
     (tq-write-file (tq-join-path project-directory "src/main/webapp/WEB-INF/web.xml")
-                   tq-spring-mvc-web-xml-content 
+                   tq-spring-web-xml-content 
                    t)
     
     ;; 生成context config文件
