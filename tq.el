@@ -11,35 +11,36 @@
 
 (require 'ox-publish)
 (require 'ox-html)
+(require 'subr-x)
 
 (defun tq-set-cmd-variable (variable value)
   (setenv variable value))
 
 (defun tq-set-powershell-variable (variable value)
-	(let ((buffer (get-buffer "*PowerShell*")))
-		(when buffer (powershell-invoke-command-silently
-									(get-buffer-process buffer)
-									(format "$env:%s='%s'" variable value)))))
+  (let ((buffer (get-buffer "*PowerShell*")))
+    (when buffer (powershell-invoke-command-silently
+                  (get-buffer-process buffer)
+                  (format "$env:%s='%s'" variable value)))))
 
 (defun tq-set-cmd-variables (system-variables)
-	(let ((pairs system-variables)
-				(variable "")
-				(value ""))
-		(while pairs
-			(setf variable (car pairs))
-			(setf value (car (cdr pairs)))
-			(setf pairs (cdr (cdr pairs)))
-			(tq-set-cmd-variable (prin1-to-string variable) (prin1-to-string value)))))
+  (let ((pairs system-variables)
+        (variable "")
+        (value ""))
+    (while pairs
+      (setf variable (car pairs))
+      (setf value (car (cdr pairs)))
+      (setf pairs (cdr (cdr pairs)))
+      (tq-set-cmd-variable (prin1-to-string variable) (prin1-to-string value)))))
 
 (defun tq-set-powershell-variables (system-variables)
-	(let ((pairs system-variables)
-				(variable "")
-				(value ""))
-		(while pairs
-			(setf variable (car pairs))
-			(setf value (car (cdr pairs)))
-			(setf pairs (cdr (cdr pairs)))
-			(tq-set-powershell-variable (prin1-to-string variable) (prin1-to-string value)))))
+  (let ((pairs system-variables)
+        (variable "")
+        (value ""))
+    (while pairs
+      (setf variable (car pairs))
+      (setf value (car (cdr pairs)))
+      (setf pairs (cdr (cdr pairs)))
+      (tq-set-powershell-variable (prin1-to-string variable) (prin1-to-string value)))))
 
 (defun tq-update-chinese-font (symbol value)
   "设置tq-chinese-font或tq-chinese-font-size时调用。"
@@ -101,19 +102,19 @@
   :group 'tq)
 
 (defcustom tq-system-path
-	""
-	"系统路径。"
-	:type 'string
-	:group 'tq)
+  ""
+  "系统路径。"
+  :type 'string
+  :group 'tq)
 
 (defcustom tq-system-variables nil
-	"系统变量。"
-	:type 'plist
-	:group 'tq
-	:set #'(lambda (symbol value)
-					 (set-default symbol value)
-					 (tq-set-cmd-variables tq-system-variables)
-					 (tq-set-powershell-variables tq-system-variables)))
+  "系统变量。"
+  :type 'plist
+  :group 'tq
+  :set #'(lambda (symbol value)
+           (set-default symbol value)
+           (tq-set-cmd-variables tq-system-variables)
+           (tq-set-powershell-variables tq-system-variables)))
 
 (defun windows-maximize-window ()
   "w32全屏显示。"
@@ -1349,7 +1350,7 @@ sPackage: ")
     (c-comment-only-line-offset . 0)
     (c-echo-syntactic-information-p . t)
     (c-cleanup-list . (
-											 ;; brace-else-brace
+                       ;; brace-else-brace
                        ;; brace-elseif-brace
                        ;; brace-catch-brace
                        ;; empty-defun-braces
@@ -1360,7 +1361,7 @@ sPackage: ")
                        ;; space-before-funcall
                        ;; compact-empty-funcall
                        ;; comment-close-slash
-											 ))
+                       ))
     (c-hanging-braces-alist . (;; (substatement-open after)
                                ;; (inline-open after)
                                ;; (class-open after)
@@ -1393,7 +1394,7 @@ sPackage: ")
                                ;; (catch-clause nil)
                                ;; (member-init-intro nil)
                                ;; (brace-list-open nil)
-															 ))
+                               ))
     (c-hanging-colons-alist .  (
                                 ;;(member-init-intro before)
                                 ;;(inher-intro)
@@ -1553,12 +1554,12 @@ sPackage: ")
 
   ;; 设置钩子。
   (add-hook 'shell-mode-hook 'tq-initialize-shell-mode)
-	(add-hook 'c-mode-common-hook 'tq-c-mode-hook)
+  (add-hook 'c-mode-common-hook 'tq-c-mode-hook)
   (add-hook 'c-mode-hook 'hs-minor-mode)
   (add-hook 'nxml-mode-hook 'hs-minor-mode)
   (add-hook 'java-mode-hook 'hs-minor-mode)
-	(add-hook 'powershell-mode-hook #'(lambda ()
-																			(tq-add-powershell-path tq-system-path)))
+  (add-hook 'powershell-mode-hook #'(lambda ()
+                                      (tq-add-powershell-path tq-system-path)))
 
   ;; 显示时间
   (setq display-time-mode t)
@@ -1568,8 +1569,8 @@ sPackage: ")
   (delete-other-windows)
   (delete-region (point-min) (point-max))
 
-	;; 设置环境变量。
-	(tq-add-cmd-path tq-system-path))
+  ;; 设置环境变量。
+  (tq-add-cmd-path tq-system-path))
 
 (defvar tq-note-path "c:/Users/WangQian/Workspace/Notes/")
 
@@ -1602,11 +1603,11 @@ sPackage: ")
   nil)
 
 (defun tq-add-powershell-path (path)
-	"在*PowerShell*中增加系统路径。"
-	(let ((buffer (get-buffer "*PowerShell*")))
-		(when buffer (powershell-invoke-command-silently
-									(get-buffer-process buffer)
-									(format "$env:PATH+=';%s'" path)))))
+  "在*PowerShell*中增加系统路径。"
+  (let ((buffer (get-buffer "*PowerShell*")))
+    (when buffer (powershell-invoke-command-silently
+                  (get-buffer-process buffer)
+                  (format "$env:PATH+=';%s'" path)))))
 
 (defun tq-execute-shell (command &optional work-directory)
   "execute shell command in work directory."
@@ -1659,7 +1660,7 @@ sPackage: ")
 </beans>
 ")
 
-(defconst tq-spring-mvc-web-xml-content "
+(defconst tq-spring-web-xml-content "
 <web-app version=\"3.1\"
 	 xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"
 	 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
@@ -1681,7 +1682,6 @@ sPackage: ")
 	</servlet-mapping>
 </web-app>
 ")
-
 
 (defconst tq-spring-web-build-gradle "
 apply plugin: 'java'
@@ -1708,54 +1708,66 @@ import ${Package}.service.HelloService.Request;
 import ${Package}.service.HelloService.Response;
 
 public class HelloServiceProvider implements HelloService {
-        public Response hello(Request request) {
-                Response response = new Response();
-                response.message = \"hello, \" + request.name;
-                return response;
-        }
+  public Response hello(Request request) {
+    Response response = new Response();
+    response.setMessage(\"hello, \" + request.getName());
+    return response;
+  }
 }
 ")
 
-
-(defconst tq-spring-web-service-template "
-package ${Package}.service;
+(defconst tq-spring-web-service-template "package ${Package}.service;
 
 public interface HelloService {
-        
-        public class Request {
-                public String name;
-                public void setName(String name) {
-                        this.name = name;
-                }
-        }
-        
-        public class Response {
-                public String message;
-        }
 
-        public Response hello(Request request);
+  public class Request {
+    private String name;
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+  }
+
+  public class Response {
+    private String message;
+    public String getMessage() {
+      return message;
+    }
+
+    public void setMessage(String message) {
+      this.message = message;
+    }
+  }
+  
+  public Response hello(Request request);
 }
 ")
 
 (defconst tq-spring-web-controller-template "
 package ${Package}.controller;
 
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
+import ${Package}.service.HelloService;
+import ${Package}.service.HelloService.Request;
+import ${Package}.service.HelloService.Response;
 
 @Controller
-public class Controller {
-	@RequestMapping(value = \"/\", method = RequestMethod.GET)
-        @ResponseBody
-	public String index(Map<String, Object> model) {
-		return \"index\";
-	}
+public class Hello {
+  @Autowired
+  private HelloService helloService;
+  
+  @RequestMapping(value = \"/\", method = RequestMethod.GET)
+  @ResponseBody
+  public String hello(Request request) {
+    return helloService.hello(request).getMessage();
+  }
 }
 ")
 
@@ -1775,8 +1787,8 @@ public class Controller {
 
 (defun tq-write-file-then-open (filename content &optional overwrite)
   "Write content to a file, create or overwrite it in need, then open it."
-	(tq-write-file filename content overwrite)
-	(find-file filename))
+  (tq-write-file filename content overwrite)
+  (find-file filename))
 
 (defun tq-new-gitignore (&optional directory)
   "建立gitignore文件"
@@ -1822,7 +1834,7 @@ sPackage: ")
      (tq-join-path project-directory
                    "src/main/java/"
                    (replace-regexp-in-string "\\." "/" package)
-                   "controller/Controller.java")
+                   "controller/Hello.java")
      (tq-execute-template
       (list "Package"
             package)
@@ -1850,7 +1862,7 @@ sPackage: ")
     
     ;; 生成web.xml
     (tq-write-file (tq-join-path project-directory "src/main/webapp/WEB-INF/web.xml")
-                   tq-spring-mvc-web-xml-content 
+                   tq-spring-web-xml-content 
                    t)
     
     ;; 生成context config文件
@@ -2065,7 +2077,7 @@ sPackage: ")
     ;; 打开工程目录
     (find-file project-directory)))
 
-(defun tq-gen-pojo (start end)  
+(defun tq-make-pojo (start end)  
   "convert a region to pojo source code.
 example:
 
@@ -2075,60 +2087,72 @@ String password
 =>
 public class User {
   private String name;
-  private String password;
   public String getName() {
     return name;
   }
-  public String getPassword() {
-    return password;
-  } 
   public void setName(String name) {
     this.name = name;
   }
+
+  private String password;
+  public String getPassword() {
+    return password;
+  } 
   public void setPassword(String password) {
     this.password = password;
   }
 }
+
+example:
+
+String name
+=>
+private String name;
+public String getName() {
+  return name;
+}
+
+public void setName(String name) {
+  this.name = name;
+}
 "
   (interactive "r")
-  (let ((pojo-name "")
-        (members nil)
+  (let ((members nil)
+        (class-name nil)
         (type "")
         (name "")
-        (source1 "")
-        (source2 ""))
-    (seq-reduce (lambda (value next)
-                  (if (< 0 (length (string-trim next)))
-                      (if (not value)
-                          (setf pojo-name next
-                                value next)
-                        (push next members))))
-                (split-string (buffer-substring start end))
-                nil)
+        (source ""))
+    (setf members (split-string (buffer-substring-no-properties start end)))
+    (message (prin1-to-string members))
     (if (= 1 (mod (length members) 2))
-        (error "bad pojo definition."))
-    (while members
-      (setf name (pop members))
+        (setf class-name (pop members)))
+    
+    (while (> (length members) 0)
+      (message (prin1-to-string members))
+      (message source)
       (setf type (pop members))
-      (setf source1 (format "private %s %s;
-%s" type name source1))
-      (setf source2 (format "public %s get%s() {
+      (setf name (pop members))
+      (message (prin1-to-string members))
+      (setf source (concat source (format "private %s %s;
+public %s get%s() {
   return %s;
 }
 
 public void set%s(%s %s) {
   this.%s = %s;
 }
-%s" type (capitalize name) name (capitalize name) type name name name source2))
+
+" type name type (capitalize name) name (capitalize name) type name name name)))
+      (message source)
       )
-    (setf source1 (format "public class %s {
+    (if class-name
+        (setf source (format "public class %s {
 %s
-%s}
-"
-                          pojo-name source1 source2))
+}
+" class-name source)))
     (delete-region start end)
-    (insert source1)
-    (indent-region start (+ start (length source1)))
+    (insert source)
+    (indent-region start (+ start (length source)))
     (move-end-of-line)))
 
 ;;;; 统计相关函数。
@@ -2203,7 +2227,7 @@ public void set%s(%s %s) {
     (funcall set-mode)))
 
 (defconst tq-java-class-template   
-	"
+  "
 package ${Package};
 
 public class ${ClassName} {
@@ -2213,26 +2237,26 @@ public class ${ClassName} {
 ")
 
 (defun tq-new-java-class (root-directory
-													package
-													class-name)
+                          package
+                          class-name)
   "建立并打开Java类源代码文件。"
   (interactive "sroot directory: 
 spackage: 
 sclass: ")
-	(tq-write-file-then-open (tq-join-path root-directory
-																				 (replace-regexp-in-string "\\." "/" package)
-																				 (concat "/" class-name ".java"))
-													 (tq-execute-template (list "ClassName" class-name
-																											"Package" package)
-																								tq-java-class-template)))
+  (tq-write-file-then-open (tq-join-path root-directory
+                                         (replace-regexp-in-string "\\." "/" package)
+                                         (concat "/" class-name ".java"))
+                           (tq-execute-template (list "ClassName" class-name
+                                                      "Package" package)
+                                                tq-java-class-template)))
 
 (defconst tq-android-module-aar-manifest-template
-	"<manifest xmlns:android='http://schemas.android.com/apk/res/android'
+  "<manifest xmlns:android='http://schemas.android.com/apk/res/android'
     package='${Package}' />
 ")
 
 (defconst tq-android-module-app-manifest-template
-	"
+  "
 <?xml version=\"1.0\" encoding=\"utf-8\"?>
 <manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"
     package=\"${Package}\">
@@ -2256,7 +2280,7 @@ sclass: ")
 ")
 
 (defconst tq-android-module-jar-build-gradle-template
-	"
+  "
 apply plugin: 'java-library'
 
 dependencies {
@@ -2269,7 +2293,7 @@ targetCompatibility = '1.7'
 ")
 
 (defconst tq-android-module-app-build-gradle-template
-	"
+  "
 apply plugin: 'com.android.application'
 
 android {
@@ -2302,7 +2326,7 @@ dependencies {
 ")
 
 (defconst tq-android-module-aar-build-gradle-template
-	"
+  "
 apply plugin: 'com.android.library'
 
 android {
@@ -2339,7 +2363,7 @@ dependencies {
 ")
 
 (defconst tq-android-proguard-rules-pro-content
-	"# Add project specific ProGuard rules here.
+  "# Add project specific ProGuard rules here.
 # You can control the set of applied configuration files using the
 # proguardFiles setting in build.gradle.
 #
@@ -2364,59 +2388,59 @@ dependencies {
 ")
 
 (defun tq-new-android-module (project-directory
-															module-type
-															module-name
-															package)
-	(interactive "sproject directory: 
+                              module-type
+                              module-name
+                              package)
+  (interactive "sproject directory: 
 Smodule-type: 
 smodule-name: 
 spackage: ")
-	"在project-directory下建立Android模块。。模块（module-type）可以是: 'app 'aar 'jar"
-	(if (not (or (eq module-type 'app)
-							 (eq module-type 'aar)
-							 (eq module-type 'jar)))
-			(error (format "unsupported module type: %s" module-type)))
-	(message "建立模块目录。")
-	(make-directory (tq-join-path project-directory module-name) t)
-	(message "生成模块build.gralde文件。")
-	(tq-write-file (tq-join-path project-directory module-name "build.gradle")
-								 (tq-execute-template (list "Package" package)
-																			(cond ((eq 'app module-type) tq-android-module-app-build-gradle-template)
-																						((eq 'aar module-type) tq-android-module-aar-build-gradle-template)
-																						(t tq-android-module-jar-build-gradle-template))))
-	(message "生成proguard-rules.pro文件。")
-	(tq-write-file (tq-join-path project-directory module-name "proguard-rules.pro") tq-android-proguard-rules-pro-content)
-	(message "生成libs目录。")
-	(mkdir (tq-join-path project-directory module-name "libs"))
-	(message "生成.gitignore文件。")
-	(tq-new-gitignore (tq-join-path project-directory module-name))
-	(if (not (eq module-type 'jar))
-			(message "生成AndroidManifest.xml。")
-		(tq-write-file (tq-join-path project-directory module-name "src/main/AndroidManifest.xml")
-									 (tq-execute-template (list "Package" package)
-																				(if (eq 'aar module-type)
-																						tq-android-module-aar-manifest-template
-																					tq-android-module-app-manifest-template)))
-		(message "生成layout目录。")
-		(make-directory (tq-join-path project-directory module-name "src/main/res/layout") t)
-		(message "生成values目录。")
-		(make-directory (tq-join-path project-directory module-name "src/main/res/values") t)
-		(message "生成drawalbe目录。")
-		(make-directory (tq-join-path project-directory module-name "src/main/res/drawable") t)
-		(message "生成androidTest目录。")
-		(make-directory (tq-join-path project-directory module-name "src/androidTest") t))
-	(message "生成test目录。")
-	(make-directory (tq-join-path project-directory module-name "src/test") t)
-	(message "生成java目录。")
-	(make-directory (tq-join-path project-directory
-																module-name
-																"src/main/java/"
-																(replace-regexp-in-string "\\." "/" package))
-									t)
-	(find-file (tq-join-path project-directory module-name)))
+  "在project-directory下建立Android模块。。模块（module-type）可以是: 'app 'aar 'jar"
+  (if (not (or (eq module-type 'app)
+               (eq module-type 'aar)
+               (eq module-type 'jar)))
+      (error (format "unsupported module type: %s" module-type)))
+  (message "建立模块目录。")
+  (make-directory (tq-join-path project-directory module-name) t)
+  (message "生成模块build.gralde文件。")
+  (tq-write-file (tq-join-path project-directory module-name "build.gradle")
+                 (tq-execute-template (list "Package" package)
+                                      (cond ((eq 'app module-type) tq-android-module-app-build-gradle-template)
+                                            ((eq 'aar module-type) tq-android-module-aar-build-gradle-template)
+                                            (t tq-android-module-jar-build-gradle-template))))
+  (message "生成proguard-rules.pro文件。")
+  (tq-write-file (tq-join-path project-directory module-name "proguard-rules.pro") tq-android-proguard-rules-pro-content)
+  (message "生成libs目录。")
+  (mkdir (tq-join-path project-directory module-name "libs"))
+  (message "生成.gitignore文件。")
+  (tq-new-gitignore (tq-join-path project-directory module-name))
+  (if (not (eq module-type 'jar))
+      (message "生成AndroidManifest.xml。")
+    (tq-write-file (tq-join-path project-directory module-name "src/main/AndroidManifest.xml")
+                   (tq-execute-template (list "Package" package)
+                                        (if (eq 'aar module-type)
+                                            tq-android-module-aar-manifest-template
+                                          tq-android-module-app-manifest-template)))
+    (message "生成layout目录。")
+    (make-directory (tq-join-path project-directory module-name "src/main/res/layout") t)
+    (message "生成values目录。")
+    (make-directory (tq-join-path project-directory module-name "src/main/res/values") t)
+    (message "生成drawalbe目录。")
+    (make-directory (tq-join-path project-directory module-name "src/main/res/drawable") t)
+    (message "生成androidTest目录。")
+    (make-directory (tq-join-path project-directory module-name "src/androidTest") t))
+  (message "生成test目录。")
+  (make-directory (tq-join-path project-directory module-name "src/test") t)
+  (message "生成java目录。")
+  (make-directory (tq-join-path project-directory
+                                module-name
+                                "src/main/java/"
+                                (replace-regexp-in-string "\\." "/" package))
+                  t)
+  (find-file (tq-join-path project-directory module-name)))
 
 (defconst tq-android-root-build-gradle-content
-	"buildscript {
+  "buildscript {
     
     repositories {
         google()
@@ -2440,30 +2464,30 @@ task clean(type: Delete) {
 ")
 
 (defun tq-new-android-aar (root-directory
-													 project-name
-													 module-name
-													 package)
-	"建立Android AAR项目。"
-	(interactive "sroot directory: 
+                           project-name
+                           module-name
+                           package)
+  "建立Android AAR项目。"
+  (interactive "sroot directory: 
 sproject name: 
 smodule name: 
 spackage: ")
-	(let ((project-directory (tq-join-path root-directory project-name)))
-		(message "建立模块目录。")
-		(make-directory project-directory t)
-		(message "初始化gradle。")
-		(tq-execute-shell "gradle init" project-directory)
-		(message "生成根build.gralde文件。")
-		(tq-write-file (tq-join-path project-directory "build.gradle")
-									 tq-android-root-build-gradle-content
-									 t)
-		(message "生成settings.gradle文件。")
-		;; TODO
-		(message "生成模块。")
-		(tq-new-android-module project-directory 'aar module-name package)
-		(message "生成.gitignore文件。")
-		(tq-new-gitignore project-directory)
-		(find-file project-directory)))
+  (let ((project-directory (tq-join-path root-directory project-name)))
+    (message "建立模块目录。")
+    (make-directory project-directory t)
+    (message "初始化gradle。")
+    (tq-execute-shell "gradle init" project-directory)
+    (message "生成根build.gralde文件。")
+    (tq-write-file (tq-join-path project-directory "build.gradle")
+                   tq-android-root-build-gradle-content
+                   t)
+    (message "生成settings.gradle文件。")
+    ;; TODO
+    (message "生成模块。")
+    (tq-new-android-module project-directory 'aar module-name package)
+    (message "生成.gitignore文件。")
+    (tq-new-gitignore project-directory)
+    (find-file project-directory)))
 
 (tq-initialize)
 (provide 'tq)
