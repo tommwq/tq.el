@@ -7,6 +7,7 @@
 ;; 增加tq-gradle-program。
 ;; 增加tq-new-go
 ;; 函数new-xxx用于创建新文件，将对应内容写入文件，并打开该文件。
+;; 修改tq-new-android-aar，增加AndroidManifest.xml，增加local.properties，增加版本。
 
 (require 'ox-publish)
 (require 'ox-html)
