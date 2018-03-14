@@ -7,6 +7,22 @@
 ;; 增加tq-gradle-program。
 ;; 增加tq-new-go
 ;; 函数new-xxx用于创建新文件，将对应内容写入文件，并打开该文件。
+;; 修改tq-new-spring-web
+;; 在web.xml中增加aop。
+;; 增加common.Result.java。
+;; 增加common.exception.InvalidParametersException
+;; 增加ParametersUtil。
+;; 增加ConfigUtil。
+;; 增加aop。
+;; 增加listener。
+;; 修改web.xml。
+;; 将spring-mvc-config.xml拆分为spring/root-context.xml和spring/servlet-context.xml。
+;; common/Result.java
+;; common/exception/InvalidParametersException.java
+;; common/util/ParametersUtil
+;; ConfigUtil toXML fromXML toXMLFile fromXMLFile
+;; http://x-stream.github.io/tutorial.html
+
 
 (require 'ox-publish)
 (require 'ox-html)
@@ -2487,6 +2503,28 @@ spackage: ")
     (message "生成.gitignore文件。")
     (tq-new-gitignore project-directory)
     (find-file project-directory)))
+
+(defconst tq-go-content
+  "package main
+
+import (
+        \"fmt\"
+)
+
+func main() {
+        fmt.Println(\"Hello, world!\")
+}
+")
+
+
+(defun tq-new-go (root-directory
+                  project-name)
+  (interactive "sroot directory: 
+sproject: ")
+  (let ((filename (tq-join-path root-directory project-name "main.go")))
+    (tq-write-file filename tq-go-content)
+    (find-file filename)))
+
 
 (tq-initialize)
 (provide 'tq)
