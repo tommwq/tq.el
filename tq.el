@@ -2092,6 +2092,16 @@ sPackage: ")
     ;; 打开工程目录
     (find-file project-directory)))
 
+(defun tq-snake-to-camel (snake)
+  "convert string from snake_case to camelCase"
+  (let* ((pieces (split-string snake "_")))
+    (concat (downcase (car pieces))
+            (mapconcat #'capitalize (cdr pieces) ""))))
+
+(defun tq-snake-to-pascal (snake)
+  "convert string from snake_case to PascalCase"
+  (mapconcat #'capitalize (split-string snake "_") ""))
+
 (defun tq-make-pojo (start end)  
   "convert a region to pojo source code.
 example:
@@ -2136,6 +2146,8 @@ public void setName(String name) {
         (class-name nil)
         (type "")
         (name "")
+        (cname "")
+        (pname "")
         (source ""))
     (setf members (split-string (buffer-substring-no-properties start end)))
     (message (prin1-to-string members))
@@ -2147,6 +2159,8 @@ public void setName(String name) {
       (message source)
       (setf type (pop members))
       (setf name (pop members))
+      (setf cname (tq-snake-to-camel name))
+      (setf pname (tq-snake-to-pascal name))
       (message (prin1-to-string members))
       (setf source (concat source (format "private %s %s;
 public %s get%s() {
@@ -2157,7 +2171,7 @@ public void set%s(%s %s) {
   this.%s = %s;
 }
 
-" type name type (capitalize name) name (capitalize name) type name name name)))
+" type cname type pname cname pname type cname cname cname)))
       (message source)
       )
     (if class-name
