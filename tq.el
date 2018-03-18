@@ -2489,5 +2489,19 @@ spackage: ")
     (tq-new-gitignore project-directory)
     (find-file project-directory)))
 
+(defun tq-round (value precision)
+	"对value进行舍入，保留precision为小数。"
+	(let ((base (expt 10 precision)))
+		(/ (round (* value base)) (* 1.0 base))))
+
+(defun tq-amdahl-speedup (parallel-ratio parallel-node-count)
+	"计算按照Amdahl法则可以获得的优化效果"
+	(tq-round (/ 1.0 (+ (- 1.0 parallel-ratio) (/ parallel-ratio parallel-node-count))) 2))
+
+(defun tq-amdahl-speedup-limit (parallel-ratio)
+	"计算按照Amdahl法则可以获得的最大优化效果"
+	(tq-round (/ 1.0 (- 1.0 parallel-ratio)) 2))
+
+
 (tq-initialize)
 (provide 'tq)
