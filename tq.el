@@ -8,6 +8,21 @@
 ;; 增加tq-new-go
 ;; 函数new-xxx用于创建新文件，将对应内容写入文件，并打开该文件。
 ;; 修改tq-new-android-aar，增加AndroidManifest.xml，增加local.properties，增加版本。
+;; 修改tq-new-spring-web
+;; 在web.xml中增加aop。
+;; 增加common.Result.java。
+;; 增加common.exception.InvalidParametersException
+;; 增加ParametersUtil。
+;; 增加ConfigUtil。
+;; 增加aop。
+;; 增加listener。
+;; 修改web.xml。
+;; 将spring-mvc-config.xml拆分为spring/root-context.xml和spring/servlet-context.xml。
+;; common/Result.java
+;; common/exception/InvalidParametersException.java
+;; common/util/ParametersUtil
+;; ConfigUtil toXML fromXML toXMLFile fromXMLFile
+;; http://x-stream.github.io/tutorial.html
 
 (require 'ox-publish)
 (require 'ox-html)
@@ -2077,6 +2092,16 @@ sPackage: ")
     ;; 打开工程目录
     (find-file project-directory)))
 
+(defun tq-snake-to-camel (snake)
+  "convert string from snake_case to camelCase"
+  (let* ((pieces (split-string snake "_")))
+    (concat (downcase (car pieces))
+            (mapconcat #'capitalize (cdr pieces) ""))))
+
+(defun tq-snake-to-pascal (snake)
+  "convert string from snake_case to PascalCase"
+  (mapconcat #'capitalize (split-string snake "_") ""))
+
 (defun tq-make-pojo (start end)  
   "convert a region to pojo source code.
 example:
@@ -2121,6 +2146,8 @@ public void setName(String name) {
         (class-name nil)
         (type "")
         (name "")
+        (cname "")
+        (pname "")
         (source ""))
     (setf members (split-string (buffer-substring-no-properties start end)))
     (message (prin1-to-string members))
@@ -2132,6 +2159,8 @@ public void setName(String name) {
       (message source)
       (setf type (pop members))
       (setf name (pop members))
+      (setf cname (tq-snake-to-camel name))
+      (setf pname (tq-snake-to-pascal name))
       (message (prin1-to-string members))
       (setf source (concat source (format "private %s %s;
 public %s get%s() {
@@ -2142,7 +2171,7 @@ public void set%s(%s %s) {
   this.%s = %s;
 }
 
-" type name type (capitalize name) name (capitalize name) type name name name)))
+" type cname type pname cname pname type cname cname cname)))
       (message source)
       )
     (if class-name
@@ -2502,6 +2531,26 @@ spackage: ")
 	"计算按照Amdahl法则可以获得的最大优化效果"
 	(tq-round (/ 1.0 (- 1.0 parallel-ratio)) 2))
 
+(defconst tq-go-content
+  "package main
+
+import (
+        \"fmt\"
+)
+
+func main() {
+        fmt.Println(\"Hello, world!\")
+}
+")
+
+
+(defun tq-new-go (root-directory
+                  project-name)
+  (interactive "sroot directory: 
+sproject: ")
+  (let ((filename (tq-join-path root-directory project-name "main.go")))
+    (tq-write-file filename tq-go-content)
+    (find-file filename)))
 
 (tq-initialize)
 (provide 'tq)
