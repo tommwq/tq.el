@@ -1812,17 +1812,28 @@ public class Hello {
       (setf path default-directory))
   (tq-write-file (concat directory "/.gitignore") "
 .gradle
-gradle/
+.vs/
 build/
+gradle/
+Debug/
+Release/
 gradlew
 gradlew.bat
-
 *~
 \#*
-*.swp
-
 *.exe
+*.idb
+*.ilk
+*.htm
+*.log
 *.obj
+*.pch
+*.pdb
+*.swp
+*.tli
+*.tlh
+*.tlog
+*.user
 "))
 
 (defun tq-new-spring-web (root-directory
