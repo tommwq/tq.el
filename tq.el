@@ -1432,9 +1432,9 @@ sPackage: ")
 (defun set-org-todo-keywords ()
   "设置org-mode中的todo阶段。"
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "IN-ACTION(i!)" "WAIT(w@!)"
+        '((sequence "TODO(t)" "IN-ACTION(i!)" "WAIT(w@/!)"
                     "|"
-                    "DONE(d@!)" "CANCELED(c@!)"))))
+                    "DONE(d@/!)" "CANCELED(c@/!)"))))
 
 (defun set-encodings ()
   "设置字符编码。"
