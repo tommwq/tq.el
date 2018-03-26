@@ -2555,7 +2555,6 @@ func main() {
 }
 ")
 
-
 (defun tq-new-go (root-directory
                   project-name)
   (interactive "sroot directory: 
@@ -2563,6 +2562,17 @@ sproject: ")
   (let ((filename (tq-join-path root-directory project-name "main.go")))
     (tq-write-file filename tq-go-content)
     (find-file filename)))
+
+(defun tq-escape-xml (text)
+  "对text中的特殊字符按照XML转义规则进行转义。"
+  (dolist (pair '(("&" "&amp;")
+                  ("\"" "&quot;")
+                  ("'" "&apos;")
+                  ("<" "&lt;")
+                  (">" "&gt;" )))
+      (setf text (replace-regexp-in-string (nth 0 pair) (nth 1 pair) text)))
+  text)
+
 
 (tq-initialize)
 (provide 'tq)
