@@ -2263,6 +2263,7 @@ public void set%s(%s %s) {
                          ((string-equal buffer-type "javascript") #'javascript-mode)
                          ((string-equal buffer-type "css") #'css-mode)
                          ((string-equal buffer-type "sql") #'sql-mode)
+                         ((string-equal buffer-type "gradle") #'groovy-mode)
                          (t #'text-mode)))
     (switch-to-buffer buffer-name)
     (funcall set-mode)))
