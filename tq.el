@@ -2574,6 +2574,17 @@ sproject: ")
       (setf text (replace-regexp-in-string (nth 0 pair) (nth 1 pair) text)))
   text)
 
+(defun tq-new-java-app (root-directory
+                        project-name)
+  "建立Java App项目。"
+  (interactive "sroot directory: 
+sproject name: ")
+  (let ((project-directory (tq-join-path root-directory project-name)))
+    (message "建立模块目录。")
+    (make-directory project-directory t)
+    (message "初始化gradle。")
+    (tq-execute-shell "gradle init --type java-application" project-directory)
+    (find-file (tq-join-path project-directory "src/main/java/App.java"))))
 
 (tq-initialize)
 (provide 'tq)
