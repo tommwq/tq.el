@@ -2264,6 +2264,7 @@ public void set%s(%s %s) {
                          ((string-equal buffer-type "css") #'css-mode)
                          ((string-equal buffer-type "sql") #'sql-mode)
                          ((string-equal buffer-type "gradle") #'groovy-mode)
+												 ((string-equal buffer-type "kotlin") #'kotlin-mode)
                          (t #'text-mode)))
     (switch-to-buffer buffer-name)
     (funcall set-mode)))
