@@ -1562,8 +1562,8 @@ sPackage: ")
    '(org-agenda-files (list "C:/Users/WangQian/Workspace/Notes/Agenda/")))
 
   ;; nxml-mode
-  (setf nxml-child-indent 8)
-  (setf nxml-attribute-indent 8)
+  (setf nxml-child-indent 2)
+  (setf nxml-attribute-indent 2)
 
   ;; 编码
   (set-encodings)
@@ -2265,6 +2265,7 @@ public void set%s(%s %s) {
                          ((string-equal buffer-type "sql") #'sql-mode)
                          ((string-equal buffer-type "gradle") #'groovy-mode)
 												 ((string-equal buffer-type "kotlin") #'kotlin-mode)
+												 ((string-equal buffer-type "dockerfile") #'dockerfile-mode)
                          (t #'text-mode)))
     (switch-to-buffer buffer-name)
     (funcall set-mode)))
