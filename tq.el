@@ -24,130 +24,130 @@
 ;; ConfigUtil toXML fromXML toXMLFile fromXMLFile
 ;; http://x-stream.github.io/tutorial.html
 
-(require 'ox-publish)
-(require 'ox-html)
-(require 'subr-x)
+;; (require 'ox-publish)
+;; (require 'ox-html)
+;; (require 'subr-x)
 
-(defun tq-set-cmd-variable (variable value)
-  (setenv variable value))
+;; (defun tq-set-cmd-variable (variable value)
+;;   (setenv variable value))
 
-(defun tq-set-powershell-variable (variable value)
-  (let ((buffer (get-buffer "*PowerShell*")))
-    (when buffer (powershell-invoke-command-silently
-                  (get-buffer-process buffer)
-                  (format "$env:%s='%s'" variable value)))))
+;; (defun tq-set-powershell-variable (variable value)
+;;   (let ((buffer (get-buffer "*PowerShell*")))
+;;     (when buffer (powershell-invoke-command-silently
+;;                   (get-buffer-process buffer)
+;;                   (format "$env:%s='%s'" variable value)))))
 
-(defun tq-set-cmd-variables (system-variables)
-  (let ((pairs system-variables)
-        (variable "")
-        (value ""))
-    (while pairs
-      (setf variable (car pairs))
-      (setf value (car (cdr pairs)))
-      (setf pairs (cdr (cdr pairs)))
-      (tq-set-cmd-variable (prin1-to-string variable) (prin1-to-string value)))))
+;; (defun tq-set-cmd-variables (system-variables)
+;;   (let ((pairs system-variables)
+;;         (variable "")
+;;         (value ""))
+;;     (while pairs
+;;       (setf variable (car pairs))
+;;       (setf value (car (cdr pairs)))
+;;       (setf pairs (cdr (cdr pairs)))
+;;       (tq-set-cmd-variable (prin1-to-string variable) (prin1-to-string value)))))
 
-(defun tq-set-powershell-variables (system-variables)
-  (let ((pairs system-variables)
-        (variable "")
-        (value ""))
-    (while pairs
-      (setf variable (car pairs))
-      (setf value (car (cdr pairs)))
-      (setf pairs (cdr (cdr pairs)))
-      (tq-set-powershell-variable (prin1-to-string variable) (prin1-to-string value)))))
+;; (defun tq-set-powershell-variables (system-variables)
+;;   (let ((pairs system-variables)
+;;         (variable "")
+;;         (value ""))
+;;     (while pairs
+;;       (setf variable (car pairs))
+;;       (setf value (car (cdr pairs)))
+;;       (setf pairs (cdr (cdr pairs)))
+;;       (tq-set-powershell-variable (prin1-to-string variable) (prin1-to-string value)))))
 
-(defun tq-update-chinese-font (symbol value)
-  "设置tq-chinese-font或tq-chinese-font-size时调用。"
-  (set-default symbol value)
-  (when (and (boundp 'tq-chinese-font)
-             (boundp 'tq-chinese-font-size))
-    (dolist (charset '(kana han symbol cjk-misc bopomofo))
-      (set-fontset-font t
-                        charset
-                        (font-spec :family tq-chinese-font :size tq-chinese-font-size)))))
+;; (defun tq-update-chinese-font (symbol value)
+;;   "设置tq-chinese-font或tq-chinese-font-size时调用。"
+;;   (set-default symbol value)
+;;   (when (and (boundp 'tq-chinese-font)
+;;              (boundp 'tq-chinese-font-size))
+;;     (dolist (charset '(kana han symbol cjk-misc bopomofo))
+;;       (set-fontset-font t
+;;                         charset
+;;                         (font-spec :family tq-chinese-font :size tq-chinese-font-size)))))
 
-(defun tq-update-latin-font (symbol value)
-  "设置tq-latin-font或tq-latin-font-size时调用。"
-  (set-default symbol value)
-  (when (and (boundp 'tq-latin-font)
-             (boundp 'tq-latin-font-size))
-    (set-frame-font (format "%s-%d" tq-latin-font tq-latin-font-size))))
+;; (defun tq-update-latin-font (symbol value)
+;;   "设置tq-latin-font或tq-latin-font-size时调用。"
+;;   (set-default symbol value)
+;;   (when (and (boundp 'tq-latin-font)
+;;              (boundp 'tq-latin-font-size))
+;;     (set-frame-font (format "%s-%d" tq-latin-font tq-latin-font-size))))
 
-(defcustom tq-chinese-font "微软雅黑"
-  "中文字体。"
-  :type 'string
-  :group 'tq
-  :set #'tq-update-chinese-font)
+;; (defcustom tq-chinese-font "微软雅黑"
+;;   "中文字体。"
+;;   :type 'string
+;;   :group 'tq
+;;   :set #'tq-update-chinese-font)
 
-(defcustom tq-chinese-font-size 18
-  "中文字体尺寸。"
-  :type 'number
-  :group 'tq
-  :set #'tq-update-chinese-font)
+;; (defcustom tq-chinese-font-size 18
+;;   "中文字体尺寸。"
+;;   :type 'number
+;;   :group 'tq
+;;   :set #'tq-update-chinese-font)
 
-(defcustom tq-latin-font "Source Code Pro"
-  "拉丁字母字体。"
-  :type 'string
-  :group 'tq
-  :set #'tq-update-latin-font)
+;; (defcustom tq-latin-font "Source Code Pro"
+;;   "拉丁字母字体。"
+;;   :type 'string
+;;   :group 'tq
+;;   :set #'tq-update-latin-font)
 
-(defcustom tq-latin-font-size 14
-  "拉丁字母字体尺寸。"
-  :type 'number
-  :group 'tq
-  :set #'tq-update-latin-font)
+;; (defcustom tq-latin-font-size 14
+;;   "拉丁字母字体尺寸。"
+;;   :type 'number
+;;   :group 'tq
+;;   :set #'tq-update-latin-font)
 
-(defcustom tq-working-directory "."
-  "工作目录。"
-  :type 'directory
-  :set #'(lambda (symbol value)
-           (set-default symbol value)
-           (setf default-directory tq-working-directory))
-  :group 'tq)
+;; (defcustom tq-working-directory "."
+;;   "工作目录。"
+;;   :type 'directory
+;;   :set #'(lambda (symbol value)
+;;            (set-default symbol value)
+;;            (setf default-directory tq-working-directory))
+;;   :group 'tq)
 
-(defcustom tq-git-program "git"
-  "git程序路径（含文件名）。会影响magit-git-executable的值。"
-  :type 'file
-  :group 'tq)
+;; (defcustom tq-git-program "git"
+;;   "git程序路径（含文件名）。会影响magit-git-executable的值。"
+;;   :type 'file
+;;   :group 'tq)
 
-(defcustom tq-python-program "python"
-  "python程序路径（含文件名）。会影响python-shell-interpreter的值。"
-  :type 'file
-  :group 'tq)
+;; (defcustom tq-python-program "python"
+;;   "python程序路径（含文件名）。会影响python-shell-interpreter的值。"
+;;   :type 'file
+;;   :group 'tq)
 
-(defcustom tq-system-path
-  ""
-  "系统路径。"
-  :type 'string
-  :group 'tq)
+;; (defcustom tq-system-path
+;;   ""
+;;   "系统路径。"
+;;   :type 'string
+;;   :group 'tq)
 
-(defcustom tq-system-variables nil
-  "系统变量。"
-  :type 'plist
-  :group 'tq
-  :set #'(lambda (symbol value)
-           (set-default symbol value)
-           (tq-set-cmd-variables tq-system-variables)
-           (tq-set-powershell-variables tq-system-variables)))
+;; (defcustom tq-system-variables nil
+;;   "系统变量。"
+;;   :type 'plist
+;;   :group 'tq
+;;   :set #'(lambda (symbol value)
+;;            (set-default symbol value)
+;;            (tq-set-cmd-variables tq-system-variables)
+;;            (tq-set-powershell-variables tq-system-variables)))
 
-(defun windows-maximize-window ()
-  "w32全屏显示。"
-  (interactive)
-  (let ((sc-maximize 61488))
-    (w32-send-sys-command sc-maximize)))
+;; (defun windows-maximize-window ()
+;;   "w32全屏显示。"
+;;   (interactive)
+;;   (let ((sc-maximize 61488))
+;;     (w32-send-sys-command sc-maximize)))
 
-(defun linux-maximize-window ()
-  "linux全屏显示。"
-  (interactive)
-  (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
-                         '(2 "_NEW_WM_STATE_FULLSCREEN" 0)))
+;; (defun linux-maximize-window ()
+;;   "linux全屏显示。"
+;;   (interactive)
+;;   (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
+;;                          '(2 "_NEW_WM_STATE_FULLSCREEN" 0)))
 
-(defun maximize-window ()
-  "让窗口全屏显示。"
-  (if (string-equal system-type "windows-nt")
-      (windows-maximize-window)
-    (linux-maximize-window)))
+;; (defun maximize-window ()
+;;   "让窗口全屏显示。"
+;;   (if (string-equal system-type "windows-nt")
+;;       (windows-maximize-window)
+;;     (linux-maximize-window)))
 
 (defun tq-insert-time ()
   "在buffer中插入时间字符串。"
@@ -1361,7 +1361,7 @@ sPackage: ")
 
 (defconst tq-c-style
   '((c-tab-always-indent . t)
-    (c-basic-offset . 2)
+    (c-basic-offset . 8)
     (c-comment-only-line-offset . 0)
     (c-echo-syntactic-information-p . t)
     (c-cleanup-list . (
@@ -1380,9 +1380,9 @@ sPackage: ")
     (c-hanging-braces-alist . (;; (substatement-open after)
                                ;; (inline-open after)
                                ;; (class-open after)
-                               ;; (class-close after)
+                               (class-close nil)
                                ;; (defun-open after)
-                               ;; (defun-close after)
+			       (defun-close nil)
                                ;; (brace-entry-open after)
                                ;; (statement after)
                                ;; (case-label after)
@@ -1416,9 +1416,10 @@ sPackage: ")
                                 ;;(case-label after)
                                 ;;(access-label after)
                                 ))
-    (c-cleanup-list . nil)
     (c-offsets-alist . ((substatement-open . 0)
+			(statement-case-open . +)
                         (label . 0)
+			(inline-open . 0)
                         (case-label . 0)
                         (block-open . 0))))
   "tq c style")
@@ -1448,145 +1449,6 @@ sPackage: ")
   (prefer-coding-system 'chinese-gbk-unix)
   (prefer-coding-system 'utf-8-dos)
   (prefer-coding-system 'utf-8-unix))
-
-
-(defun tq-initialize ()
-  "初始化窗口。"
-
-  (setq-default indent-tables-mode nil)
-
-  ;; 隐藏菜单栏
-  (menu-bar-mode -1)
-
-  ;; 隐藏工具栏
-  (tool-bar-mode -1)
-  
-  ;; 隐藏滚动条
-  (scroll-bar-mode -1)
-
-  (setq display-time-day-and-date 1)
-  (display-time-mode 1)
-
-  ;; (setq display-time-24hr-format t)
-  
-  ;; 启用缩写
-  (fset 'yes-or-no-p 'y-or-n-p)
-  
-  ;; ;; 设置字体
-  ;; (set-frame-font (format "%s-%d" tq-latin-font tq-latin-font-size))
-
-  ;; ;; 设置中文字体
-  ;; (dolist (charset '(kana han symbol cjk-misc bopomofo))
-  ;;   (set-fontset-font t
-  ;; 		      charset
-  ;; 		      (font-spec :family tq-chinese-font :size tq-chinese-font-size)))
-
-  ;; 关闭启动界面
-  (setq inhibit-startup-message t)
-  (setq gnus-inhibit-startup-message t)
-  
-  ;; 显示行号
-  (global-linum-mode t)
-
-  ;; 显示列号
-  (setq column-number-mode t)
-
-  ;; 设置工作目录
-  (setf default-directory tq-working-directory)
-
-  (setf magit-git-executable tq-git-program)
-  (setf python-shell-interpreter tq-python-program)
-
-  
-  ;; 设置备份目录
-  (setq backup-directory-alist (quote (("." . "C:/Users/WangQian/Workspace/AutoBackup"))))
-  
-  ;; 设置命令搜索路径
-  (add-to-list 'exec-path "C:\\Program Files\\Git\\bin")
-
-  ;; 包管理系统
-  (when (>= emacs-major-version 24)
-    (require 'package)
-    (setq package-archives
-          '(("gnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-            ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
-    (package-initialize))
-  
-  ;; 高亮当前行
-  (global-hl-line-mode t)
-  (set-cursor-color "white")
-  (set-face-attribute hl-line-face nil :underline t)
-
-  ;; 启用自动保存
-  (setq auto-save-mode t)
-
-  ;; 关闭自动备份
-  ;; (setq make-backup-files nil)
-
-  ;; 鼠标指针规避光标
-  (mouse-avoidance-mode 'animate)
-
-  ;; 全屏显示
-  ;; (w32-maximize-window)
-
-  ;;(desktop-save-mode 1)
-  ;;(setq desktop-dirname "~/")
-
-  ;; 设置快捷键
-  (global-set-key [f2] 'clipboard-kill-ring-save)
-  (global-set-key [f3] 'isearch-forward)
-
-  ;; 光标样式
-  (setq default-cursor-type 'box)
-  (set-cursor-color "orange")
-  ;; 
-  (setq visible-bell t)
-
-  ;; 缩进
-  (setq tab-stop-list nil)
-
-  (defun tq-c-mode-hook ()
-    (c-set-style "tq-c-style")
-    (setq tab-width 8
-          indent-tabs-mode nil)
-    (c-toggle-auto-newline t))
-  
-  ;; 关联文件
-  ;; Java
-  (add-to-list 'auto-mode-alist '("\\.aidl\\'" . java-mode))
-  ;; Lisp
-  (add-to-list 'auto-mode-alist '("\\.cl\\'" . lisp-mode))
-
-  ;; org mode
-  (custom-set-variables
-   '(org-agenda-files (list "C:/Users/WangQian/Workspace/Notes/Agenda/")))
-
-  ;; nxml-mode
-  (setf nxml-child-indent 2)
-  (setf nxml-attribute-indent 2)
-
-  ;; 编码
-  (set-encodings)
-
-  ;; 设置钩子。
-  (add-hook 'shell-mode-hook 'tq-initialize-shell-mode)
-  (add-hook 'c-mode-common-hook 'tq-c-mode-hook)
-  (add-hook 'c-mode-hook 'hs-minor-mode)
-  (add-hook 'nxml-mode-hook 'hs-minor-mode)
-  (add-hook 'java-mode-hook 'hs-minor-mode)
-  (add-hook 'powershell-mode-hook #'(lambda ()
-                                      (tq-add-powershell-path tq-system-path)))
-
-  ;; 显示时间
-  (setq display-time-mode t)
-
-  (set-org-todo-keywords)
-  (switch-to-buffer "*scratch*")
-  (delete-other-windows)
-  (delete-region (point-min) (point-max))
-
-  ;; 设置环境变量。
-  (tq-add-cmd-path tq-system-path))
 
 (defvar tq-note-path "c:/Users/WangQian/Workspace/Notes/")
 
@@ -2264,8 +2126,8 @@ public void set%s(%s %s) {
                          ((string-equal buffer-type "css") #'css-mode)
                          ((string-equal buffer-type "sql") #'sql-mode)
                          ((string-equal buffer-type "gradle") #'groovy-mode)
-												 ((string-equal buffer-type "kotlin") #'kotlin-mode)
-												 ((string-equal buffer-type "dockerfile") #'dockerfile-mode)
+			 ((string-equal buffer-type "kotlin") #'kotlin-mode)
+			 ((string-equal buffer-type "dockerfile") #'dockerfile-mode)
                          (t #'text-mode)))
     (switch-to-buffer buffer-name)
     (funcall set-mode)))
@@ -2534,17 +2396,17 @@ spackage: ")
     (find-file project-directory)))
 
 (defun tq-round (value precision)
-	"对value进行舍入，保留precision为小数。"
-	(let ((base (expt 10 precision)))
-		(/ (round (* value base)) (* 1.0 base))))
+  "对value进行舍入，保留precision为小数。"
+  (let ((base (expt 10 precision)))
+    (/ (round (* value base)) (* 1.0 base))))
 
 (defun tq-amdahl-speedup (parallel-ratio parallel-node-count)
-	"计算按照Amdahl法则可以获得的优化效果"
-	(tq-round (/ 1.0 (+ (- 1.0 parallel-ratio) (/ parallel-ratio parallel-node-count))) 2))
+  "计算按照Amdahl法则可以获得的优化效果"
+  (tq-round (/ 1.0 (+ (- 1.0 parallel-ratio) (/ parallel-ratio parallel-node-count))) 2))
 
 (defun tq-amdahl-speedup-limit (parallel-ratio)
-	"计算按照Amdahl法则可以获得的最大优化效果"
-	(tq-round (/ 1.0 (- 1.0 parallel-ratio)) 2))
+  "计算按照Amdahl法则可以获得的最大优化效果"
+  (tq-round (/ 1.0 (- 1.0 parallel-ratio)) 2))
 
 (defconst tq-go-content
   "package main
@@ -2573,7 +2435,7 @@ sproject: ")
                   ("'" "&apos;")
                   ("<" "&lt;")
                   (">" "&gt;" )))
-      (setf text (replace-regexp-in-string (nth 0 pair) (nth 1 pair) text)))
+    (setf text (replace-regexp-in-string (nth 0 pair) (nth 1 pair) text)))
   text)
 
 (defun tq-new-java-app (root-directory
@@ -2587,6 +2449,144 @@ sproject name: ")
     (message "初始化gradle。")
     (tq-execute-shell "gradle init --type java-application" project-directory)
     (find-file (tq-join-path project-directory "src/main/java/App.java"))))
+
+(defun tq-set-font ()
+  (set-frame-font "Anonymous Pro-15")
+  ;;(set-frame-font "Source Code Pro-12")
+  ;; (set-frame-font "LM Mono 10-11.5")
+  (dolist (charset '(kana han symbol cjk-misc bopomofo))
+    (set-fontset-font t charset
+		      ;;(font-spec :family "微软雅黑" :size 25))))
+		      (font-spec :family "思源宋体 Medium" :size 20))))
+
+(defun tq-c-mode-hook ()
+  (c-set-style "tq-c-style")
+  (setq tab-width 8
+	indent-tabs-mode nil)
+  (c-toggle-auto-newline t))
+
+(defun tq-initialize ()
+  "初始化窗口。"
+
+  (setq-default indent-tables-mode nil)
+
+  ;; 隐藏菜单栏
+  (menu-bar-mode -1)
+
+  ;; 隐藏工具栏
+  (tool-bar-mode -1)
+  
+  ;; 隐藏滚动条
+  (scroll-bar-mode -1)
+
+  (setq display-time-day-and-date 1)
+  (display-time-mode 1)
+  (setq display-time-24hr-format t)
+  
+  ;; 启用缩写
+  (fset 'yes-or-no-p 'y-or-n-p)
+  
+  ;; 关闭启动界面
+  (setq inhibit-startup-message t)
+  (setq gnus-inhibit-startup-message t)
+  
+  ;; 显示行号
+  (global-linum-mode t)
+
+  ;; 显示列号
+  (setq column-number-mode t)
+
+  ;; 设置工作目录
+  ;; (setf default-directory tq-working-directory)
+  (setf default-directory "C:/Users/WangQian/Workspace/")
+
+  ;; (setf magit-git-executable tq-git-program)
+  ;; (setf python-shell-interpreter tq-python-program)
+
+  
+  ;; 设置备份目录
+  (setq backup-directory-alist (quote (("." . "C:/Users/WangQian/Workspace/AutoBackup"))))
+  
+  ;; 设置命令搜索路径
+  ;; (add-to-list 'exec-path "C:\\Program Files\\Git\\bin")
+
+  ;; 包管理系统
+  (when (>= emacs-major-version 24)
+    (require 'package)
+    (setq package-archives
+          '(("gnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+            ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
+    (package-initialize))
+  
+  ;; 高亮当前行
+  (global-hl-line-mode t)
+  (set-cursor-color "white")
+  ;;(set-face-attribute hl-line-face nil :underline t)
+
+  ;; 启用自动保存
+  (setq auto-save-mode t)
+
+  ;; 关闭自动备份
+  ;; (setq make-backup-files nil)
+
+  ;; 鼠标指针规避光标
+  (mouse-avoidance-mode 'animate)
+
+  ;; 全屏显示
+  ;; (w32-maximize-window)
+
+  ;;(desktop-save-mode 1)
+  ;;(setq desktop-dirname "~/")
+
+  ;; 设置快捷键
+  (global-set-key [f2] 'clipboard-kill-ring-save)
+  (global-set-key [f3] 'isearch-forward)
+
+  ;; 光标样式
+  (setq default-cursor-type 'box)
+  (set-cursor-color "orange")
+  ;; 
+  (setq visible-bell t)
+
+  ;; 缩进
+  (setq tab-stop-list nil)
+  
+  ;; 关联文件
+  ;; Java
+  ;; (add-to-list 'auto-mode-alist '("\\.aidl\\'" . java-mode))
+  ;; Lisp
+  ;; (add-to-list 'auto-mode-alist '("\\.cl\\'" . lisp-mode))
+
+  ;; org mode
+  ;; (custom-set-variables
+  ;;  '(org-agenda-files (list "C:/Users/WangQian/Workspace/Notes/Agenda/")))
+
+  ;; nxml-mode
+  (setf nxml-child-indent 8)
+  (setf nxml-attribute-indent 8)
+
+  ;; 编码
+  (set-encodings)
+
+  ;; 设置钩子。
+  (add-hook 'shell-mode-hook 'tq-initialize-shell-mode)
+  (add-hook 'c-mode-common-hook 'tq-c-mode-hook)
+  (add-hook 'c-mode-hook 'hs-minor-mode)
+  (add-hook 'nxml-mode-hook 'hs-minor-mode)
+  (add-hook 'java-mode-hook 'hs-minor-mode)
+  (add-hook 'powershell-mode-hook #'(lambda ()
+                                      (tq-add-powershell-path tq-system-path)))
+
+  (global-auto-revert-mode t)
+
+  ;; 显示时间
+  (setq display-time-mode t)
+
+  (set-org-todo-keywords)
+  (switch-to-buffer "*scratch*")
+  ;; (delete-other-windows)
+  ;; (delete-region (point-min) (point-max))
+  (tq-set-font))
 
 (tq-initialize)
 (provide 'tq)
