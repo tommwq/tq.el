@@ -24,6 +24,8 @@
 ;; ConfigUtil toXML fromXML toXMLFile fromXMLFile
 ;; http://x-stream.github.io/tutorial.html
 
+(require 'google-c-style)
+
 ;; (require 'ox-publish)
 ;; (require 'ox-html)
 ;; (require 'subr-x)
@@ -1361,7 +1363,7 @@ sPackage: ")
 
 (defconst tq-c-style
   '((c-tab-always-indent . t)
-    (c-basic-offset . 8)
+    (c-basic-offset . 4)
     (c-comment-only-line-offset . 0)
     (c-echo-syntactic-information-p . t)
     (c-cleanup-list . (
@@ -1380,9 +1382,9 @@ sPackage: ")
     (c-hanging-braces-alist . (;; (substatement-open after)
                                ;; (inline-open after)
                                ;; (class-open after)
-                               (class-close nil)
+                               ;; (class-close nil)
                                ;; (defun-open after)
-			       (defun-close nil)
+			       ;; (defun-close nil)
                                ;; (brace-entry-open after)
                                ;; (statement after)
                                ;; (case-label after)
@@ -2116,6 +2118,7 @@ public void set%s(%s %s) {
                          ((string-equal buffer-type "go") #'go-mode)
                          ((string-equal buffer-type "xml") #'xml-mode)
                          ((string-equal buffer-type "c") #'c-mode)
+			 ((string-equal buffer-type "c++") #'c++-mode)
                          ((string-equal buffer-type "powershell") #'powershell-mode)
                          ((string-equal buffer-type "shell") #'shell-mode)
                          ((string-equal buffer-type "lisp") #'lisp-interaction-mode)
@@ -2451,24 +2454,28 @@ sproject name: ")
     (find-file (tq-join-path project-directory "src/main/java/App.java"))))
 
 (defun tq-set-font ()
-  (set-frame-font "Anonymous Pro-15")
-  ;;(set-frame-font "Source Code Pro-12")
-  ;; (set-frame-font "LM Mono 10-11.5")
+  ;; (set-frame-font "Source Code Pro-12")
+  ;;  (set-frame-font "LM Mono 10-14")
+  ;; (set-frame-font "InputMono-16")
+  (set-frame-font "Times New Roman-18")
+  ;; (set-frame-font "M+ 1mn-14")
   (dolist (charset '(kana han symbol cjk-misc bopomofo))
     (set-fontset-font t charset
-		      ;;(font-spec :family "微软雅黑" :size 25))))
-		      (font-spec :family "思源宋体 Medium" :size 20))))
+                      ;; (font-spec :family "华文细黑" :size 20))))
+                      (font-spec :family "方正刻本仿宋简体" :size 22))))
+;; (font-spec :family "方正风雅楷宋简体" :size 20))))
+;; (font-spec :family "方正宋刻本秀楷简体" :size 20))))
 
 (defun tq-c-mode-hook ()
   (c-set-style "tq-c-style")
-  (setq tab-width 8
-	indent-tabs-mode nil)
-  (c-toggle-auto-newline t))
+  (setq tab-width 4
+	indent-tabs-mode nil))
+;; (c-toggle-auto-newline t))
 
 (defun tq-initialize ()
   "初始化窗口。"
 
-  (setq-default indent-tables-mode nil)
+  (setq-default indent-tabs-mode nil)
 
   ;; 隐藏菜单栏
   (menu-bar-mode -1)
@@ -2574,19 +2581,28 @@ sproject name: ")
   (add-hook 'c-mode-hook 'hs-minor-mode)
   (add-hook 'nxml-mode-hook 'hs-minor-mode)
   (add-hook 'java-mode-hook 'hs-minor-mode)
+  (add-hook 'java-mode-hook 'tq-c-mode-hook)
   (add-hook 'powershell-mode-hook #'(lambda ()
                                       (tq-add-powershell-path tq-system-path)))
+
+  ;; (add-hook 'c-mode-common-hook 'google-set-c-style)
+  ;; (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 
   (global-auto-revert-mode t)
 
   ;; 显示时间
   (setq display-time-mode t)
 
+  (setq tab-width 4
+	indent-tabs-mode nil)
+
   (set-org-todo-keywords)
   (switch-to-buffer "*scratch*")
   ;; (delete-other-windows)
   ;; (delete-region (point-min) (point-max))
   (tq-set-font))
+
+(load "tq-psp.el")
 
 (tq-initialize)
 (provide 'tq)
