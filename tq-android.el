@@ -50,10 +50,10 @@ import androidx.room.Query
 interface ${modelName}Dao {
 
     @Query(\"SELECT id FROM ${modelName}\")
-    fun queryAll${modelName}(): LiveData<List<${modelName}>>
+    fun queryAll(): LiveData<List<${modelName}>>
  
     @Query(\"SELECT id FROM ${modelName} WHERE id=:id\")
-    fun query${modelName}(id: Long): LiveData<${modelName}>
+    fun query(id: Long): LiveData<${modelName}>
  
     @Insert(onConflict=OnConflictStrategy.REPLACE)
     fun insert(entity: ${modelName}): Long
@@ -65,12 +65,10 @@ interface ${modelName}Dao {
 
 (defconst tq-android-domain-model-template "package ${package}.domain
 
-import com.tq.abc.BaseDomainModel
+import com.tq.abc.DomainModel
 import ${package}.manager.${modelName}Manager
 
-class ${modelName}(manager: ${modelName}Manager): BaseDomainModel<${package}.domain.${modelName}, ${package}.viewmodel.${modelName},${package}.database.${modelName}>(manager) {
-
-    public var id: Long = 0L
+class ${modelName}(manager: ${modelName}Manager): DomainModel<${package}.domain.${modelName}, ${package}.viewmodel.${modelName},${package}.database.${modelName}>(manager) {
 }
 ")
 
@@ -82,15 +80,7 @@ import ${package}.database.${modelName}Repository
 import com.tq.abc.Manager
 
 class ${modelName}Manager private constructor(private val repository: ${modelName}Repository):
-ViewModelProvider.NewInstanceFactory(),
-Manager<${package}.domain.${modelName},${package}.viewmodel.${modelName},${package}.database.${modelName}> {
-    
-    @Suppress(\"UNCHECKED_CAST\")
-    override fun <T: ViewModel?> create(modelClass: Class<T>) = ${package}.viewmodel.${modelName}(this) as T
-
-    override fun createViewModel(): ${package}.viewmodel.${modelName} {
-        return ${package}.viewmodel.${modelName}(this)
-    }
+Manager<${package}.domain.${modelName},${package}.viewmodel.${modelName},${package}.database.${modelName}>(repository) {
 
     override fun fromViewModel(viewModel: ${package}.viewmodel.${modelName}): ${package}.domain.${modelName} {
         val domainModel = ${package}.domain.${modelName}(this)
@@ -100,6 +90,8 @@ Manager<${package}.domain.${modelName},${package}.viewmodel.${modelName},${packa
         val domainModel = ${package}.domain.${modelName}(this)
         return domainModel
     }
+    override fun toViewModel(domainModel: ${package}.domain.${modelName}, viewModel: ${package}.viewmodel.${modelName}) {
+    }
     override fun toViewModel(domainModel: ${package}.domain.${modelName}): ${package}.viewmodel.${modelName} {
         val vm = createViewModel()
         return vm
@@ -107,15 +99,9 @@ Manager<${package}.domain.${modelName},${package}.viewmodel.${modelName},${packa
     override fun toEntity(domainModel: ${package}.domain.${modelName}): ${package}.database.${modelName} {
         return ${package}.database.${modelName}(domainModel.id)
     }
-    override fun readDomainModel(id: String): ${package}.domain.${modelName}? {
-        val entity = repository.read${modelName}(id.toLong()).value
-        return if (entity != null) fromEntity(entity) else null
+    override fun createDomainModel(): ${package}.domain.${modelName} {
+        return ${package}.domain.${modelName}(this)
     }
-    
-    override fun writeDomainModel(domainModel: ${package}.domain.${modelName}): Long {
-        return repository.write${modelName}(toEntity(domainModel))
-    }
-    
     companion object {
         private var instance: ${modelName}Manager? = null
         fun get(repository: ${modelName}Repository): ${modelName}Manager {
@@ -129,28 +115,29 @@ Manager<${package}.domain.${modelName},${package}.viewmodel.${modelName},${packa
 
 (defconst tq-android-view-model-template "package ${package}.viewmodel
 
+import androidx.lifecycle.ViewModel
 import ${package}.manager.${modelName}Manager
-import com.tq.abc.BaseViewModel
 
-class ${modelName}(private val manager: ${modelName}Manager): BaseViewModel<${package}.domain.${modelName},${package}.viewmodel.${modelName},${package}.database.${modelName}>(manager) {
+class ${modelName}(): ViewModel() {
     var id = 0L
 }
 ")
 
 (defconst tq-android-repository-template "package ${package}.database
+import com.tq.abc.Repository
 
-class ${modelName}Repository private constructor(private val database: AppDatabase) {
+class ${modelName}Repository private constructor(private val dao: ${modelName}Dao) 
+: Repository<${modelName}>{
 
-    fun readAll${modelName}() = database.get${modelName}Dao().queryAll${modelName}()
-    fun read${modelName}(id: Long) = database.get${modelName}Dao().query${modelName}(id)
-    fun write${modelName}(model: ${modelName}) = database.get${modelName}Dao().insert(model)
-    fun delete${modelName}(model: ${modelName}) = database.get${modelName}Dao().delete(model)
+    override fun readAll() = dao.queryAll()
+    override fun read(id: Long) = dao.query(id)
+    override fun write(entity: ${modelName}) = dao.insert(entity)
 
     companion object {
         private var instance: ${modelName}Repository? = null
-        fun get(database: AppDatabase): ${modelName}Repository {
+        fun get(dao: ${modelName}Dao): ${modelName}Repository {
             return instance ?: synchronized(this) {
-                instance ?: ${modelName}Repository(database)
+                instance ?: ${modelName}Repository(dao)
             }
         }
     }
@@ -164,7 +151,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [/* TODO put entity classes here */], version = 1, exportSchema = false)
+@Database(entities = [/* TODO PUT_ENTITY_CLASSES_HERE */], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     // TODO abstract fun getSomeDao(): SomeDao
@@ -193,7 +180,7 @@ sPackage name: ")
                              tq-android-domain-model-template
                              "viewmodel/${modelName}.kt"
                              tq-android-view-model-template
-                             "manager/${modelName}.kt"
+                             "manager/${modelName}Manager.kt"
                              tq-android-manager-template
                              "database/${modelName}Repository.kt"
                              tq-android-repository-template))
