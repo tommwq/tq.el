@@ -32,7 +32,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName=\"${modelName}\")
 data class ${modelName}(
     @PrimaryKey(autoGenerate=true)
-    val id: Long
+    val id: Long = 0L
 )
 ")
 
@@ -84,20 +84,31 @@ Manager<${package}.domain.${modelName},${package}.viewmodel.${modelName},${packa
 
     override fun fromViewModel(viewModel: ${package}.viewmodel.${modelName}): ${package}.domain.${modelName} {
         val domainModel = ${package}.domain.${modelName}(this)
+        fromViewModel(viewModel, domainModel)
         return domainModel
     }    
-    override fun fromEntity(entity: ${package}.database.${modelName}): ${package}.domain.${modelName} {
-        val domainModel = ${package}.domain.${modelName}(this)
-        return domainModel
-    }
+    override fun fromViewModel(viewModel: ${package}.viewmodel.${modelName}, domainModel: ${package}.domain.${modelName}) {
+    }    
     override fun toViewModel(domainModel: ${package}.domain.${modelName}, viewModel: ${package}.viewmodel.${modelName}) {
     }
     override fun toViewModel(domainModel: ${package}.domain.${modelName}): ${package}.viewmodel.${modelName} {
-        val vm = createViewModel()
-        return vm
+        val viewModel = ${package}.viewmodel.${modelName}()
+        toViewModel(domainModel, viewModel)
+        return viewModel
+    }
+    override fun fromEntity(entity: ${package}.database.${modelName}): ${package}.domain.${modelName} {
+        val domainModel = ${package}.domain.${modelName}(this)
+        fromEntity(entity, domainModel)
+        return domainModel
+    }
+    override fun fromEntity(entity: ${package}.database.${modelName}, domainModel: ${package}.domain.${modelName}) {
+    }
+    override fun toEntity(domainModel: ${package}.domain.${modelName}, entity: ${package}.database.${modelName}) {
     }
     override fun toEntity(domainModel: ${package}.domain.${modelName}): ${package}.database.${modelName} {
-        return ${package}.database.${modelName}(domainModel.id)
+        val entity = ${package}.database.${modelName}()
+        toEntity(domainModel, entity)
+        return entity
     }
     override fun createDomainModel(): ${package}.domain.${modelName} {
         return ${package}.domain.${modelName}(this)
@@ -132,6 +143,7 @@ class ${modelName}Repository private constructor(private val dao: ${modelName}Da
     override fun readAll() = dao.queryAll()
     override fun read(id: Long) = dao.query(id)
     override fun write(entity: ${modelName}) = dao.insert(entity)
+    override fun erase(entity: ${modelName}) = dao.delete(entity)
 
     companion object {
         private var instance: ${modelName}Repository? = null

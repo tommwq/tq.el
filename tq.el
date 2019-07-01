@@ -1432,6 +1432,10 @@ sPackage: ")
   "避免使用shell模式启动PowerShell时中文文件名出现乱码。"
   (set-buffer-process-coding-system 'gbk 'gbk))
 
+(defun tq-initialize-powershell-mode ()
+  "避免使用PowerShell模式启动PowerShell时中文文件名出现乱码。"
+  (set-buffer-process-coding-system 'utf-8 'utf-8))
+
 (defun set-org-todo-keywords ()
   "设置org-mode中的todo阶段。"
   (setq org-todo-keywords
@@ -2457,12 +2461,12 @@ sproject name: ")
   ;; (set-frame-font "Source Code Pro-12")
   ;;  (set-frame-font "LM Mono 10-14")
   ;; (set-frame-font "InputMono-16")
-  (set-frame-font "Times New Roman-18")
+  (set-frame-font "Times New Roman-15")
   ;; (set-frame-font "M+ 1mn-14")
   (dolist (charset '(kana han symbol cjk-misc bopomofo))
     (set-fontset-font t charset
                       ;; (font-spec :family "华文细黑" :size 20))))
-                      (font-spec :family "方正刻本仿宋简体" :size 22))))
+                      (font-spec :family "方正刻本仿宋简体" :size 20))))
 ;; (font-spec :family "方正风雅楷宋简体" :size 20))))
 ;; (font-spec :family "方正宋刻本秀楷简体" :size 20))))
 
@@ -2583,6 +2587,7 @@ sproject name: ")
   (add-hook 'java-mode-hook 'hs-minor-mode)
   (add-hook 'java-mode-hook 'tq-c-mode-hook)
   (add-hook 'powershell-mode-hook #'(lambda ()
+                                      (tq-initialize-powershell-mode)
                                       (tq-add-powershell-path tq-system-path)))
 
   ;; (add-hook 'c-mode-common-hook 'google-set-c-style)
