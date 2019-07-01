@@ -24,7 +24,10 @@
 ;; ConfigUtil toXML fromXML toXMLFile fromXMLFile
 ;; http://x-stream.github.io/tutorial.html
 
+
 (require 'google-c-style)
+
+
 
 ;; (require 'ox-publish)
 ;; (require 'ox-html)
@@ -613,29 +616,29 @@ public class ${className} {
 ${body}
 }
 ")
-	(body "")
-	(package-string (tq-to-string ,package))
-	(class-name-string (tq-to-string ,class-name))
-	(field-list (mapcar (lambda (x) (prin1-to-string x)) '(,@field-pairs)))
-	(pair-count (/ (length field-list) 2))
-	)
+	      (body "")
+	      (package-string (tq-to-string ,package))
+	      (class-name-string (tq-to-string ,class-name))
+	      (field-list (mapcar (lambda (x) (prin1-to-string x)) '(,@field-pairs)))
+	      (pair-count (/ (length field-list) 2))
+	      )
 
-    (dotimes (pair-index pair-count)
-      (let ((type (nth (* 2 pair-index) field-list))
-	    (name (nth (1+ (* 2 pair-index)) field-list)))
-	(setf body (concat body (format "        private %s %s;
+     (dotimes (pair-index pair-count)
+       (let ((type (nth (* 2 pair-index) field-list))
+	         (name (nth (1+ (* 2 pair-index)) field-list)))
+	     (setf body (concat body (format "        private %s %s;
 " type name)))))
 
-    (dotimes (pair-index pair-count)
-      (let* ((type (nth (* 2 pair-index) field-list))
-	     (field (nth (1+ (* 2 pair-index)) field-list))
-	     (name (tq-upcase-first-letter field)))
-	(setf body (concat body (tq-replace-regexp-pairs (list "${type}" type
-							       "${name}" name
-							       "${className}" class-name-string
-							       "${field}" field
-							       )
-							 "
+     (dotimes (pair-index pair-count)
+       (let* ((type (nth (* 2 pair-index) field-list))
+	          (field (nth (1+ (* 2 pair-index)) field-list))
+	          (name (tq-upcase-first-letter field)))
+	     (setf body (concat body (tq-replace-regexp-pairs (list "${type}" type
+							                                    "${name}" name
+							                                    "${className}" class-name-string
+							                                    "${field}" field
+							                                    )
+							                              "
 public ${type} get${name}() {
 return this.${field};
 }
@@ -646,11 +649,11 @@ return this;
 }
 ")))))
 
-    (tq-replace-regexp-pairs (list "${className}" class-name-string
-				   "${date}" (format-time-string "%Y-%m-%d")
-				   "${package}" package-string
-				   "${body}" body)
-			     template)))
+     (tq-replace-regexp-pairs (list "${className}" class-name-string
+				                    "${date}" (format-time-string "%Y-%m-%d")
+				                    "${package}" package-string
+				                    "${body}" body)
+			                  template)))
 
 (defmacro tq-create-java-simple-class (root-path package-name class-name &rest field-pairs)
   `(let ((filename (expand-file-name (concat (replace-regexp-in-string
@@ -1011,7 +1014,9 @@ sProjectName:
 nCompileSDKVersion: ")
 
   ;; 初始化环境。
+
   (setenv "PATH" (concat (getenv "PATH") ";C:/Program Files/Git/bin/"))
+  ;; (setenv "PATH" (concat (getenv "PATH") ";C:/Program Files/Git/bin/"))
 
   ;; 初始化工程根目录。
   ;; Android JAR工程目录结构如下：
@@ -1361,6 +1366,7 @@ sPackage: ")
 "))
     (format fmt code code)))
 
+
 (defconst tq-c-style
   '((c-tab-always-indent . t)
     (c-basic-offset . 4)
@@ -1384,7 +1390,7 @@ sPackage: ")
                                ;; (class-open after)
                                ;; (class-close nil)
                                ;; (defun-open after)
-			       ;; (defun-close nil)
+			                   ;; (defun-close nil)
                                ;; (brace-entry-open after)
                                ;; (statement after)
                                ;; (case-label after)
@@ -1419,14 +1425,16 @@ sPackage: ")
                                 ;;(access-label after)
                                 ))
     (c-offsets-alist . ((substatement-open . 0)
-			(statement-case-open . +)
+			            (statement-case-open . +)
                         (label . 0)
-			(inline-open . 0)
+			            (inline-open . 0)
                         (case-label . 0)
                         (block-open . 0))))
   "tq c style")
 
 (c-add-style "tq-c-style" tq-c-style)
+
+
 
 (defun tq-initialize-shell-mode ()
   "避免使用shell模式启动PowerShell时中文文件名出现乱码。"
@@ -1481,6 +1489,32 @@ sPackage: ")
          )
         )
       )
+
+
+;; (setq org-publish-project-alist
+;;       `(
+;;         ("org-notes"
+;;          :base-directory ,tq-note-path
+;;          :base-extension "txt"
+;;          :publishing-directory ,tq-note-path
+;;          :recursive t
+;;          :publishing-function org-html-publish-to-html
+;;          :headline-levels 4          
+;;          :auto-preamble nil
+;;          :auto-sitemap t
+;;          :sitemap-filename "sitemap.txt"
+;;          :sitemap-title "sitemap"
+;;          :section-numbers nil
+;;          :table-of-contents t
+;;          :style "<link rel='stylesheet' type='text/css' href='css/org-manual.css' />"
+;;          :style-include-default nil
+;;          )
+;;         ("org"
+;;          :components ("org-notes" "org-static")
+;;          )
+;;         )
+;;       )
+
 
 (defun tq-add-cmd-path (path)
   (setenv "PATH" (concat path ";" (getenv "PATH")))
@@ -2122,7 +2156,7 @@ public void set%s(%s %s) {
                          ((string-equal buffer-type "go") #'go-mode)
                          ((string-equal buffer-type "xml") #'xml-mode)
                          ((string-equal buffer-type "c") #'c-mode)
-			 ((string-equal buffer-type "c++") #'c++-mode)
+			             ((string-equal buffer-type "c++") #'c++-mode)
                          ((string-equal buffer-type "powershell") #'powershell-mode)
                          ((string-equal buffer-type "shell") #'shell-mode)
                          ((string-equal buffer-type "lisp") #'lisp-interaction-mode)
@@ -2133,8 +2167,8 @@ public void set%s(%s %s) {
                          ((string-equal buffer-type "css") #'css-mode)
                          ((string-equal buffer-type "sql") #'sql-mode)
                          ((string-equal buffer-type "gradle") #'groovy-mode)
-			 ((string-equal buffer-type "kotlin") #'kotlin-mode)
-			 ((string-equal buffer-type "dockerfile") #'dockerfile-mode)
+			             ((string-equal buffer-type "kotlin") #'kotlin-mode)
+			             ((string-equal buffer-type "dockerfile") #'dockerfile-mode)
                          (t #'text-mode)))
     (switch-to-buffer buffer-name)
     (funcall set-mode)))
@@ -2458,6 +2492,7 @@ sproject name: ")
     (find-file (tq-join-path project-directory "src/main/java/App.java"))))
 
 (defun tq-set-font ()
+
   ;; (set-frame-font "Source Code Pro-12")
   ;;  (set-frame-font "LM Mono 10-14")
   ;; (set-frame-font "InputMono-16")
@@ -2473,13 +2508,17 @@ sproject name: ")
 (defun tq-c-mode-hook ()
   (c-set-style "tq-c-style")
   (setq tab-width 4
-	indent-tabs-mode nil))
+	    indent-tabs-mode nil))
 ;; (c-toggle-auto-newline t))
+
 
 (defun tq-initialize ()
   "初始化窗口。"
 
+
   (setq-default indent-tabs-mode nil)
+  ;;  (setq-default indent-tables-mode nil)
+
 
   ;; 隐藏菜单栏
   (menu-bar-mode -1)
@@ -2509,15 +2548,19 @@ sproject name: ")
 
   ;; 设置工作目录
   ;; (setf default-directory tq-working-directory)
+
   (setf default-directory "C:/Users/WangQian/Workspace/")
+
+  ;;  (setf default-directory "D:/workspace/")
+
 
   ;; (setf magit-git-executable tq-git-program)
   ;; (setf python-shell-interpreter tq-python-program)
 
   
   ;; 设置备份目录
-  (setq backup-directory-alist (quote (("." . "C:/Users/WangQian/Workspace/AutoBackup"))))
-  
+
+  ;;  (setq backup-directory-alist (quote (("." . "C:/Users/WangQian/Workspace/AutoBackup"))))
   ;; 设置命令搜索路径
   ;; (add-to-list 'exec-path "C:\\Program Files\\Git\\bin")
 
@@ -2531,7 +2574,11 @@ sproject name: ")
   
   ;; 高亮当前行
   (global-hl-line-mode t)
-  (set-cursor-color "white")
+
+  ;;  (set-cursor-color "white")
+
+  ;;(set-cursor-color "white")
+
   ;;(set-face-attribute hl-line-face nil :underline t)
 
   ;; 启用自动保存
@@ -2555,7 +2602,11 @@ sproject name: ")
 
   ;; 光标样式
   (setq default-cursor-type 'box)
+
   (set-cursor-color "orange")
+
+  ;;(set-cursor-color "orange")
+
   ;; 
   (setq visible-bell t)
 
@@ -2568,9 +2619,11 @@ sproject name: ")
   ;; Lisp
   ;; (add-to-list 'auto-mode-alist '("\\.cl\\'" . lisp-mode))
 
+
   ;; org mode
   ;; (custom-set-variables
   ;;  '(org-agenda-files (list "C:/Users/WangQian/Workspace/Notes/Agenda/")))
+
 
   ;; nxml-mode
   (setf nxml-child-indent 8)
@@ -2578,6 +2631,14 @@ sproject name: ")
 
   ;; 编码
   (set-encodings)
+
+
+  (setq c-default-style
+	    '((java-mode . "linux")
+	      (c-mode . "linux")
+	      (c++-mode . "linux")
+	      (other . "linux")))
+
 
   ;; 设置钩子。
   (add-hook 'shell-mode-hook 'tq-initialize-shell-mode)
@@ -2587,11 +2648,14 @@ sproject name: ")
   (add-hook 'java-mode-hook 'hs-minor-mode)
   (add-hook 'java-mode-hook 'tq-c-mode-hook)
   (add-hook 'powershell-mode-hook #'(lambda ()
+
                                       (tq-initialize-powershell-mode)
                                       (tq-add-powershell-path tq-system-path)))
 
   ;; (add-hook 'c-mode-common-hook 'google-set-c-style)
   ;; (add-hook 'c-mode-common-hook 'google-make-newline-indent)
+
+
 
   (global-auto-revert-mode t)
 
@@ -2599,13 +2663,13 @@ sproject name: ")
   (setq display-time-mode t)
 
   (setq tab-width 4
-	indent-tabs-mode nil)
-
+	    indent-tabs-mode nil)
   (set-org-todo-keywords)
   (switch-to-buffer "*scratch*")
   ;; (delete-other-windows)
   ;; (delete-region (point-min) (point-max))
   (tq-set-font))
+
 
 (load "tq-psp.el")
 
