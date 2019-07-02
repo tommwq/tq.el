@@ -2560,7 +2560,7 @@ sproject name: ")
   
   ;; 设置备份目录
 
-  ;;  (setq backup-directory-alist (quote (("." . "C:/Users/WangQian/Workspace/AutoBackup"))))
+  (setq backup-directory-alist (quote (("." . "C:/Users/WangQian/Workspace/AutoBackup"))))
   ;; 设置命令搜索路径
   ;; (add-to-list 'exec-path "C:\\Program Files\\Git\\bin")
 
@@ -2656,7 +2656,6 @@ sproject name: ")
   ;; (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 
 
-
   (global-auto-revert-mode t)
 
   ;; 显示时间
@@ -2675,3 +2674,4 @@ sproject name: ")
 
 (tq-initialize)
 (provide 'tq)
+
