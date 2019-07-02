@@ -2169,6 +2169,7 @@ public void set%s(%s %s) {
                          ((string-equal buffer-type "gradle") #'groovy-mode)
 			             ((string-equal buffer-type "kotlin") #'kotlin-mode)
 			             ((string-equal buffer-type "dockerfile") #'dockerfile-mode)
+			             ((string-equal buffer-type "typescript") #'typescript-mode)
                          (t #'text-mode)))
     (switch-to-buffer buffer-name)
     (funcall set-mode)))
@@ -2493,24 +2494,30 @@ sproject name: ")
 
 (defun tq-set-font ()
 
-  ;; (set-frame-font "Source Code Pro-12")
-  ;;  (set-frame-font "LM Mono 10-14")
-  ;; (set-frame-font "InputMono-16")
-  (set-frame-font "Times New Roman-15")
-  ;; (set-frame-font "M+ 1mn-14")
+  ;; (set-frame-font "Consolas-13")
+  ;; (set-frame-font "Anonymous Pro-15")
+  ;; (set-frame-font "Source Code Pro-11")
+  (set-frame-font "Times New Roman-12")
+  ;; (set-frame-font "LM Mono 10-12")
+  ;; (set-frame-font "InputMono-10")
+  ;; (set-frame-font "Times New Roman-12")
+  ;; (set-frame-font "M+ 1mn regular-12")
   (dolist (charset '(kana han symbol cjk-misc bopomofo))
     (set-fontset-font t charset
-                      ;; (font-spec :family "华文细黑" :size 20))))
-                      (font-spec :family "方正刻本仿宋简体" :size 20))))
-;; (font-spec :family "方正风雅楷宋简体" :size 20))))
-;; (font-spec :family "方正宋刻本秀楷简体" :size 20))))
+		              ;;  (font-spec :family "微软雅黑" :size 16))))
+		              ;;  (font-spec :family "楷体" :size 18))))
+		              ;; (font-spec :family "方正宋刻本秀楷简体" :size 16))))
+		              ;; (font-spec :family "新宋体" :size 12))))
+		              (font-spec :family "思源宋体" :size 12))))
 
 (defun tq-c-mode-hook ()
-  (c-set-style "tq-c-style")
+  ;;  (message "tq-c-mode-hook")
+  ;;  (c-set-style "linux")
+  ;; (c-set-style "")
   (setq tab-width 4
-	    indent-tabs-mode nil))
-;; (c-toggle-auto-newline t))
-
+	    indent-tabs-mode nil)
+  ;;  (c-toggle-auto-newline t)
+  )
 
 (defun tq-initialize ()
   "初始化窗口。"
@@ -2586,6 +2593,7 @@ sproject name: ")
 
   ;; 关闭自动备份
   ;; (setq make-backup-files nil)
+  (setq backup-directory-alist (quote (("." . "~/.backups"))))
 
   ;; 鼠标指针规避光标
   (mouse-avoidance-mode 'animate)
@@ -2633,11 +2641,11 @@ sproject name: ")
   (set-encodings)
 
 
-  (setq c-default-style
-	    '((java-mode . "linux")
-	      (c-mode . "linux")
-	      (c++-mode . "linux")
-	      (other . "linux")))
+  ;; (setq c-default-style
+  ;;       '((java-mode . "java")
+  ;;         (c-mode . "linux")
+  ;;         (c++-mode . "linux")
+  ;;         (other . "linux")))
 
 
   ;; 设置钩子。
@@ -2658,6 +2666,10 @@ sproject name: ")
 
   (global-auto-revert-mode t)
 
+  ;; 避免C-p失效
+  (global-set-key (kbd "M-p") 'previous-line)
+  (global-set-key (kbd "M-n") 'next-line)
+
   ;; 显示时间
   (setq display-time-mode t)
 
@@ -2670,7 +2682,7 @@ sproject name: ")
   (tq-set-font))
 
 
-(load "tq-psp.el")
+;;(load "tq-psp.el")
 
 (tq-initialize)
 (provide 'tq)
