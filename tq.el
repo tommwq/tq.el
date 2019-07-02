@@ -2687,3 +2687,4 @@ sproject name: ")
 (tq-initialize)
 (provide 'tq)
 
+(load "tq.local.el")
