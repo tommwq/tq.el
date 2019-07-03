@@ -92,6 +92,20 @@
       (make-directory path t))
     (append-to-file content nil absolute-filename)))
 
+(defun tq-create-file-force (filename content)
+  "建立文件。"
+  (let* ((absolute-filename
+          (if (file-name-absolute-p filename)
+              filename
+            (expand-file-name filename default-directory)))	   
+         (path (file-name-directory absolute-filename)))
+    (when (file-exists-p absolute-filename)
+      ;; 备份文件
+      (rename-file absolute-filename (concat absolute-filename ".bak")))
+    (unless (file-exists-p path)
+      (make-directory path t))
+    (append-to-file content nil absolute-filename)))
+
 
 (defun tq-replace-regexp-pairs (pairs text)
   "将text中${xyz}格式的内容替换为pairs中${xyz}对应的值。"
@@ -247,10 +261,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [/* TODO PUT_ENTITY_CLASSES_HERE */], version = 1, exportSchema = false)
+@Database(entities = [${modelClassList}], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
-    // TODO abstract fun getSomeDao(): SomeDao
+${daoBlock}
 
     companion object {
         val DATABASE_NAME = \"MYDATABASE\"
@@ -265,7 +279,7 @@ abstract class AppDatabase : RoomDatabase() {
 }
 ")
 
-(defun tq-android-create-model (model-name package-name)
+(defun tq-android-create-one-model (model-name package-name)
   (interactive "sModel name: 
 sPackage name: ")
   (let ((name-and-body (list "database/${modelName}.kt"
@@ -280,7 +294,6 @@ sPackage name: ")
                              tq-android-manager-template
                              "database/${modelName}Repository.kt"
                              tq-android-repository-template))
-        (optional-name-and-body (list "database/AppDatabase.kt" tq-android-appdatabase-template))
         (name "")
         (body "")
         (pairs (list "${package}"
@@ -290,13 +303,35 @@ sPackage name: ")
     (while (< 0 (length name-and-body))
       (setf name (pop name-and-body))
       (setf body (pop name-and-body))
-      (tq-create-file (tq-replace-regexp-pairs pairs name)
-                      (tq-replace-regexp-pairs pairs body)))
-    (while (< 0 (length optional-name-and-body))
-      (setf name (pop optional-name-and-body))
-      (setf body (pop optional-name-and-body))
-      (unless (file-exists-p (tq-replace-regexp-pairs pairs name))
-        (tq-create-file (tq-replace-regexp-pairs pairs name)
-                        (tq-replace-regexp-pairs pairs body))))))
+      (tq-create-file-force (tq-replace-regexp-pairs pairs name)
+                            (tq-replace-regexp-pairs pairs body)))))
 
+(defun tq-android-create-appdatabase (model-name-list package-name)
+  "生成AppDatabase代码。"
+  (interactive "sModel name(seperated by space): 
+sPackage name: ")
+  (tq-create-file-force "database/AppDatabase.kt"
+                        (tq-replace-regexp-pairs (list "${package}"
+                                                       package-name
+                                                       "${modelClassList}"
+                                                       (seq-reduce (lambda (model-class-list model-name)
+                                                                     (let ((sep ""))
+                                                                       (if (< 0 (length model-class-list))
+                                                                           (setf sep ","))
+                                                                       (concat model-class-list sep (format "%s::class" model-name))))
+                                                                   (split-string model-name-list) "")
+                                                       "${daoBlock}"
+                                                       (seq-reduce (lambda (block model-name)
+                                                                     (concat block (format "    abstract fun get%sDao(): %sDao\n"
+                                                                                           model-name
+                                                                                           model-name)))
+                                                                   (split-string model-name-list) ""))
+                                                 tq-android-appdatabase-template)))
 
+(defun tq-android-create-model (model-name-list package-name)
+  (interactive "sModel name(seperated by space): 
+sPackage name: ")
+  ;; 生成模块代码
+  (dolist (model-name (split-string model-name-list " "))
+    (tq-android-create-one-model model-name package-name))
+  (tq-android-create-appdatabase model-name-list package-name))
