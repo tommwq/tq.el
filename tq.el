@@ -24,8 +24,12 @@
 ;; ConfigUtil toXML fromXML toXMLFile fromXMLFile
 ;; http://x-stream.github.io/tutorial.html
 
+(load (concat (file-name-directory load-file-name) "tq.local.el"))
 
-(require 'google-c-style)
+(message (pwd))
+;; (load "./tq.local.el")
+
+;;(require 'google-c-style)
 
 
 
@@ -1464,32 +1468,7 @@ sPackage: ")
   (prefer-coding-system 'utf-8-dos)
   (prefer-coding-system 'utf-8-unix))
 
-(defvar tq-note-path "c:/Users/WangQian/Workspace/Notes/")
-
-(setq org-publish-project-alist
-      `(
-        ("org-notes"
-         :base-directory ,tq-note-path
-         :base-extension "txt"
-         :publishing-directory ,tq-note-path
-         :recursive t
-         :publishing-function org-html-publish-to-html
-         :headline-levels 4          
-         :auto-preamble nil
-         :auto-sitemap t
-         :sitemap-filename "sitemap.txt"
-         :sitemap-title "sitemap"
-         :section-numbers nil
-         :table-of-contents t
-         :style "<link rel='stylesheet' type='text/css' href='css/org-manual.css' />"
-         :style-include-default nil
-         )
-        ("org"
-         :components ("org-notes" "org-static")
-         )
-        )
-      )
-
+;; (defvar tq-note-path "c:/Users/WangQian/Workspace/Notes/")
 
 ;; (setq org-publish-project-alist
 ;;       `(
@@ -2553,21 +2532,10 @@ sproject name: ")
   ;; 显示列号
   (setq column-number-mode t)
 
-  ;; 设置工作目录
-  ;; (setf default-directory tq-working-directory)
-
-  (setf default-directory "C:/Users/WangQian/Workspace/")
-
-  ;;  (setf default-directory "D:/workspace/")
-
-
   ;; (setf magit-git-executable tq-git-program)
   ;; (setf python-shell-interpreter tq-python-program)
 
   
-  ;; 设置备份目录
-
-  (setq backup-directory-alist (quote (("." . "C:/Users/WangQian/Workspace/AutoBackup"))))
   ;; 设置命令搜索路径
   ;; (add-to-list 'exec-path "C:\\Program Files\\Git\\bin")
 
@@ -2687,4 +2655,3 @@ sproject name: ")
 (tq-initialize)
 (provide 'tq)
 
-(load "tq.local.el")

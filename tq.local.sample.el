@@ -5,10 +5,11 @@
     (set-fontset-font t charset
 		              (font-spec :family "华文中宋" :size 20))))
 
-(progn
-  (setq backup-directory-alist (quote (("." . "C:/Users/WangQian/Workspace/AutoBackup"))))
-  (tq-set-font))
 
+  (setq backup-directory-alist (quote (("." . "D:/workspace/temporary/emacsbackup"))))
+  (tq-set-font)
 
+  ;; 设置工作目录
+  (setf default-directory "D:/Workspace/")
 
 
