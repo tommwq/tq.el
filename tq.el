@@ -1373,7 +1373,7 @@ sPackage: ")
 
 (defconst tq-c-style
   '((c-tab-always-indent . t)
-    (c-basic-offset . 4)
+    (c-basic-offset . 8)
     (c-comment-only-line-offset . 0)
     (c-echo-syntactic-information-p . t)
     (c-cleanup-list . (
@@ -2471,29 +2471,11 @@ sproject name: ")
     (tq-execute-shell "gradle init --type java-application" project-directory)
     (find-file (tq-join-path project-directory "src/main/java/App.java"))))
 
-(defun tq-set-font ()
-
-  ;; (set-frame-font "Consolas-13")
-  ;; (set-frame-font "Anonymous Pro-15")
-  ;; (set-frame-font "Source Code Pro-11")
-  (set-frame-font "Times New Roman-12")
-  ;; (set-frame-font "LM Mono 10-12")
-  ;; (set-frame-font "InputMono-10")
-  ;; (set-frame-font "Times New Roman-12")
-  ;; (set-frame-font "M+ 1mn regular-12")
-  (dolist (charset '(kana han symbol cjk-misc bopomofo))
-    (set-fontset-font t charset
-		              ;;  (font-spec :family "微软雅黑" :size 16))))
-		              ;;  (font-spec :family "楷体" :size 18))))
-		              ;; (font-spec :family "方正宋刻本秀楷简体" :size 16))))
-		              ;; (font-spec :family "新宋体" :size 12))))
-		              (font-spec :family "思源宋体" :size 12))))
-
 (defun tq-c-mode-hook ()
   ;;  (message "tq-c-mode-hook")
   ;;  (c-set-style "linux")
   ;; (c-set-style "")
-  (setq tab-width 4
+  (setq tab-width 8
 	    indent-tabs-mode nil)
   ;;  (c-toggle-auto-newline t)
   )
@@ -2561,7 +2543,7 @@ sproject name: ")
 
   ;; 关闭自动备份
   ;; (setq make-backup-files nil)
-  (setq backup-directory-alist (quote (("." . "~/.backups"))))
+  ;;  (setq backup-directory-alist (quote (("." . "~/.backups"))))
 
   ;; 鼠标指针规避光标
   (mouse-avoidance-mode 'animate)
@@ -2608,13 +2590,11 @@ sproject name: ")
   ;; 编码
   (set-encodings)
 
-
-  ;; (setq c-default-style
-  ;;       '((java-mode . "java")
-  ;;         (c-mode . "linux")
-  ;;         (c++-mode . "linux")
-  ;;         (other . "linux")))
-
+  (setq c-default-style
+        '((java-mode . "tq-c-style")
+          (c-mode . "tq-c-style")
+          (c++-mode . "tq-c-style")
+          (other . "tq-c-style")))
 
   ;; 设置钩子。
   (add-hook 'shell-mode-hook 'tq-initialize-shell-mode)
@@ -2624,7 +2604,6 @@ sproject name: ")
   (add-hook 'java-mode-hook 'hs-minor-mode)
   (add-hook 'java-mode-hook 'tq-c-mode-hook)
   (add-hook 'powershell-mode-hook #'(lambda ()
-
                                       (tq-initialize-powershell-mode)
                                       (tq-add-powershell-path tq-system-path)))
 
@@ -2641,7 +2620,8 @@ sproject name: ")
   ;; 显示时间
   (setq display-time-mode t)
 
-  (setq tab-width 4
+  (setq tab-width 8
+        c-basic-offset 8
 	    indent-tabs-mode nil)
   (set-org-todo-keywords)
   (switch-to-buffer "*scratch*")
