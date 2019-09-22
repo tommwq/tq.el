@@ -1,5 +1,3 @@
-
-
 ;; Android项目生成程序处理逻辑
 ;; 输入项目信息。
 ;; - 包名。
@@ -24,7 +22,7 @@
 ;; 创建kotlin文件。
 ;; 初始化git仓库。
 
-(load-file "tq-android-template.el")
+;;(load-file "tq-android-template.el")
 
 (defconst tq-android-placeholder-pattern "\\($[A-Z_]*\\)")
 (defun tq-android-make-file-template (name-template content-template)
