@@ -77,8 +77,6 @@
 (setq backup-directory-alist (quote (("." . "~/.backups"))))
 (tq-set-font)
 
-;; 设置工作目录
-(setf default-directory "D:/workspace/project/")
 
 ;; 光标样式
 (setq cursor-type 'hbar)
@@ -219,10 +217,31 @@
 
 (setq tab-width 8
       c-basic-offset 8
-	  indent-tabs-mode nil)
+      indent-tabs-mode nil)
+
 (set-org-todo-keywords)
-(switch-to-buffer "*scratch*")
+;; (switch-to-buffer "*scratch*")
 ;; (delete-other-windows)
 ;; (delete-region (point-min) (point-max))
 (tq-set-font)
 
+;; 设置工作目录
+(setf tq-working-directory "D:/workspace/project/")
+(setf default-directory tq-working-directory)
+(setf tq-note-directory (concat tq-working-directory "notes"))
+
+(setf org-publish-project-alist
+      '(("note"
+         :base-directory "D:/workspace/project/"
+         :base-extension "org"
+         :exclude ".txt"
+         :recursive t
+         :publishing-directory  "D:/workspace/project/publish"
+         :publishing-function org-html-publish-to-html
+         :section-numbers nil
+         :table-of-contents nil
+         :auto-sitemap t
+         :sitemap-filename "index.html"
+         :sitemap-sort-files anti-chronologically)))
+
+(setf org-export-in-background t)

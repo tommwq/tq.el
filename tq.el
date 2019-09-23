@@ -6,7 +6,6 @@
 ;; (add-to-list 'load-path "/path/to//tq.el/")
 ;; (require 'tq)
 
-
 ;; 加载本目录下tq-*.el文件。
 (dolist (part '(tq-util
                 tq-string
