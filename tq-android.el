@@ -22,7 +22,6 @@
 ;; 创建kotlin文件。
 ;; 初始化git仓库。
 
-;;(load-file "tq-android-template.el")
 
 (defconst tq-android-placeholder-pattern "\\($[A-Z_]*\\)")
 (defun tq-android-make-file-template (name-template content-template)
@@ -333,3 +332,14 @@ sPackage name: ")
   (dolist (model-name (split-string model-name-list " "))
     (tq-android-create-one-model model-name package-name))
   (tq-android-create-appdatabase model-name-list package-name))
+
+
+(defun tq-new-android-application ()
+  (let ((env (tq-make-string-hash "test" "ok")))
+    (tq-workflow-execute
+     (make-instance 'tq-workflow
+                    :environment env
+                    :steps (list (make-instance 'tq-workflow-step-run-shell-command
+                                                :command "gradle -no-daemon init --dsl groovy --type basic")
+                                 (make-instance 'tq-workflow-step-message
+                                                :text "todo"))))))
