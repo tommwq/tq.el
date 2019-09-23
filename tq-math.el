@@ -1,7 +1,7 @@
 ;; tq-math.el
 ;; 文件功能。
 ;; 建立日期：2019年09月22日
-;; 修改日期：2019年09月22日
+;; 修改日期：2019年09月23日
 
 (defun tq-round (value precision)
   "对值进行舍入，保留precision位小数。"
@@ -25,14 +25,14 @@
 (defun tq-decrease-percent (value percent)
   (* value (- 1 (/ percent 100.0))))
 
-(cl-defun tq-in-bound (value lower upper &optional (include t))
+(defun tq-in-bound (value lower upper &optional include)
   "计算值是否在范围内。"
   (let ((less (if include #'<= #'<))
         (greater (if include #'>= #'>)))
     (and (funcall less value upper)
          (funcall greater value lower))))
 
-(cl-defun tq-in-bound-percent (value target lower-percent upper-percent &optional (include t))
+(defun tq-in-bound-percent (value target lower-percent upper-percent &optional include)
   "计算值是否在范围内（百分比）。"
   (tq-in-bound value
                (tq-decrease-percent target lower-percent)
