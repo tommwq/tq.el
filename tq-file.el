@@ -42,7 +42,7 @@
   "生成org文件，插入到缓冲区。"
   (interactive "sTitle: ")
   (beginning-of-buffer)
-  (insert (tq-generate-org-file-content))
+  (insert (tq-generate-org-file-content title))
   (end-of-buffer))
 
 (defun tq-new-org-file (file-name title)
