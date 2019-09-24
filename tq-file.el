@@ -15,7 +15,7 @@
         (error "File existed. path: %s." absolute-file-name))
     (if (not (file-exists-p path))
         (make-directory path t))
-    (append-to-file content nil absolute-file-name)))
+    (write-region content nil absolute-file-name)))
 
 (defun tq-write-file-then-open (file-name content &optional overwrite)
   "写文件并打开文件。"

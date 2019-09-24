@@ -1,3 +1,5 @@
+(require 'subr-x)
+
 (defun tq-has-prefix (str prefix)
   "判断str是否包含前缀prefix。"
   (string= prefix (substring str 0 (min (length prefix) (length str)))))

@@ -1,118 +1,497 @@
-;; Android项目生成程序处理逻辑
-;; 输入项目信息。
-;; - 包名。
-;; - 根目录。
-;; 创建目录。
-;; 读取目录模板。
-;; 生成目录名。
-;; 逐一建立目录。
-;; 文件模板：文件名模板+文件内容模板。
-;; ROOT
-;; ROOT/app/src/androidTest/java/PACKAGE
-;; ROOT/app/src/main/aidl/PACKAGE
-;; ROOT/app/src/main/java/PACKAGE
-;; ROOT/app/src/main/res/PACKAGE
-;; ROOT/app/src/main/res/drawable
-;; ROOT/app/src/main/res/layout
-;; ROOT/app/src/main/res/values
-;; ROOT/app/src/test/java/PACKAGE
-;; 使用navigation/room/kotlin/
-;; 创建gradle文件。
-;; 初始化gradle。
-;; 创建kotlin文件。
-;; 初始化git仓库。
+;; tq-android.el
+;; 帮助android程序开发的函数。
+;; 建立日期：2019年09月22日
+;; 修改日期：2019年09月24日
+
+;; todo 建立androidTest文件。
+;; todo 建立test文件。
+;; todo 增加kotlin。
+;; todo 加入git仓库。
+;; todo 增加app/proguard-rules.pro。
+
+(defconst tq-android-root-build-gradle-template "
+buildscript {
+    ext {
+        kotlin_version = '1.3.31'
+        room_version = '2.1.0-alpha03'
+        workVersion = '1.0.0-beta01'
+    }
+    repositories {
+        maven { url \"http://maven.aliyun.com/nexus/content/groups/public\" }
+        mavenCentral()
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath \"org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version\"
+        classpath \"org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version\"
+    }
+}
+
+allprojects {
+    repositories {
+        maven { url \"http://maven.aliyun.com/nexus/content/groups/public\" }
+        mavenCentral()
+        google()
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+")
+
+(defconst tq-android-app-build-gradle-template "
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId \"${applicationId}\"
+        minSdkVersion 16
+        targetSdkVersion 28
+        versionCode 1
+        versionName \"1.0\"
+        testInstrumentationRunner \"android.support.test.runner.AndroidJUnitRunner\"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
+")
+
+(defconst tq-android-activity-template "
+package ${package};
+
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+
+public class ${activityCapitalize}Activity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_${activity});
+    }
+
+    // TODO 增加生命周期的其他回调函数。
+}
+")
+
+(defconst tq-android-settings-gradle-template
+  "include ':app'")
+
+(defconst tq-android-local-properties-template
+  "sdk.dir=${androidSdkRoot}")
+
+(defconst tq-android-gradle-properties-template
+  "org.gradle.jvmargs=-Xmx1536m
+android.useAndroidX=true
+android.enableJetifier=true
+")
+
+(defconst tq-android-manifest-xml-template
+  "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"
+	  package=\"${package}\"
+	  android:versionCode=\"1\"
+	  android:versionName=\"1.00\">
+
+	<application android:label=\"helloworld\">
+		<activity android:name=\".activity.MainActivity\"
+			  android:label=\"helloworld\">
+			<intent-filter>
+				<action android:name=\"android.intent.action.MAIN\" />
+				<category android:name=\"android.intent.category.LAUNCHER\" />
+			</intent-filter>
+		</activity>
+	</application>
+
+ 	<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>
+</manifest>")
+
+(defconst tq-android-activity-layout-xml-template
+  "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<android.support.constraint.ConstraintLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"
+    xmlns:app=\"http://schemas.android.com/apk/res-auto\"
+    xmlns:tools=\"http://schemas.android.com/tools\"
+    android:layout_width=\"match_parent\"
+    android:layout_height=\"match_parent\"
+    tools:context=\".${activityCapitalize}Activity\">
+
+    <TextView
+        android:layout_width=\"wrap_content\"
+        android:layout_height=\"wrap_content\"
+        android:text=\"Hello World!\"
+        app:layout_constraintBottom_toBottomOf=\"parent\"
+        app:layout_constraintLeft_toLeftOf=\"parent\"
+        app:layout_constraintRight_toRightOf=\"parent\"
+        app:layout_constraintTop_toTopOf=\"parent\" />
+</android.support.constraint.ConstraintLayout>")
 
 
-(defconst tq-android-placeholder-pattern "\\($[A-Z_]*\\)")
-(defun tq-android-make-file-template (name-template content-template)
-  (list name-template content-template))
+(defconst tq-android-drawable-launcher-xml-template
+  "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<vector xmlns:android=\"http://schemas.android.com/apk/res/android\"
+    android:width=\"108dp\"
+    android:height=\"108dp\"
+    android:viewportWidth=\"108\"
+    android:viewportHeight=\"108\">
+    <path
+        android:fillColor=\"#008577\"
+        android:pathData=\"M0,0h108v108h-108z\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M9,0L9,108\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M19,0L19,108\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M29,0L29,108\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M39,0L39,108\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M49,0L49,108\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M59,0L59,108\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M69,0L69,108\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M79,0L79,108\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M89,0L89,108\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M99,0L99,108\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M0,9L108,9\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M0,19L108,19\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M0,29L108,29\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M0,39L108,39\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M0,49L108,49\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M0,59L108,59\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M0,69L108,69\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M0,79L108,79\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M0,89L108,89\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M0,99L108,99\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M19,29L89,29\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M19,39L89,39\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M19,49L89,49\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M19,59L89,59\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M19,69L89,69\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M19,79L89,79\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M29,19L29,89\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M39,19L39,89\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M49,19L49,89\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M59,19L59,89\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M69,19L69,89\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+    <path
+        android:fillColor=\"#00000000\"
+        android:pathData=\"M79,19L79,89\"
+        android:strokeWidth=\"0.8\"
+        android:strokeColor=\"#33FFFFFF\" />
+</vector>
+")
 
-(defun tq-android-render-file-template(file-template)
-  (list tq-android-render-template (first file-template)
-        tq-android-render-template (second file-template)))
 
-(defun tq-android-find-placeholders(template)
-  (let ((start (setf start (string-match tq-android-placeholder-pattern template)))
-        (begin 0)
-        (end 0)
-        (result (make-hash-table)))
-    (while start
-      (setf begin (match-beginning 1))
-      (setf end (match-end 1))
-      (puthash (substring template begin end) t result)
-      (setf start (string-match tq-android-placeholder-pattern template end)))
-    result))
+(defconst tq-android-values-styles-xml-template
+  "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<resources>
+    <color name=\"colorPrimary\">#008577</color>
+    <color name=\"colorPrimaryDark\">#00574B</color>
+    <color name=\"colorAccent\">#D81B60</color>
+</resources>
+")
 
-(defun tq-android-render-template(template value-table)
-  (let ((symbol-table (tq-android-find-placeholders template))
-        (result template)
-        (replacement ""))
-    (maphash
-     (lambda (key value)
-       (setf replacement (gethash (substring key 1) value-table ""))
-       (setf result (replace-regexp-in-string key replacement result t)))
-     symbol-table)
-    result))
+(defconst tq-android-values-strings-xml-template
+  "<resources>
+    <string name=\"app_name\">My Application</string>
+</resources>
+")
 
-(defun tq-android-create-file-from-template(file-template value-table)
-  (let ((filename (tq-android-render-template (car file-template) value-table))
-        (content (tq-android-render-template (cadr file-template) value-table)))
-    ;; 建立父目录
-    (if (file-name-directory filename)
-        (make-directory (file-name-directory filename) t))
-    ;; 生成文件
-    (append-to-file content nil filename)))
+(defconst tq-android-values-colors-xml-template
+  "<resources>
 
-(defun test ()
-  (setf vtbl (make-hash-table :test 'equal))
-  (puthash "SDK_ROOT" "C/:/Users/guosen/AppData/Local/Android/Sdk" vtbl)
-  (puthash "ROOT" "d:/workspace/project/tq.el/test/" vtbl)
+    <!-- Base application theme. -->
+    <style name=\"AppTheme\" parent=\"Theme.AppCompat.Light.DarkActionBar\">
+        <!-- Customize your theme here. -->
+        <item name=\"colorPrimary\">@color/colorPrimary</item>
+        <item name=\"colorPrimaryDark\">@color/colorPrimaryDark</item>
+        <item name=\"colorAccent\">@color/colorAccent</item>
+    </style>
 
-  (dolist (tpl (list tq-android-template-settings-gradle
-                     tq-android-template-local-properties
-                     tq-android-template-gradle-properties
-                     tq-android-template-build-gradle))
-    (tq-android-create-file-from-template
-     (tq-android-make-file-template (car tpl) (cadr tpl))
-     vtbl)))
+</resources>
+")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun tq-create-file (filename content)
-  "建立文件。"
-  (let* ((absolute-filename
-          (if (file-name-absolute-p filename)
-              filename
-            (expand-file-name filename default-directory)))	   
-         (path (file-name-directory absolute-filename)))
-    (when (file-exists-p absolute-filename)
-      (error "File existed. path: %s." absolute-filename))
-    (unless (file-exists-p path)
-      (make-directory path t))
-    (append-to-file content nil absolute-filename)))
+(defconst kotlin-android-gitignore-content "
+build/
+.gradle
+")
 
-(defun tq-create-file-force (filename content)
-  "建立文件。"
-  (let* ((absolute-filename
-          (if (file-name-absolute-p filename)
-              filename
-            (expand-file-name filename default-directory)))	   
-         (path (file-name-directory absolute-filename)))
-    (when (file-exists-p absolute-filename)
-      ;; 备份文件
-      (rename-file absolute-filename (concat absolute-filename ".bak")))
-    (unless (file-exists-p path)
-      (make-directory path t))
-    (append-to-file content nil absolute-filename)))
+(defconst kotlin-android-build-gradle-content "
+
+buildscript {
+        ext.kotlin_version = \"1.1.2-2\"
+
+        repositories {
+                mavenCentral()
+                jcenter()
+        }
+
+        dependencies {
+                classpath \"com.android.tools.build:gradle:2.2.0\"
+                classpath \"org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version\"
+        }
+}
 
 
-(defun tq-replace-regexp-pairs (pairs text)
-  "将text中${xyz}格式的内容替换为pairs中${xyz}对应的值。"
-  (let ((pattern "")
-        (replace ""))
-    (while (< 0 (length pairs))
-      (setf pattern (pop pairs))
-      (setf replace (pop pairs))
-      (setf text (replace-regexp-in-string pattern replace text)))
-    text))
+apply plugin: \"com.android.application\"
+apply plugin: \"kotlin-android\"
+
+repositories {
+        mavenCentral()
+        jcenter()
+}
+
+dependencies {
+        compile \"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version\"
+}
+
+// kotlin.incremental = true
+android {
+        compileSdkVersion 19
+        buildToolsVersion \"25.0.2\"
+
+        compileOptions {
+                sourceCompatibility JavaVersion.VERSION_1_7
+                targetCompatibility JavaVersion.VERSION_1_7
+        }
+        
+}
+
+")
+
+(defconst kotlin-android-layout-xml-content "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"
+	      android:orientation=\"vertical\"
+	      android:layout_width=\"fill_parent\"
+	      android:layout_height=\"fill_parent\"
+	      >
+	<TextView
+		android:layout_width=\"fill_parent\"
+		android:layout_height=\"wrap_content\"
+		android:text=\"HELLO WORLD!\"
+		/>
+</LinearLayout>
+")
+
+(defconst kotlin-android-activity-format
+  "package ${package}.activity;
+
+import android.os.Bundle
+import android.app.Activity
+import ${package}.R
+
+class MainActivity: Activity() {
+
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		setContentView(R.layout.main)
+	}
+}
+")
+
+(defun tq-create-kotlin-android-app-project (project-name
+                                             package)
+  (interactive "sProjectName: 
+sPackage: ")
+
+  ;; create project directory
+  (make-directory project-name t)
+
+  ;; create .gitignore
+  (tq-write-file
+   (expand-file-name
+    ".gitignore"
+    project-name)
+   kotlin-android-gitignore-content)
+
+  ;; create build.gradle
+  (tq-write-file
+   (expand-file-name
+    "build.gradle"
+    project-name)
+   kotlin-android-build-gradle-content)
+
+  ;; mkdir src/main/res/layout
+  (make-directory
+   (expand-file-name
+    "src/main/res/layout"
+    project-name)
+   t)
+
+  ;; mkdir src/main/java/{package}/activity
+  (make-directory
+   (expand-file-name
+    (concat "src/main/java/"
+            (tq-java-package-to-directory package)
+            "/activity/")
+    project-name)
+   t)
+
+  ;; create src/main/java/{package}/activity/MainActivity.kt
+  (let ((filename (expand-file-name
+                   (concat "src/main/java/"
+                           (tq-java-package-to-directory package)
+                           "/activity/MainActivity.kt")
+                   project-name))
+        (content
+         (tq-replace-regexp-pairs
+          (list "${package}" package)
+          kotlin-android-activity-format)))
+    (tq-write-file filename content))
+
+  ;; create src/main/AndroidManifest.xml
+  (tq-write-file
+   (expand-file-name
+    "src/main/AndroidManifest.xml"
+    project-name)
+   (tq-replace-regexp-pairs
+    (list "${package}" package)
+    kotlin-android-androidmanifest-xml-format))
+
+  ;; create src/main/res/layout/main.xml
+  (tq-write-file
+   (expand-file-name
+    "src/main/res/layout/main.xml"
+    project-name)
+   kotlin-android-layout-xml-content))
 
 
 (defconst tq-android-entity-template "package ${package}.database
@@ -333,13 +712,81 @@ sPackage name: ")
     (tq-android-create-one-model model-name package-name))
   (tq-android-create-appdatabase model-name-list package-name))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun tq-new-android-application ()
-  (let ((env (tq-make-string-hash "test" "ok")))
+(defun tq-new-android-application (root applicationId package android-sdk-root)
+  (let* ((activity "main")
+         (env (tq-make-string-hash "applicationId" applicationId
+                                   "package" package
+                                   "packagePath" (replace-regexp-in-string "\\." "/" package)
+                                   "androidSdkRoot" android-sdk-root
+                                   "activity" activity
+                                   "activityCapitalize" (tq-upcase-first-letter activity)
+                                   "root" root)))
     (tq-workflow-execute
      (make-instance 'tq-workflow
                     :environment env
                     :steps (list (make-instance 'tq-workflow-step-run-shell-command
                                                 :command "gradle -no-daemon init --dsl groovy --type basic")
+                                 (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/build.gradle"
+                                                :content-template tq-android-root-build-gradle-template
+                                                :environment env
+                                                :overwrite t)
+                                 (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/app/build.gradle"
+                                                :content-template tq-android-app-build-gradle-template
+                                                :environment env
+                                                :overwrite t)
+                                 (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/app/src/main/java/${packagePath}/${activityCapitalize}Activity.java"
+                                                :content-template tq-android-activity-template
+                                                :environment env
+                                                :overwrite t)
+                                 (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/settings.gradle"
+                                                :content-template tq-android-settings-gradle-template
+                                                :environment env
+                                                :overwrite t)
+                                 (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/local.properties"
+                                                :content-template tq-android-local-properties-template
+                                                :environment env
+                                                :overwrite t)
+                                 (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/gradle.properties"
+                                                :content-template tq-android-gradle-properties-template
+                                                :environment env
+                                                :overwrite t)
+                                 (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/app/src/main/AndroidManifest.xml"
+                                                :content-template tq-android-manifest-xml-template
+                                                :environment env
+                                                :overwrite t)
+                                 (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/app/src/main/res/layout/activity_${activity}.xml"
+                                                :content-template tq-android-activity-layout-xml-template
+                                                :environment env
+                                                :overwrite t)
+                                 (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/app/src/main/res/drawable/ic_launcher_background.xml"
+                                                :content-template tq-android-drawable-launcher-xml-template
+                                                :environment env
+                                                :overwrite t)
+                                 (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/app/src/main/res/values/strings.xml"
+                                                :content-template tq-android-values-strings-xml-template
+                                                :environment env
+                                                :overwrite t)
+                                 (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/app/src/main/res/values/colors.xml"
+                                                :content-template tq-android-values-colors-xml-template
+                                                :environment env
+                                                :overwrite t)
+                                 (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/app/src/main/res/values/styles.xml"
+                                                :content-template tq-android-values-styles-xml-template
+                                                :environment env
+                                                :overwrite t)
                                  (make-instance 'tq-workflow-step-message
-                                                :text "todo"))))))
+                                                :text "android project created."))))))
