@@ -17,6 +17,35 @@
                                     "version" version
                                     "packaging" packaging))
 
+
+(defconst tq-java-class-file-template "/**
+ * File: ${className}.java
+ * Description: ${description}
+ * Create: ${date}
+ * Modify: ${date}
+ */
+
+package ${package};
+
+public class ${className} {
+        public ${className} () {
+        }
+
+        public static void main(String... args) {
+                new ${className}();
+        }
+}
+")
+
+
+(defun tq-generate-java-class-file-content (package class-name description)
+  "生成java类。"
+  (tq-render-template-from-sequence tq-java-class-file-template
+                                    "className" class-name
+                                    "description" description
+                                    "package" package
+                                    "date" (format-time-string "%Y-%m-%d")))
+
 (defun tq-insert-pom-file (group-id artifact-id version packaging)
   "生成pom.xml文件，插入到缓冲区。"
   (interactive "sGroupId: 
@@ -38,31 +67,6 @@ sPackaging: ")
   (tq-write-file-then-open file-name (tq-generate-pom-file-content group-id artifact-id version packaging))
   (end-of-buffer))  
 
-(defun tq-generate-java-class-file-content (package class-name description)
-  "生成java类。"
-  (tq-render-template-from-sequence "/**
- * File: ${className}.java
- * Description: ${description}
- * Create: ${date}
- * Modify: ${date}
- */
-
-package ${package};
-
-public class ${className} {
-        public ${className} () {
-        }
-
-        public static void main(String... args) {
-                new ${className}();
-        }
-}
-"
-                                    "className" class-name
-                                    "description" description
-                                    "package" package
-                                    "date" (format-time-string "%Y-%m-%d")))
-
 (defun tq-insert-java-class-file (package class-name description)
   (interactive "sPackage: 
 sClassName:
@@ -77,6 +81,35 @@ sPackage:
 sClassName:
 sDescription: ")
   (tq-write-file-then-open file-name (tq-generate-java-class-file-content package class-name description)))
+
+(defun tq-new-java-application (root project package)
+  (interactive "sRoot:
+sProject:
+sPackage:
+")
+  (let* ((origin-directory default-directory)
+         (package-path (replace-regexp-in-string "\\." "/" package))
+         (project-directory (expand-file-name project root))
+         (env (tq-make-string-hash "package" package
+                                   "project" project
+                                   "root" root))
+         (command (tq-render-template
+                   "gradle -no-daemon init --dsl groovy --type java-application --package ${package} --project-name ${project}"
+                   env)))
+    (tq-workflow-execute
+     (make-instance 'tq-workflow
+                    :environment env
+                    :steps (list (make-instance 'tq-workflow-step-make-directory
+                                                :path project-directory)
+                                 (make-instance 'tq-workflow-step-change-directory
+                                                :path project-directory)
+                                 (make-instance 'tq-workflow-step-run-shell-command
+                                                :command command)
+                                 (make-instance 'tq-workflow-step-change-directory
+                                                :path origin-directory)
+                                 (make-instance 'tq-workflow-step-open-file
+                                                :file-name
+                                                (expand-file-name (concat "src/main/java/" package-path "/App.java") project-directory)))))))
 
 (defun tq-pojo-capture (start end)  
   "将区域内的文字转换成POJO类。
