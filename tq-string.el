@@ -81,3 +81,25 @@
 (defun tq-render-template-from-sequence (template &rest sequence)
   "渲染模板。从sequence建立散列表进行渲染。"
   (tq-render-template template (apply #'tq-make-string-hash sequence)))
+
+(defun capitalize-to-underscore (capitalized)
+  "将PascalCamel改为underscored。"
+  (let ((underscored "")
+        (underscored-list nil)
+        (upcase-z 90)
+        (upcase-a 65)
+        (upcase-diff 32)
+        (underscore 95))
+    (dolist (ch (string-to-list capitalized))
+      (if (and (>= ch upcase-a) (<= ch upcase-z))
+          (setf underscored-list (append
+                                  (if underscored-list
+                                      (append underscored-list (list underscore))
+                                    (list underscore))
+                                  (list (+ ch upcase-diff))))
+        (setf underscored-list (if underscored-list
+                                   (append underscored-list (list ch))
+                                 (list ch)))))
+    (dolist (ch underscored-list)
+      (setf underscored (concat underscored (char-to-string ch))))
+    underscored))

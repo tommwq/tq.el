@@ -714,6 +714,48 @@ sPackage name: ")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defconst tq-android-fragment-template "
+package ${packageName}
+
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.tq.debugassist.databinding.Fragment${fragmentName}Binding
+
+class ${fragmentName}Fragment : Fragment() {
+
+        private lateinit var binding: Fragment${fragmentName}Binding
+
+        override fun onCreateView(
+                inflater: LayoutInflater,
+                container: ViewGroup?,
+                savedInstanceState: Bundle?
+        ): View? {
+                binding = Fragment${fragmentName}Binding.inflate(inflater, container, false)
+                return binding.root
+        }
+
+        companion object {
+        }
+}
+")
+
+(defconst tq-android-fragment-layout-template "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<layout xmlns:android=\"http://schemas.android.com/apk/res/android\"
+    xmlns:tools=\"http://schemas.android.com/tools\">
+
+    <FrameLayout
+        android:layout_width=\"match_parent\"
+        android:layout_height=\"match_parent\">
+
+    </FrameLayout>
+</layout>
+")
+
+
+
 (defun tq-new-android-application (root applicationId package android-sdk-root)
   (let* ((activity "main")
          (env (tq-make-string-hash "applicationId" applicationId
@@ -790,3 +832,24 @@ sPackage name: ")
                                                 :overwrite t)
                                  (make-instance 'tq-workflow-step-message
                                                 :text "android project created."))))))
+
+(defun tq-android-create-fragment (root package-name fragment-name)
+  (let ((env (tq-make-string-hash "root" root
+                                  "packageName" package-name
+                                  "packagePath" (replace-regexp-in-string "\\." "/" package-name)
+                                  "fragmentName" fragment-name
+                                  "layoutName" (capitalize-to-underscore fragment-name))))
+    (tq-workflow-execute
+     (make-instance 'tq-workflow
+                    :environment env
+                    :steps (list (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/app/src/main/res/layout/fragment${layoutName}.xml"
+                                                :content-template tq-android-fragment-layout-template
+                                                ;; todo remove it
+                                                :overwrite t
+                                                :environment env)
+                                 (make-instance 'tq-workflow-step-render-file
+                                                :file-name-template "${root}/app/src/main/java/${packagePath}/${fragmentName}Fragment.kt"
+                                                :content-template tq-android-fragment-template
+                                                :environment env
+                                                :overwrite t))))))
