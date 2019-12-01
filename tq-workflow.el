@@ -10,6 +10,26 @@
 (cl-defmethod execute ((step tq-workflow-step-run-shell-command))
   (call-process-shell-command (oref step :command)))
 
+(defclass tq-workflow-step-make-directory
+  ()
+  ((path :initform ""
+            :type string
+            :initarg :path))
+  "执行一个shell命令。")
+
+(cl-defmethod execute ((step tq-workflow-step-make-directory))
+  (make-directory (oref step :path) t))
+
+(defclass tq-workflow-step-change-directory
+  ()
+  ((path :initform ""
+            :type string
+            :initarg :path))
+  "执行一个shell命令。")
+
+(cl-defmethod execute ((step tq-workflow-step-change-directory))
+  (cd (oref step :path)))
+
 (defclass tq-workflow-step-message
   ()
   ((text :initform ""
