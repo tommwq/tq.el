@@ -714,31 +714,30 @@ sPackage name: ")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defconst tq-android-fragment-template "
-package ${packageName}
+(defconst tq-android-fragment-template "package ${packageName}
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.tq.debugassist.databinding.Fragment${fragmentName}Binding
+import ${applicationPackage}.databinding.Fragment${fragmentName}Binding
 
-class ${fragmentName}Fragment : Fragment() {
+class ${fragmentName}Fragment() : Fragment() {
 
-        private lateinit var binding: Fragment${fragmentName}Binding
+    private lateinit var binding: Fragment${fragmentName}Binding
 
-        override fun onCreateView(
-                inflater: LayoutInflater,
-                container: ViewGroup?,
-                savedInstanceState: Bundle?
-        ): View? {
-                binding = Fragment${fragmentName}Binding.inflate(inflater, container, false)
-                return binding.root
-        }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = Fragment${fragmentName}Binding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        companion object {
-        }
+    companion object {
+    }
 }
 ")
 
@@ -833,8 +832,9 @@ class ${fragmentName}Fragment : Fragment() {
                                  (make-instance 'tq-workflow-step-message
                                                 :text "android project created."))))))
 
-(defun tq-android-create-fragment (root package-name fragment-name)
+(defun tq-android-create-fragment (root application-package package-name fragment-name)
   (let ((env (tq-make-string-hash "root" root
+                                  "applicationPackage" application-package
                                   "packageName" package-name
                                   "packagePath" (replace-regexp-in-string "\\." "/" package-name)
                                   "fragmentName" fragment-name
