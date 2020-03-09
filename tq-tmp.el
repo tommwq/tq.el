@@ -250,7 +250,7 @@ method-name is the name of method to be tested."
 
 (defconst tq-c-style
   '((c-tab-always-indent . t)
-    (c-basic-offset . 8)
+    (c-basic-offset . 4)
     (c-comment-only-line-offset . 0)
     (c-echo-syntactic-information-p . t)
     (c-cleanup-list . (
@@ -328,7 +328,7 @@ method-name is the name of method to be tested."
 (defun set-org-todo-keywords ()
   "设置org-mode中的todo阶段。"
   (setq org-todo-keywords
-        '((sequence "todo(t)" "in-action(i!)" "wait(w@/!)"
+        '((sequence "todo(t)" "in-action(i!)" "delegate(e@/!)" "delay(y@/!)"
                     "|"
                     "done(d@/!)" "canceled(c@/!)"))))
 
@@ -862,7 +862,7 @@ sproject name: ")
   ;;  (message "tq-c-mode-hook")
   ;;  (c-set-style "linux")
   ;; (c-set-style "")
-  (setq tab-width 8
+  (setq tab-width 4
 	    indent-tabs-mode nil)
   ;;  (c-toggle-auto-newline t)
   )
