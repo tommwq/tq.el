@@ -28,7 +28,7 @@
 
 #+startup: showeverything
 #+options: ^:nil
-#+todo: todo(t) in-action(i@/!) wait(w@/!) | done(d@/!) canceled(c@/!)
+#+todo: todo(t) in-action(i@/!) delegate(e@/!) delay(y@/!) | done(d@/!) canceled(c@/!)
 
 #+title: ${title}
 #+date: ${date}

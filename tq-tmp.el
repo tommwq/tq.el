@@ -328,7 +328,7 @@ method-name is the name of method to be tested."
 (defun set-org-todo-keywords ()
   "设置org-mode中的todo阶段。"
   (setq org-todo-keywords
-        '((sequence "todo(t)" "in-action(i!)" "wait(w@/!)"
+        '((sequence "todo(t)" "in-action(i!)" "delegate(e@/!)" "delay(y@/!)"
                     "|"
                     "done(d@/!)" "canceled(c@/!)"))))
 
