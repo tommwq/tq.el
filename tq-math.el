@@ -50,3 +50,9 @@
       (/ (apply '+ (mapcar #'(lambda (x)(* (- x avg) (- x avg))) numbers))
          (- len 1)))))
 
+(defun harmonic-number (n)
+  "调和级数。1 + 1/2 + 1/3 + ... + 1/n"
+  (let ((sum 0))
+    (dotimes (x n)
+      (setf sum (+ sum (/ 1.0 (1+ x)))))
+    sum))

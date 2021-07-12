@@ -325,12 +325,18 @@ method-name is the name of method to be tested."
   "避免使用PowerShell模式启动PowerShell时中文文件名出现乱码。"
   (set-buffer-process-coding-system 'utf-8 'utf-8))
 
+;; (defun set-org-todo-keywords ()
+;;   "设置org-mode中的todo阶段。"
+;;   (setq org-todo-keywords
+;;         '((sequence "todo(t)" "in-action(i!)" "delegate(e@/!)" "delay(y@/!)"
+;;                     "|"
+;;                     "done(d@/!)" "canceled(c@/!)"))))
 (defun set-org-todo-keywords ()
   "设置org-mode中的todo阶段。"
   (setq org-todo-keywords
-        '((sequence "todo(t)" "in-action(i!)" "delegate(e@/!)" "delay(y@/!)"
+        '((sequence "todo(t)" "in-action(i!)" "delegate(e!)" "delay(y!)"
                     "|"
-                    "done(d@/!)" "canceled(c@/!)"))))
+                    "done(d!)" "canceled(c!)"))))
 
 (defun set-encodings ()
   "设置字符编码。"

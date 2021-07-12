@@ -5,14 +5,13 @@
 
 (defun tq-write-file (file-name content &optional overwrite)
   "写文件。"
-  (let* ((absolute-file-name
-          (if (file-name-absolute-p file-name)
-              file-name
-            (expand-file-name file-name default-directory)))	   
+  (let* ((absolute-file-name (if (file-name-absolute-p file-name)
+                                 file-name
+                               (expand-file-name file-name default-directory)))	   
          (path (file-name-directory absolute-file-name)))
     (if (and (not overwrite)
              (file-exists-p absolute-file-name))
-        (error "File existed. path: %s." absolute-file-name))
+        (error "文件 %s 已存在" absolute-file-name))
     (if (not (file-exists-p path))
         (make-directory path t))
     (write-region content nil absolute-file-name)))
@@ -25,14 +24,11 @@
 (defun tq-generate-org-file-content (title)
   "生成org文件内容。"
   (let* ((template "# -*- mode: org -*-
-
-#+startup: showeverything
 #+options: ^:nil
 #+todo: todo(t) in-action(i@/!) delegate(e@/!) delay(y@/!) | done(d@/!) canceled(c@/!)
-
+#+HTML_HEAD: <style type=\"text/css\">body { font-size: large; }</style>
 #+title: ${title}
 #+date: ${date}
-
 "))
     (tq-render-template-from-sequence template
                                       "title" title
