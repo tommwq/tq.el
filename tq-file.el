@@ -25,14 +25,10 @@
 (defun tq-generate-org-file-content (title)
   "生成org文件内容。"
   (let* ((template "# -*- mode: org -*-
-
-#+startup: showeverything
 #+options: ^:nil
-#+todo: todo(t) in-action(i@/!) delegate(e@/!) delay(y@/!) | done(d@/!) canceled(c@/!)
-
+#+todo: todo(t) in-action(i@/!) delegate(e@/!) delay(y@/!) | done(d!) canceled(c@/!)
 #+title: ${title}
 #+date: ${date}
-
 "))
     (tq-render-template-from-sequence template
                                       "title" title
