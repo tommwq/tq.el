@@ -35,10 +35,10 @@
 
 
 (defconst tq-java-class-file-template "/**
- * File: ${className}.java
- * Description: ${description}
- * Create: ${date}
- * Modify: ${date}
+ * 文件: ${className}.java
+ * 说明: ${description}
+ * 创建日期: ${date}
+ * 最近修改日期: ${date}
  */
 
 package ${package};
@@ -88,12 +88,13 @@ sDescription: ")
   (insert (tq-generate-java package class-name description))
   (end-of-buffer))
 
-(defun tq-new-java-class-file (file-name package class-name description)
-  (interactive "sFileName:
-sPackage: 
+(defun tq-create-java (package class-name description)
+  "创建Java源代码文件。
+"
+  (interactive "sPackage: 
 sClassName:
 sDescription: ")
-  (tq-write-file-then-open file-name (tq-generate-java package class-name description)))
+  (tq-write-file-then-open (concat class-name ".java") (tq-generate-java package class-name description)))
 
 ;; (defun tq-new-java-application (root project package)
 ;;   (interactive "sRoot:
