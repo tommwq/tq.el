@@ -34,33 +34,36 @@
                                     "mainClass" (concat group ".App")))
 
 
-(defconst tq-java-class-file-template "/**
+(defconst tq-java-template "/**
  * 文件: ${className}.java
  * 说明: ${description}
  * 创建日期: ${date}
  * 最近修改日期: ${date}
  */
-
-package ${package};
+${firstLine}
 
 public class ${className} {
-        public ${className} () {
-        }
+    public ${className} () {
+    }
 
-        public static void main(String... args) {
-                new ${className}();
-        }
+    public static void main(String... args) {
+        new ${className}();
+    }
 }
 ")
 
 
 (defun tq-generate-java (package class-name description)
   "生成java类。"
-  (tq-render-template-from-sequence tq-java-class-file-template
-                                    "className" class-name
-                                    "description" description
-                                    "package" package
-                                    "date" (format-time-string "%Y-%m-%d")))
+  (let ((firstLine ""))
+    (if (and package
+             (not (string-empty-p package)))
+        (setf firstLine (format "package %s;" package)))
+    (tq-render-template-from-sequence tq-java-template
+                                      "className" class-name
+                                      "description" description
+                                      "firstLine" firstLine
+                                      "date" (format-time-string "%Y-%m-%d"))))
 
 (defun tq-insert-pom-file (group-id artifact-id version packaging)
   "生成pom.xml文件，插入到缓冲区。"
@@ -94,7 +97,8 @@ sDescription: ")
   (interactive "sPackage: 
 sClassName:
 sDescription: ")
-  (tq-write-file-then-open (concat class-name ".java") (tq-generate-java package class-name description)))
+  (tq-write-file-then-open (concat class-name ".java")
+                           (tq-generate-java package class-name description)))
 
 ;; (defun tq-new-java-application (root project package)
 ;;   (interactive "sRoot:
