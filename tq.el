@@ -14,6 +14,7 @@
                 tq-android
                 tq-file
                 tq-math
+                tq-command
                 tq-psp
                 tq-tmp
                 tq-local))
