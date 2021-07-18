@@ -91,14 +91,19 @@ sDescription: ")
   (insert (tq-generate-java package class-name description))
   (end-of-buffer))
 
+
 (defun tq-create-java (package class-name description)
   "创建Java源代码文件。
+
+保存在当前目录的<package>/<class-name>.java文件中，并打开文件。
 "
-  (interactive "sPackage: 
-sClassName:
-sDescription: ")
-  (tq-write-file-then-open (concat class-name ".java")
-                           (tq-generate-java package class-name description)))
+  (interactive "s包：
+s类：
+s说明：")
+  (let ((full-class-name (expand-file-name (concat class-name ".java")
+                                           (replace-regexp-in-string "\\." "/" package))))
+    (tq-write-file-then-open full-class-name
+                             (tq-generate-java package class-name description))))
 
 ;; (defun tq-new-java-application (root project package)
 ;;   (interactive "sRoot:

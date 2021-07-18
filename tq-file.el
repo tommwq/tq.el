@@ -3,6 +3,12 @@
 ;; 建立日期：2019年09月22日
 ;; 修改日期：2019年09月22日
 
+(defun tq-read-file (filename)
+  "读取文件，返回内容字符串。"
+  (with-temp-buffer
+    (insert-file-contents filename)
+    (buffer-string)))
+
 (defun tq-write-file (file-name content &optional overwrite)
   "写文件。"
   (let* ((absolute-file-name (if (file-name-absolute-p file-name)

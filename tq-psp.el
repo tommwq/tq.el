@@ -3,6 +3,31 @@
 ;; tq-psp-end 输入任务么，在记录日志中插入一条任务结束 任务 时间
 ;; tq-psp-interrupt 输入时间和原因，在记录中插入一条任务中断 时间 原因
 
+;; TODO 使用类保存当前任务的名字、开始时间、中断时间、中断次数等。
+;; TODO 学习eieio。
+
+(require 'eieio)
+
+;; (defclass tq-psp-interrupt
+;;   ((minute)
+;;    (reason)))
+
+;; (defclass tq-psp-timerecord
+;;   ((job :initarg :job
+;;         :initform ""
+;;         :type string
+;;         :documentation "任务")
+;;    (start-time :initarg :start-time
+;;                :initform ""
+;;                :documentation "开始时间")
+;;    (stop-time :initarg :stop-time
+;;               :initform ""
+;;               :documentation "结束时间")
+;;    (interrupt-list)
+;;    (note)))
+;; (cl-defmethod tq-psp-timerecord-interrupt)
+;; (cl-defmethod tq-psp-timerecord-stop)
+
 
 (defcustom tq-psp-timerecord-filename "~/.timerecord"
   "PSP时间日志记录文件。"
