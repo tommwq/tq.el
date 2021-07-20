@@ -12,7 +12,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
     </properties>
+
+    <dependencies>
+    </dependencies>
 
     <build>
         <plugins>
@@ -260,3 +264,16 @@ public class %s {
     (tq-write-file-then-open app-java-path (tq-generate-java group "App" "应用入口类"))))
 
 
+(defun tq-maven-add-dependency (group artifact version)
+  "在缓冲区当前位置插入 maven 依赖 <dependency> 标签。"
+  (interactive "s组：\ns工件：\ns版本：")
+  (insert (tq-render-template-from-sequence "
+<dependency>
+    <groupId>${group}</groupId>
+    <artifactId>${artifact}</artifactId>
+    <version>${version}</version>
+</dependency>
+"
+                                            "group" group
+                                            "artifact" artifact
+                                            "version" version)))
