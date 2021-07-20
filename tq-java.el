@@ -11,6 +11,7 @@
     <packaging>${packaging}</packaging>
 
     <properties>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
     </properties>
 
     <build>
