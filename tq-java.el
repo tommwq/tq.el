@@ -11,6 +11,7 @@
     <packaging>${packaging}</packaging>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <build>
