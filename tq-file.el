@@ -47,9 +47,9 @@
   (insert (tq-generate-org-file-content title))
   (end-of-buffer))
 
-(defun tq-new-org-file (file-name title)
+(defun tq-create-org (title)
   "建立并初始化org文件。"
-  (interactive "sFileName: 
-sTitle: ")
-  (tq-write-file-then-open file-name (tq-generate-org-file-content title))
-  (end-of-buffer))
+  (interactive "s标题：")
+  (let ((file-name title))
+    (tq-write-file-then-open file-name (tq-generate-org-file-content title))
+    (end-of-buffer)))

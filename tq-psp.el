@@ -62,13 +62,13 @@
 
 在时间记录日志中添加一行：
 
-2021年1月1日 10时0分 开始 读书 Java编程指南
+2021-01-01 10:00:00 BEGIN read Java
 "
   (interactive "s任务：
 s备注：")
-  (let ((date (format-time-string "%Y年%m月%d日"))
-        (time (format-time-string "%H时%M分"))
-        (line-format "%s %s 开始 %s %s"))
+  (let ((date (format-time-string "%Y-%m-%d"))
+        (time (format-time-string "%H:%M:%S"))
+        (line-format "%s %s Begin %s %s"))
     (tq-psp-append-timerecord-file (format line-format date time job note))
     (setf tq-psp-current job)))
 
@@ -77,16 +77,16 @@ s备注：")
 
 在时间记录日志中添加一行：
 
-2021年1月1日 12时0分 结束 读书 完成 是 单元 30
+2021-01-01 10:00:00 END read COMPLETE Y UNIT 30
 "
   (interactive "X是否完成：
 n单元：")
-  (let ((date (format-time-string "%Y年%m月%d日"))
-        (time (format-time-string "%H时%M分"))
+  (let ((date (format-time-string "%Y-%m-%d"))
+        (time (format-time-string "%H:%M:%S"))
         (job tq-psp-current)
-        (line-format "%s %s 结束 %s 完成 %s 单元 %d"))
+        (line-format "%s %s End %s Complete %s Unit %d"))
     (tq-psp-append-timerecord-file
-     (format line-format date time job (if complete "是" "否") unit)))
+     (format line-format date time job (if complete "Y" "N") unit)))
   (setf tq-psp-current nil))
 
 (defun tq-psp-interrupt (reason minutes)
@@ -94,18 +94,18 @@ n单元：")
 
 在时间记录日志中添加一行：
 
-2021年1月1日 12时0分 中断 时间 5 原因 电话
+2021-01-01 10:00:00 INTERRUPT MIN 5 READON PHONE
 "
   (interactive "s原因：
 n分钟：")
-  (let ((date (format-time-string "%Y年%m月%d日"))
-        (time (format-time-string "%H时%M分")))
-    (tq-psp-append-timerecord-file
-     (format "%s %s 中断 分钟 %d 原因 %s"
-             date
-             time
+  (let ((date (format-time-string "%Y-%m-%d"))
+        (time (format-time-string "%H:%M:%S"))
+        (tq-psp-append-timerecord-file
+         (format "%s %s Interrupt Minute %d Reason %s"
+                 date
+                 time
 	         minutes
-	         reason))))
+	         reason)))))
 
 (defun tq-psp-view-timerecord ()
   (interactive)

@@ -244,35 +244,36 @@ public class %s {
       (move-end-of-line))))
 
 (defun tq-create-maven-project (project-name group artifact)
-  "创建maven项目。
+  "创建 maven 项目。
 
-在当前目录创建project-name子目录，并在其中创建pom.xml和maven目录结构。
+在当前目录创建 project-name 子目录，并在其中创建 pom.xml 和 maven 目录结构。
 "
   (interactive "s项目名字：\ns组：\ns工件：")
   (let* ((project-path project-name)
          (pom-path (expand-file-name "pom.xml" project-path))
+         (prop-path (expand-file-name "application.properties" (concat project-path "/" "src/" "main/" "resources/")))
          (app-java-path (expand-file-name "App.java" (concat project-path "/" "src/" "main/" "java/" (replace-regexp-in-string "\\." "/" group)))))
-    ;; 检查project-name子目录是否存在。
+    ;; 检查 project-name 子目录是否存在。
     (if (file-exists-p project-path)
         (error "目录 %s 已存在" project-path))
-    ;; 创建project-name子目录。
+    ;; 创建 project-name 子目录。
     (make-directory project-path t)
-    ;; 创建project-name/pom.xml文件。
+    ;; 创建 project-name/pom.xml 文件。
     (tq-write-file pom-path (tq-generate-pom group artifact "0.1.0-SNAPSHOT" "jar"))
-    ;; 创建project-name/src/main/java/{GROUP}/App.java。
+    ;; 创建 project-name/src/resources/application.properties 文件。
+    (tq-write-file prop-path "")
+    ;; 创建 project-name/src/main/java/{GROUP}/App.java 文件。
     (tq-write-file-then-open app-java-path (tq-generate-java group "App" "应用入口类"))))
 
 
 (defun tq-maven-add-dependency (group artifact version)
   "在缓冲区当前位置插入 maven 依赖 <dependency> 标签。"
   (interactive "s组：\ns工件：\ns版本：")
-  (insert (tq-render-template-from-sequence "
-<dependency>
+  (insert (tq-render-template-from-sequence "<dependency>
     <groupId>${group}</groupId>
     <artifactId>${artifact}</artifactId>
     <version>${version}</version>
-</dependency>
-"
+</dependency>"
                                             "group" group
                                             "artifact" artifact
                                             "version" version)))
