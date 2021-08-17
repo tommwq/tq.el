@@ -139,8 +139,8 @@ s说明：")
 ;;                                                 :file-name
 ;;                                                (expand-file-name (concat "src/main/java/" package-path "/App.java") project-directory)))))))
 
-(defun tq-capture-pojo (start end)  
-  "将区域内的文字转换成POJO类。
+(defun tq-capture-javabean (start end)  
+  "将区域内的文字转换成 JavaBean 类。
 
 
 示例输入：
