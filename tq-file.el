@@ -31,7 +31,7 @@
   "生成org文件内容。"
   (let* ((template "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) in-action(i@/!) delegate(e@/!) delay(y@/!) | done(d@/!) canceled(c@/!)
+#+todo: todo(t) in-action(i/!) delegate(e/!) delay(y/!) | done(d/!) canceled(c/!)
 #+HTML_HEAD: <style type=\"text/css\">body { line-height: 200%; }</style>
 #+title: ${title}
 #+date: ${date}

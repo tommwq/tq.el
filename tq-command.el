@@ -9,7 +9,7 @@
     (tq-write-file-then-open file-path
                              (tq-render-template-from-sequence "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) in-action(i@/!) delegate(e@/!) delay(y@/!) | done(d@/!) canceled(c@/!)
+#+todo: todo(t) in-action(i/!) delegate(e/!) delay(y/!) | done(d/!) canceled(c/!)
 #+HTML_HEAD: <style type=\"text/css\">body { font-size: large; }</style>
 #+title: ${date}
 #+date: ${date}
@@ -28,7 +28,7 @@
     (tq-write-file-then-open file-path
                              (tq-render-template-from-sequence "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) in-action(i@/!) delegate(e@/!) delay(y@/!) | done(d@/!) canceled(c@/!)
+#+todo: todo(t) in-action(i/!) delegate(e/!) delay(y/!) | done(d/!) canceled(c/!)
 #+HTML_HEAD: <style type=\"text/css\">body { font-size: large; }</style>
 #+title: ${title}
 #+date: ${date}
