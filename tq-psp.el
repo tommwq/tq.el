@@ -99,13 +99,13 @@ n单元：")
   (interactive "s原因：
 n分钟：")
   (let ((date (format-time-string "%Y-%m-%d"))
-        (time (format-time-string "%H:%M:%S"))
-        (tq-psp-append-timerecord-file
-         (format "%s %s Interrupt Minute %d Reason %s"
-                 date
-                 time
-	         minutes
-	         reason)))))
+        (time (format-time-string "%H:%M:%S")))
+    (tq-psp-append-timerecord-file
+     (format "%s %s Interrupt Minute %d Reason %s"
+             date
+             time
+	     minutes
+	     reason))))
 
 (defun tq-psp-view-timerecord ()
   (interactive)

@@ -47,6 +47,10 @@
  */
 ${firstLine}
 
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.stream.*;
+
 public class ${className} {
     public ${className} () {
     }
@@ -56,7 +60,6 @@ public class ${className} {
     }
 }
 ")
-
 
 (defun tq-generate-java (package class-name description)
   "生成java类。"

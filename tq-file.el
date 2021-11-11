@@ -32,7 +32,7 @@
   (let* ((template "# -*- mode: org -*-
 #+options: ^:nil
 #+todo: todo(t) in-action(i/!) delegate(e/!) delay(y/!) | done(d/!) canceled(c/!)
-#+HTML_HEAD: <style type=\"text/css\">body { line-height: 150%; }</style>
+#+HTML_HEAD: <style type=\"text/css\">body { line-height: 200%; }</style>
 #+title: ${title}
 #+date: ${date}
 "))

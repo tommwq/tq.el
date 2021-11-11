@@ -1,10 +1,10 @@
 (defun tq-create-work-record ()
   "创建工作日志文件。
 
-工作日志文件名字是格式为yyyyMMdd.org的文本文件。
+工作日志文件名字是格式为yyyyMMdd的文本文件。
 "
   (interactive)
-  (let ((file-path (format-time-string "%Y%m%d.org"))
+  (let ((file-path (format-time-string "%Y%m%d"))
         (date (format-time-string "%Y年%m月%d日")))
     (tq-write-file-then-open file-path
                              (tq-render-template-from-sequence "# -*- mode: org -*-
