@@ -853,3 +853,29 @@ class ${fragmentName}Fragment() : Fragment() {
                                                 :content-template tq-android-fragment-template
                                                 :environment env
                                                 :overwrite t))))))
+
+(defun tq-capture-android-string-resource (start end)  
+  "将区域内的文字转换成 Android 字符串资源定义 XML。
+
+示例输入：
+
+app_name 测试应用
+
+转换后的代码：
+
+<string name=\"app_name\">测试应用</string>
+"
+  (interactive "r")
+  (let* ((captured (buffer-substring-no-properties start end))
+         (sequence (split-string captured))
+         (xml-format "<string name=\"%s\">%s</string>\n")
+         (key "")
+         (value "")
+         (generated ""))
+    (dotimes (index (/ (length sequence) 2))
+      (setf key (nth (* 2 index) sequence))
+      (setf value (nth (+ 1 (* 2 index)) sequence))
+      (setf generated (concat generated (format xml-format key value))))
+    (delete-region start end)
+    (insert generated)
+    (move-end-of-line)))
