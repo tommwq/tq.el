@@ -52,10 +52,10 @@ import java.util.concurrent.*;
 import java.util.stream.*;
 
 public class ${className} {
-    public ${className} () {
+    public ${className} () throws Exception {
     }
 
-    public static void main(String... args) {
+    public static void main(String... args) throws Exception {
         new ${className}();
     }
 }
@@ -281,3 +281,206 @@ public class %s {
                                             "group" group
                                             "artifact" artifact
                                             "version" version)))
+(cl-defstruct tq-database-table-definition table-name primary-key columns)
+
+(defun tq-generate-mybatis-mapper-insert (database-table-definition)
+  "生成 MyBatis SQL Mapper 插入标签。"
+  (let* ((tab "    ")
+         (nl "\n")
+         (tname (tq-database-table-definition-table-name database-table-definition))
+         (clist (tq-database-table-definition-columns database-table-definition))
+         (first t)
+         (head (concat tab "<insert id=\"insert\"" nl
+                       tab tab tab "parameterType=\"com.example.User.Insert\"" nl
+                       tab tab tab "resultType=\"com.example.User\">" nl
+                       tab tab "INSERT INTO " tname " ("))
+         (body "")
+         (tail (concat nl
+                       tab tab ") VALUES (")))
+    (dolist (c clist)
+      (when (not first)
+        (setf body (concat body ","))
+        (setf tail (concat tail ",")))
+      (setf first nil)
+      (setf body (concat body nl
+                         tab tab tab c))
+      (setf tail (concat tail nl
+                         tab tab tab "#{" c "}")))
+    (setf tail (concat tail nl
+                       tab tab ")" nl
+                       tab "</insert>" nl))
+    (concat head body tail)))
+
+(defun tq-generate-mybatis-mapper-update (database-table-definition)
+  "生成 MyBatis SQL Mapper 更新标签。"
+  (let* ((tab "    ")
+         (nl "\n")
+         (tname (tq-database-table-definition-table-name database-table-definition))
+         (pk (tq-database-table-definition-primary-key database-table-definition))
+         (clist (tq-database-table-definition-columns database-table-definition))
+         (first t)
+         (head (concat tab "<update id=\"update\"" nl
+                       tab tab tab "parameterType=\"com.example.User.Update\"" nl
+                       tab tab tab "resultType=\"com.example.User\">" nl
+                       tab tab "UPDATE " tname " SET "))
+         (body "")
+         (tail (concat nl
+                       tab tab "WHERE " pk "=#{" pk "}" nl
+                       tab "</update>" nl)))
+    (dolist (c clist)
+      (when (not first)
+        (setf body (concat body ",")))
+      (setf first nil)
+      (setf body (concat body nl
+                         tab tab tab c "=#{" c "}")))
+    (concat head body tail)))
+
+(defun tq-generate-mybatis-mapper-delete (database-table-definition)
+  "生成 MyBatis SQL Mapper 删除标签。"
+  (let* ((tab "    ")
+         (nl "\n")
+         (tname (tq-database-table-definition-table-name database-table-definition))
+         (pk (tq-database-table-definition-primary-key database-table-definition)))
+    (concat tab "<delete id=\"delete\"" nl
+            tab tab tab "parameterType=\"com.example.User\"" nl
+            tab tab tab "resultType=\"com.example.User\">" nl
+            tab tab "DELETE FROM " tname " WHERE " pk "=#{" pk "}" nl
+            tab "</delete>" nl)))
+
+(defun tq-generate-mybatis-mapper-select-one (database-table-definition)
+  "生成 MyBatis SQL Mapper 查询标签。"
+  (let* ((tab "    ")
+         (nl "\n")
+         (tname (tq-database-table-definition-table-name database-table-definition))
+         (pk (tq-database-table-definition-primary-key database-table-definition)))
+    (concat tab "<select id=\"selectOne\"" nl
+            tab tab tab "parameterType=\"com.example.User\"" nl
+            tab tab tab "resultType=\"com.example.User\">" nl
+            tab tab "SELECT * FROM " tname " WHERE " pk "=#{" pk "}" nl
+            tab "</select>" nl)))
+
+(defun tq-generate-mybatis-mapper-select (database-table-definition)
+  "生成 MyBatis SQL Mapper 查询标签。"
+  (let* ((tab "    ")
+         (nl "\n")
+         (tname (tq-database-table-definition-table-name database-table-definition))
+         (pk (tq-database-table-definition-primary-key database-table-definition)))
+    (concat tab "<select id=\"select\"" nl
+            tab tab tab "parameterType=\"com.example.User\"" nl
+            tab tab tab "resultType=\"com.example.User\">" nl
+            tab tab "SELECT * FROM " tname nl
+            tab "</select>" nl)))
+
+
+(defun tq-generate-mybatis-mapper (database-table-definition)
+  "生成 MyBastis SQL Mapper。"
+  (let* ((tab "    ")
+         (nl "\n")
+         (tname (tq-database-table-definition-table-name database-table-definition))
+         (pk (tq-database-table-definition-primary-key database-table-definition))
+         (clist (tq-database-table-definition-columns database-table-definition))
+         (head (concat "<!DOCTYPE mapper" nl
+                       tab tab "PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\"" nl
+                       tab tab "\"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">" nl
+                       "<mapper namespace=\"com.guosen.zebra.ia.dao.SqlMapper\">" nl))
+         (tail (concat nl "</mapper>"))
+         (body ""))
+    (dolist (generator (list #'tq-generate-mybatis-mapper-insert
+                             #'tq-generate-mybatis-mapper-select
+                             #'tq-generate-mybatis-mapper-select-one
+                             #'tq-generate-mybatis-mapper-update
+                             #'tq-generate-mybatis-mapper-delete))
+      (setf body (concat body (funcall generator database-table-definition))))
+    (concat "<!--" nl
+            tname nl
+            pk nl
+            (string-join clist nl) nl
+            "-->" nl
+     head body tail)))
+
+(defun tq-generate-mybatis-annotation (database-table-definition)
+  "生成 MyBastis 接口类。"
+  (let* ((tname (tq-database-table-definition-table-name database-table-definition))
+         (pk (tq-database-table-definition-primary-key database-table-definition))
+         (clist (tq-database-table-definition-columns database-table-definition))
+         (value-table (make-hash-table :test #'equal))
+         (column-block "")
+         (assign-block "")
+         (placeholder-block "")
+         (tab "    ")
+         (nl "\n")
+         (dquote "\"")
+         (first t)
+         (column "")
+         (optional-comma "")
+         (template ""))
+    (setf template "import org.apache.ibatis.annotations.*;
+import java.util.List;
+
+@Mapper
+public interface ${table-name}Repository {
+
+    @Select(\"SELECT * FROM ${table-name}\")
+    List<${table-name}> select${table-name}();
+
+    @Select(\"SELECT * FROM ${table-name} WHERE ${primary-key}=#{record.${primary-key}}\")
+    List<${table-name}> selectOne${table-name}(@Param(\"record\") ${table-name} ${table-name-lower});
+
+    @Delete(\"DELETE FROM ${table-name} WHERE ${primary-key}=#{record.${primary-key}}\")
+    List<${table-name}> deleteOne${table-name}(@Param(\"record\") ${table-name} ${table-name-lower});
+
+    @Insert(\"INSERT INTO ${table-name} (\" + ${column-block}
+            \") \" +
+            \"VALUES (\" + ${placeholder-block}
+            \")\")
+    void insert${table-name}(@Param(\"record\") ${table-name} record);
+
+    @Update(\"UPDATE ${table-name} SET \" + ${assign-block}
+            \"WHERE ${primary-key}=#{record.${primary-key}}\")
+    void update${table-name}(@Param(\"record\") ${table-name} record);
+}")
+    (puthash "table-name" tname value-table)
+    (puthash "table-name-lower" (downcase tname) value-table)
+    (puthash "primary-key" pk value-table)
+    (dotimes (index (length clist))
+      (setf column (nth index clist))
+      (setf optional-comma (if (< index (- (length clist) 1))
+                               "," 
+                             ""))
+      (setf column-block (concat column-block nl
+                                 tab tab tab dquote column optional-comma dquote " + "))
+      (setf placeholder-block (concat placeholder-block nl
+                                      tab tab tab dquote "#{record." column "}" optional-comma dquote " + "))
+      (setf assign-block (concat assign-block nl
+                                 tab tab tab dquote column "=#{record." column "}" optional-comma dquote " + ")))
+
+    (puthash "column-block" column-block value-table)
+    (puthash "placeholder-block" placeholder-block value-table)
+    (puthash "assign-block" assign-block value-table)
+    (tq-render-template template value-table)))
+
+(defun tq-capture-database-table-definition (start end)
+  "将区域内的数据表说明内容转换成 tq-database-table-definition。"
+  (interactive "r")
+  (let* ((region (buffer-substring-no-properties start end))
+         (words (split-string region))
+         (tname (nth 0 words))
+         (pk (nth 1 words)))
+    (pop words)
+    (pop words)
+    (make-tq-database-table-definition :table-name tname :primary-key pk :columns words)))
+
+(defun tq-capture-mybatis (start end output-format)
+  "将区域内的数据表说明内容转换成 MyBatis Mapper。
+
+参数
+output-format 输出格式。支持 annotation 和 xml。默认为 annotation。
+"
+  (interactive "r\ns输出格式：")
+  (let* ((generator (if (string-equal output-format "xml")
+                        #'tq-generate-mybatis-mapper
+                      #'tq-generate-mybatis-annotation))
+         (definition (tq-capture-database-table-definition start end)))
+    (delete-region start end)
+    (insert (funcall generator definition))
+    (move-end-of-line)))

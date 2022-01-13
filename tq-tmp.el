@@ -888,3 +888,23 @@ VALUES('', '', '', '%s', '%s', '');
     (princ (format sql-format today today today today today today today)))
   nil)
 
+(defun tq-capture-protobuf-fields (start end first-index)
+  "将区域内的文字转换成 Protocal Buffer 域定义。
+
+示例输入：
+
+a
+b
+
+转换后：
+
+string a = 1;
+string b = 2;
+"
+  (interactive "r\nn初始下标：")
+  (let ((fields (split-string (buffer-substring-no-properties start end)))
+        (content ""))
+    (dotimes (index (length fields))
+      (setf content (concat content (format "string %s = %d;\n" (nth index fields) (+ index first-index)))))
+    (delete-region start end)
+    (insert content)))

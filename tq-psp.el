@@ -29,7 +29,7 @@
 ;; (cl-defmethod tq-psp-timerecord-stop)
 
 
-(defcustom tq-psp-timerecord-filename "~/.timerecord"
+(defcustom tq-psp-timerecord-filename "d:/workspace/project/notes/TimeRecordLog"
   "PSP时间日志记录文件。"
   :type 'string
   :group 'tq)
