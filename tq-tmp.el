@@ -908,3 +908,4 @@ string b = 2;
       (setf content (concat content (format "string %s = %d;\n" (nth index fields) (+ index first-index)))))
     (delete-region start end)
     (insert content)))
+
