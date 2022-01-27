@@ -909,3 +909,28 @@ string b = 2;
     (delete-region start end)
     (insert content)))
 
+
+
+(defun print-api-gateway-configuration (path-prefix interface-list)
+  "打印 API 网关配置。
+
+path-prefix 路径前缀，如 bp、openacct 等。
+interface-list 接口名字列表。
+"
+  (dolist (x interface-list)
+    (princ (format "/%s/%s/1.0->%s
+" path-prefix x x))))
+
+
+(defun print-test-url (address path-prefix interface-list)
+  "打印测试 URL。
+
+address 服务器地址，如 127.0.0.1:443
+path-prefix 路径前缀，如 bp、openacct 等。
+interface-list 接口名字列表。
+"
+  (dolist (x interface-list)
+    (princ (format "http://%s/gsbp/%s/%s/1.0?
+" address path-prefix x))))
+
+
