@@ -42,6 +42,11 @@
   (interactive)
   (insert (format-time-string "%Y 年 %m 月 %d 日 %H 时%M 分 %S 秒")))
 
+(defun tq-insert-datetime-short ()
+  "在buffer中插入日期时间字符串。"
+  (interactive)
+  (insert (format-time-string "%d/%m %H:%M")))
+
 (defun tq-execute-shell (command &optional work-directory)
   "execute shell command in work directory."
   (let ((stack nil))

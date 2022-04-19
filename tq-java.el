@@ -50,6 +50,8 @@ ${firstLine}
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.*;
+import java.io.*;
+import java.nio.file.*;
 
 public class ${className} {
     public ${className} () throws Exception {

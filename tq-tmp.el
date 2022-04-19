@@ -873,20 +873,6 @@ sproject name: ")
   ;;  (c-toggle-auto-newline t)
   )
 
-(defun tq-tmp-generate-gpql-log ()
-  "生成测试用的gsProblemQuickLocate日志"
-  (let ((today (format-time-string "%Y%m%d"))
-        (sql-format
-"INSERT INTO gsProblemQuickLocate.dbo.T_QUICK_LOCATE_REQUEST_gstrade_%s
-(COMPONENT, CLUSTER_NAME, HOST_NAME, TRACE_ID, REQ_METHOD, PKG, MOBILE, FUND_ID, SOFT_NAME, SOFT_VERSION, REQ_TIME, CLIENT_REQ_TIME, REQ_DATE, MEMORY_USER, INPUT_TYPE)
-VALUES('test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', '%s', '%s', '%s', 0, 'test');
-
-INSERT INTO gsProblemQuickLocate.dbo.T_QUICK_LOCATE_RESPONSE_DETAIL_gstrade_%s
-(COMPONENT, TRACE_ID, RESP_METHOD, RESP_TIME, RESP_DATE, RESP_CONTENT)
-VALUES('', '', '', '%s', '%s', '');
-"))
-    (princ (format sql-format today today today today today today today)))
-  nil)
 
 (defun tq-capture-protobuf-fields (start end first-index)
   "将区域内的文字转换成 Protocal Buffer 域定义。
