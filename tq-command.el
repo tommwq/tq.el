@@ -4,7 +4,7 @@
 工作日志文件名字是格式为yyyyMMdd的文本文件。
 "
   (interactive)
-  (let ((file-path (format-time-string "%Y%m%d"))
+  (let ((file-path (concat (format-time-string "%Y%m%d") ".org"))
         (date (format-time-string "%Y年%m月%d日")))
     (tq-write-file-then-open file-path
                              (tq-render-template-from-sequence "# -*- mode: org -*-

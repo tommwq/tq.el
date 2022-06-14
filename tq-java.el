@@ -13,6 +13,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -250,25 +252,25 @@ public class %s {
       (move-end-of-line))))
 
 (defun tq-create-maven-project (project-name group artifact)
-  "创建 maven 项目。
+  "创建maven项目。
 
-在当前目录创建 project-name 子目录，并在其中创建 pom.xml 和 maven 目录结构。
+在当前目录创建project-name子目录，并在其中创建pom.xml和maven目录结构。
 "
   (interactive "s项目名字：\ns组：\ns工件：")
   (let* ((project-path project-name)
          (pom-path (expand-file-name "pom.xml" project-path))
          (prop-path (expand-file-name "application.properties" (concat project-path "/" "src/" "main/" "resources/")))
          (app-java-path (expand-file-name "App.java" (concat project-path "/" "src/" "main/" "java/" (replace-regexp-in-string "\\." "/" group)))))
-    ;; 检查 project-name 子目录是否存在。
+    ;; 检查project-name子目录是否存在。
     (if (file-exists-p project-path)
-        (error "目录 %s 已存在" project-path))
-    ;; 创建 project-name 子目录。
+        (error "目录%s已存在" project-path))
+    ;; 创建project-name子目录。
     (make-directory project-path t)
-    ;; 创建 project-name/pom.xml 文件。
+    ;; 创建project-name/pom.xml文件。
     (tq-write-file pom-path (tq-generate-pom group artifact "0.1.0-SNAPSHOT" "jar"))
-    ;; 创建 project-name/src/resources/application.properties 文件。
+    ;; 创建project-name/src/resources/application.properties文件。
     (tq-write-file prop-path "")
-    ;; 创建 project-name/src/main/java/{GROUP}/App.java 文件。
+    ;; 创建project-name/src/main/java/{GROUP}/App.java文件。
     (tq-write-file-then-open app-java-path (tq-generate-java group "App" "应用入口类"))))
 
 

@@ -50,6 +50,6 @@
 (defun tq-create-org (title)
   "建立并初始化org文件。"
   (interactive "s标题：")
-  (let ((file-name title))
+  (let ((file-name (format "%s.org" title)))
     (tq-write-file-then-open file-name (tq-generate-org-file-content title))
     (end-of-buffer)))
