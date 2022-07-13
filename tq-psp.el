@@ -57,37 +57,37 @@
   (tq-psp-create-timerecord-file-in-need)
   (append-to-file (format "%s\n" line) 'ignored (tq-psp-get-timerecord-filename)))
 
-(defun tq-psp-begin (job note)
-  "开始任务。
+;; (defun tq-psp-begin (job note)
+;;   "开始任务。
 
-在时间记录日志中添加一行：
+;; 在时间记录日志中添加一行：
 
-2021-01-01 10:00:00 BEGIN read Java
-"
-  (interactive "s任务：
-s备注：")
-  (let ((date (format-time-string "%Y-%m-%d"))
-        (time (format-time-string "%H:%M:%S"))
-        (line-format "%s %s Begin %s %s"))
-    (tq-psp-append-timerecord-file (format line-format date time job note))
-    (setf tq-psp-current job)))
+;; 2021-01-01 10:00:00 BEGIN read Java
+;; "
+;;   (interactive "s任务：
+;; s备注：")
+;;   (let ((date (format-time-string "%Y-%m-%d"))
+;;         (time (format-time-string "%H:%M:%S"))
+;;         (line-format "%s %s Begin %s %s"))
+;;     (tq-psp-append-timerecord-file (format line-format date time job note))
+;;     (setf tq-psp-current job)))
 
-(defun tq-psp-end (complete unit)
-  "结束任务。
+;; (defun tq-psp-end (complete unit)
+;;   "结束任务。
 
-在时间记录日志中添加一行：
+;; 在时间记录日志中添加一行：
 
-2021-01-01 10:00:00 END read COMPLETE Y UNIT 30
-"
-  (interactive "X是否完成：
-n单元：")
-  (let ((date (format-time-string "%Y-%m-%d"))
-        (time (format-time-string "%H:%M:%S"))
-        (job tq-psp-current)
-        (line-format "%s %s End %s Complete %s Unit %d"))
-    (tq-psp-append-timerecord-file
-     (format line-format date time job (if complete "Y" "N") unit)))
-  (setf tq-psp-current nil))
+;; 2021-01-01 10:00:00 END read COMPLETE Y UNIT 30
+;; "
+;;   (interactive "X是否完成：
+;; n单元：")
+;;   (let ((date (format-time-string "%Y-%m-%d"))
+;;         (time (format-time-string "%H:%M:%S"))
+;;         (job tq-psp-current)
+;;         (line-format "%s %s End %s Complete %s Unit %d"))
+;;     (tq-psp-append-timerecord-file
+;;      (format line-format date time job (if complete "Y" "N") unit)))
+;;   (setf tq-psp-current nil))
 
 (defun tq-psp-interrupt (reason minutes)
   "输入时间和原因。
@@ -111,3 +111,27 @@ n分钟：")
   (interactive)
   (find-file (tq-psp-get-timerecord-filename))
   (read-only-mode))
+
+
+(defun tq-psp-begin (project activity)
+  "插入 PSP 任务开始时间记录"
+  (interactive "s项目：\ns任务：")
+  (insert
+   (format "%s %s %s"
+           (format-time-string "%Y%m%d %H%M")
+           project
+           activity))
+  (save-buffer))
+
+(defun tq-psp-interrupt (minute reason)
+  "插入 PSP 中断记录"
+  (interactive "s分钟：\ns原因：")
+  (insert (format " %s %s " minute reason))
+  (save-buffer))
+
+
+(defun tq-psp-end ()
+  "插入 PSP 任务结束时间记录"
+  (interactive)
+  (insert (format-time-string " %H%M\n"))
+  (save-buffer))

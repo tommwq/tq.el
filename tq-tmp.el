@@ -250,7 +250,7 @@ method-name is the name of method to be tested."
 
 (defconst tq-c-style
   '((c-tab-always-indent . t)
-    (c-basic-offset . 4)
+    (c-basic-offset . 2)
     (c-comment-only-line-offset . 0)
     (c-echo-syntactic-information-p . t)
     (c-cleanup-list . (
@@ -868,24 +868,78 @@ sproject name: ")
   ;;  (message "tq-c-mode-hook")
   ;;  (c-set-style "linux")
   ;; (c-set-style "")
-  (setq tab-width 4
-	    indent-tabs-mode nil)
+  (setq tab-width 2
+        c-basic-offset 2
+        indent-tabs-mode nil)
+  (setq-default c-basic-offset 2
+                tab-width 2
+                indent-tabs-mode nil)
   ;;  (c-toggle-auto-newline t)
   )
 
-(defun tq-tmp-generate-gpql-log ()
-  "生成测试用的gsProblemQuickLocate日志"
-  (let ((today (format-time-string "%Y%m%d"))
-        (sql-format
-"INSERT INTO gsProblemQuickLocate.dbo.T_QUICK_LOCATE_REQUEST_gstrade_%s
-(COMPONENT, CLUSTER_NAME, HOST_NAME, TRACE_ID, REQ_METHOD, PKG, MOBILE, FUND_ID, SOFT_NAME, SOFT_VERSION, REQ_TIME, CLIENT_REQ_TIME, REQ_DATE, MEMORY_USER, INPUT_TYPE)
-VALUES('test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', '%s', '%s', '%s', 0, 'test');
+(defconst tq-java-style
+  '((c-tab-always-indent . t)
+    (c-basic-offset . 2)
+    (c-comment-only-line-offset . 0)
+    (c-echo-syntactic-information-p . t)
+    (c-cleanup-list . (
+                       ;; brace-else-brace
+                       ;; brace-elseif-brace
+                       ;; brace-catch-brace
+                       ;; empty-defun-braces
+                       ;; one-liner-defun
+                       ;; defun-close-semi
+                       ;; list-close-comma
+                       ;; scope-operator
+                       ;; space-before-funcall
+                       ;; compact-empty-funcall
+                       ;; comment-close-slash
+                       ))
+    (c-hanging-braces-alist . (;; (substatement-open after)
+                               ;; (inline-open after)
+                               ;; (class-open after)
+                               ;; (class-close nil)
+                               ;; (defun-open after)
+			                   ;; (defun-close nil)
+                               ;; (brace-entry-open after)
+                               ;; (statement after)
+                               ;; (case-label after)
+                               ;; (else-case)
+                               ;; (block-close before)
+                               ;; (access-label after)
+                               ;; (do-while-closure after)
+                               ;; (catch-clause after)
+                               ;; (member-init-intro after)
+                               ;; (brace-list-open after)
+                               ;; (substatement-open nil)
+                               ;; (inline-open nil)
+                               ;; (class-open nil)
+                               ;; (class-close nil)
+                               ;; (defun-open nil)
+                               ;; (defun-close nil)
+                               ;; (brace-entry-open nil)
+                               ;; (statement nil)
+                               ;; (case-label nil)
+                               ;; (else-case)
+                               ;; (block-close nil)
+                               ;; (access-label nil)
+                               ;; (do-while-closure nil)
+                               ;; (catch-clause nil)
+                               ;; (member-init-intro nil)
+                               ;; (brace-list-open nil)
+                               ))
+    (c-hanging-colons-alist .  (
+                                ;;(member-init-intro before)
+                                ;;(inher-intro)
+                                ;;(case-label after)
+                                ;;(access-label after)
+                                ))
+    (c-offsets-alist . ((substatement-open . 0)
+			            (statement-case-open . +)
+                        (label . 0)
+			            (inline-open . 0)
+                        (case-label . 0)
+                        (block-open . 0))))
+  "tq-java-style")
 
-INSERT INTO gsProblemQuickLocate.dbo.T_QUICK_LOCATE_RESPONSE_DETAIL_gstrade_%s
-(COMPONENT, TRACE_ID, RESP_METHOD, RESP_TIME, RESP_DATE, RESP_CONTENT)
-VALUES('', '', '', '%s', '%s', '');
-"))
-    (princ (format sql-format today today today today today today today)))
-  nil)
-
-
+(c-add-style "tq-java-style" tq-java-style)

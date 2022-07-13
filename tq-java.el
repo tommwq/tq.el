@@ -13,6 +13,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -47,17 +49,24 @@
  */
 ${firstLine}
 
+import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.*;
 
 public class ${className} {
-    public ${className} () {
-    }
+  public ${className} () {
+  }
 
-    public static void main(String... args) {
-        new ${className}();
-    }
+  public void run() throws Exception {
+    // TODO
+  }
+
+  public static void main(String... args) throws Exception {
+    ${className} app = new ${className}();
+    app.run();
+  }
 }
 ")
 

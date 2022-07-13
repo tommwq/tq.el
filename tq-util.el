@@ -116,7 +116,7 @@
                                    "go" #'go-mode
                                    "xml" #'xml-mode
                                    "c" #'c-mode
-			           "c++" #'c++-mode
+                                   "c++" #'c++-mode
                                    "powershell" #'powershell-mode
                                    "shell" #'shell-mode
                                    "lisp" #'lisp-interaction-mode
@@ -127,9 +127,9 @@
                                    "css" #'css-mode
                                    "sql" #'sql-mode
                                    "gradle" #'groovy-mode
-			           "kotlin" #'kotlin-mode
-			           "dockerfile" #'dockerfile-mode
-			           "typescript" #'typescript-mode
+                                   "kotlin" #'kotlin-mode
+                                   "dockerfile" #'dockerfile-mode
+                                   "typescript" #'typescript-mode
                                    "elisp" #'lisp-interaction-mode
                                    "php" #'php-mode
                                    "" #'text-mode))

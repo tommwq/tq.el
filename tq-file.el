@@ -17,7 +17,7 @@
          (path (file-name-directory absolute-file-name)))
     (if (and (not overwrite)
              (file-exists-p absolute-file-name))
-        (error "文件 %s 已存在" absolute-file-name))
+        (error "文件 [%s] 已存在" absolute-file-name))
     (if (not (file-exists-p path))
         (make-directory path t))
     (write-region content nil absolute-file-name)))
@@ -32,7 +32,7 @@
   (let* ((template "# -*- mode: org -*-
 #+options: ^:nil
 #+todo: todo(t) in-action(i/!) delegate(e/!) delay(y/!) | done(d/!) canceled(c/!)
-#+HTML_HEAD: <style type=\"text/css\">body { line-height: 200%; }</style>
+#+HTML_HEAD: <style type=\"text/css\">body {font-size: x-large;}</style>
 #+title: ${title}
 #+date: ${date}
 "))
@@ -42,7 +42,7 @@
 
 (defun tq-insert-org-file (title)
   "生成org文件，插入到缓冲区。"
-  (interactive "sTitle: ")
+  (interactive "s标题：")
   (beginning-of-buffer)
   (insert (tq-generate-org-file-content title))
   (end-of-buffer))
@@ -50,6 +50,6 @@
 (defun tq-create-org (title)
   "建立并初始化org文件。"
   (interactive "s标题：")
-  (let ((file-name title))
+  (let ((file-name (concat title ".org")))
     (tq-write-file-then-open file-name (tq-generate-org-file-content title))
     (end-of-buffer)))
