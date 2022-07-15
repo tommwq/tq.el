@@ -56,12 +56,17 @@ import java.io.*;
 import java.nio.file.*;
 
 public class ${className} {
-    public ${className} () throws Exception {
-    }
+  public ${className} () {
+  }
 
-    public static void main(String... args) throws Exception {
-        new ${className}();
-    }
+  public void run(String... args) throws Exception {
+    System.out.println(\"ok\");
+  }
+
+  public static void main(String... args) throws Exception {
+    ${className} app = new ${className}();
+    app.run(args);
+  }
 }
 ")
 
@@ -209,7 +214,7 @@ public %s get%s() {
 ")
          (setter-statement "
 public void set%s(%s value) {
-    %s = value;
+    this.%s = value;
 }
 "))
     (if (= 1 (mod (length sequence) 2))

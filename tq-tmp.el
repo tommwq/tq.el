@@ -1,3 +1,7 @@
+(defcustom tq-indent-offset 2
+  "缩进。"
+  :type 'integer
+  :group 'tq)
 
 ;; (defun tq-set-cmd-variable (variable value)
 ;;   (setenv variable value))
@@ -864,14 +868,26 @@ sproject name: ")
     (tq-execute-shell "gradle init --type java-application" project-directory)
     (find-file (tq-join-path project-directory "src/main/java/App.java"))))
 
+(defun tq-set-indent (indent)
+  "设置缩进。"
+  (interactive "n缩进：")
+  (setf tab-width indent
+        c-basic-offset indent
+        indent-tabs-mode nil
+        nxml-attribute-indent indent
+        nxml-child-indent indent)
+  (if (not (= indent tq-indent-offset))
+      (setf tq-indent-offset indent)))
+
+
 (defun tq-c-mode-hook ()
   ;;  (message "tq-c-mode-hook")
   ;;  (c-set-style "linux")
   ;; (c-set-style "")
-  (setq tab-width 4
-	    indent-tabs-mode nil)
+  ;; (setq tab-width 4
+	;;     indent-tabs-mode nil)
   ;;  (c-toggle-auto-newline t)
-  )
+  (tq-set-indent tq-indent-offset))
 
 
 (defun tq-capture-protobuf-fields (start end first-index)
