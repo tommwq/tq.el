@@ -9,7 +9,6 @@
 ;; 加载本目录下tq-*.el文件。
 (dolist (part '(tq-util
                 tq-string
-                tq-workflow
                 tq-java
                 tq-android
                 tq-file

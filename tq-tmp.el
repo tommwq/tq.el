@@ -111,11 +111,11 @@ the even ones are replacements."
     (insert text)
     (xml-mode)))
 
-(defun tq-create-web-xml-file (filename)
-  (interactive "sFilename: ")
-  (let ((text (tq-gen-web-xml-file)))
-    (tq-write-file-then-open filename text)
-    (xml-mode)))
+;; (defun tq-create-web-xml-file (filename)
+;;   (interactive "sFilename: ")
+;;   (let ((text (tq-gen-web-xml-file)))
+;;     (tq-write-file-then-open filename text)
+;;     (xml-mode)))
 
 
 (defun tq-init-html-file (title)
@@ -875,7 +875,9 @@ sproject name: ")
         c-basic-offset indent
         indent-tabs-mode nil
         nxml-attribute-indent indent
-        nxml-child-indent indent)
+        js-indent-level indent
+        nxml-child-indent indent
+        css-indent-offset indent)
   (if (not (= indent tq-indent-offset))
       (setf tq-indent-offset indent)))
 

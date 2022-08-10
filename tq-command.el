@@ -1,19 +1,21 @@
-(defun tq-create-work-record ()
+(defun tq-create-day-record ()
   "创建工作日志文件。
 
-工作日志文件名字是格式为yyyyMMdd的文本文件。
+工作日志文件名字是格式为yyyy-qX-wY-yyyyMMdd.org的文本文件。
 "
   (interactive)
-  (let ((file-path (concat (format-time-string "%Y%m%d") ".org"))
-        (date (format-time-string "%Y年%m月%d日")))
+  (let* ((season (number-to-string
+                  (+ 1 (/ (string-to-number (format-time-string "%m")) 4))))
+         (file-path-format (concat "%Y-q" season  "-w%V-%Y%m%d.org"))
+         (file-path (format-time-string file-path-format))
+         (date (format-time-string "%Y年%m月%d日")))
     (tq-write-file-then-open file-path
                              (tq-render-template-from-sequence "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) in-action(i/!) delegate(e/!) delay(y/!) | done(d/!) canceled(c/!)
-#+HTML_HEAD: <style type=\"text/css\">body { font-size: large; }</style>
+#+todo: todo(t) | done(d@/!) canceled(c@/!)
 #+title: ${date}
 #+date: ${date}
-* 事项
+* todo 今日工作 [%]
 * 记录
 " "date" date))))
 
