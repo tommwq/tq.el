@@ -1,3 +1,5 @@
+;; TODO dev.py 完善后删除此文件。
+
 (defun tq-generate-pom (group artifact version packaging)
   "生成pom.xml文件内容。"
   (tq-render-template-from-sequence "<?xml version='1.0' encoding='UTF-8'?>
@@ -151,110 +153,6 @@ s说明：")
 ;;                                                 :file-name
 ;;                                                (expand-file-name (concat "src/main/java/" package-path "/App.java") project-directory)))))))
 
-(defun tq-capture-javabean (start end)  
-  "将区域内的文字转换成 JavaBean 类。
-
-
-示例输入：
-
-User
-String name
-String password
-
-转换后的代码：
-
-public class User {
-  private String name;
-  private String password;
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getPassword() {
-    return password;
-  } 
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-}
-
-
-示例输入：
-
-String name
-
-转换后的代码：
-
-private String name;
-
-public String getName() {
-  return name;
-}
-
-public void setName(String name) {
-  this.name = name;
-}
-"
-  (interactive "r")
-  (let* ((captured (buffer-substring-no-properties start end))
-         (sequence (split-string captured))
-         (class-name nil)
-         (members (make-hash-table :test #'equal))
-         (declare-statement "private %s %s;\n")
-         (getter-statement "
-public %s get%s() {
-    return %s;
-}
-")
-         (setter-statement "
-public void set%s(%s value) {
-    this.%s = value;
-}
-"))
-    (if (= 1 (mod (length sequence) 2))
-        (setf class-name (pop sequence)))
-    (while (> (length sequence) 0)
-      (let ((type "")
-            (field ""))
-        (setf type (pop sequence))
-        (setf field (pop sequence))
-        (setf (gethash field members) type)))
-    (let ((declare-part "")
-          (getset-part "")
-          (source "")
-          (type ""))
-      (dolist (field (hash-table-keys members))
-        (setf type (gethash field members))
-        (setf declare-part (concat declare-part (format declare-statement type field)))
-        (setf getset-part (concat getset-part (format getter-statement
-                                                      type
-                                                      (tq-upcase-first-letter field)
-                                                      field)))
-        (setf getset-part (concat getset-part (format setter-statement
-                                                      (tq-upcase-first-letter field)
-                                                      type
-                                                      field))))
-      (setf source (concat declare-part getset-part))
-      (if class-name
-          (setf source (format "
-/*
-
-%s
-
-*/
-public class %s {
-%s
-}
-" captured class-name (string-join (mapcar (lambda (s) (concat "    " s)) (split-string source "\n")) "\n"))))
-      (delete-region start end)
-      (insert source)
-      (move-end-of-line))))
 
 (defun tq-create-maven-project (project-name group artifact)
   "创建maven项目。
@@ -290,206 +188,614 @@ public class %s {
                                             "group" group
                                             "artifact" artifact
                                             "version" version)))
-(cl-defstruct tq-database-table-definition table-name primary-key columns)
-
-(defun tq-generate-mybatis-mapper-insert (database-table-definition)
-  "生成 MyBatis SQL Mapper 插入标签。"
-  (let* ((tab "    ")
-         (nl "\n")
-         (tname (tq-database-table-definition-table-name database-table-definition))
-         (clist (tq-database-table-definition-columns database-table-definition))
-         (first t)
-         (head (concat tab "<insert id=\"insert\"" nl
-                       tab tab tab "parameterType=\"com.example.User.Insert\"" nl
-                       tab tab tab "resultType=\"com.example.User\">" nl
-                       tab tab "INSERT INTO " tname " ("))
-         (body "")
-         (tail (concat nl
-                       tab tab ") VALUES (")))
-    (dolist (c clist)
-      (when (not first)
-        (setf body (concat body ","))
-        (setf tail (concat tail ",")))
-      (setf first nil)
-      (setf body (concat body nl
-                         tab tab tab c))
-      (setf tail (concat tail nl
-                         tab tab tab "#{" c "}")))
-    (setf tail (concat tail nl
-                       tab tab ")" nl
-                       tab "</insert>" nl))
-    (concat head body tail)))
-
-(defun tq-generate-mybatis-mapper-update (database-table-definition)
-  "生成 MyBatis SQL Mapper 更新标签。"
-  (let* ((tab "    ")
-         (nl "\n")
-         (tname (tq-database-table-definition-table-name database-table-definition))
-         (pk (tq-database-table-definition-primary-key database-table-definition))
-         (clist (tq-database-table-definition-columns database-table-definition))
-         (first t)
-         (head (concat tab "<update id=\"update\"" nl
-                       tab tab tab "parameterType=\"com.example.User.Update\"" nl
-                       tab tab tab "resultType=\"com.example.User\">" nl
-                       tab tab "UPDATE " tname " SET "))
-         (body "")
-         (tail (concat nl
-                       tab tab "WHERE " pk "=#{" pk "}" nl
-                       tab "</update>" nl)))
-    (dolist (c clist)
-      (when (not first)
-        (setf body (concat body ",")))
-      (setf first nil)
-      (setf body (concat body nl
-                         tab tab tab c "=#{" c "}")))
-    (concat head body tail)))
-
-(defun tq-generate-mybatis-mapper-delete (database-table-definition)
-  "生成 MyBatis SQL Mapper 删除标签。"
-  (let* ((tab "    ")
-         (nl "\n")
-         (tname (tq-database-table-definition-table-name database-table-definition))
-         (pk (tq-database-table-definition-primary-key database-table-definition)))
-    (concat tab "<delete id=\"delete\"" nl
-            tab tab tab "parameterType=\"com.example.User\"" nl
-            tab tab tab "resultType=\"com.example.User\">" nl
-            tab tab "DELETE FROM " tname " WHERE " pk "=#{" pk "}" nl
-            tab "</delete>" nl)))
-
-(defun tq-generate-mybatis-mapper-select-one (database-table-definition)
-  "生成 MyBatis SQL Mapper 查询标签。"
-  (let* ((tab "    ")
-         (nl "\n")
-         (tname (tq-database-table-definition-table-name database-table-definition))
-         (pk (tq-database-table-definition-primary-key database-table-definition)))
-    (concat tab "<select id=\"selectOne\"" nl
-            tab tab tab "parameterType=\"com.example.User\"" nl
-            tab tab tab "resultType=\"com.example.User\">" nl
-            tab tab "SELECT * FROM " tname " WHERE " pk "=#{" pk "}" nl
-            tab "</select>" nl)))
-
-(defun tq-generate-mybatis-mapper-select (database-table-definition)
-  "生成 MyBatis SQL Mapper 查询标签。"
-  (let* ((tab "    ")
-         (nl "\n")
-         (tname (tq-database-table-definition-table-name database-table-definition))
-         (pk (tq-database-table-definition-primary-key database-table-definition)))
-    (concat tab "<select id=\"select\"" nl
-            tab tab tab "parameterType=\"com.example.User\"" nl
-            tab tab tab "resultType=\"com.example.User\">" nl
-            tab tab "SELECT * FROM " tname nl
-            tab "</select>" nl)))
 
 
-(defun tq-generate-mybatis-mapper (database-table-definition)
-  "生成 MyBastis SQL Mapper。"
-  (let* ((tab "    ")
-         (nl "\n")
-         (tname (tq-database-table-definition-table-name database-table-definition))
-         (pk (tq-database-table-definition-primary-key database-table-definition))
-         (clist (tq-database-table-definition-columns database-table-definition))
-         (head (concat "<!DOCTYPE mapper" nl
-                       tab tab "PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\"" nl
-                       tab tab "\"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">" nl
-                       "<mapper namespace=\"com.guosen.zebra.ia.dao.SqlMapper\">" nl))
-         (tail (concat nl "</mapper>"))
-         (body ""))
-    (dolist (generator (list #'tq-generate-mybatis-mapper-insert
-                             #'tq-generate-mybatis-mapper-select
-                             #'tq-generate-mybatis-mapper-select-one
-                             #'tq-generate-mybatis-mapper-update
-                             #'tq-generate-mybatis-mapper-delete))
-      (setf body (concat body (funcall generator database-table-definition))))
-    (concat "<!--" nl
-            tname nl
-            pk nl
-            (string-join clist nl) nl
-            "-->" nl
-     head body tail)))
 
-(defun tq-generate-mybatis-annotation (database-table-definition)
-  "生成 MyBastis 接口类。"
-  (let* ((tname (tq-database-table-definition-table-name database-table-definition))
-         (pk (tq-database-table-definition-primary-key database-table-definition))
-         (clist (tq-database-table-definition-columns database-table-definition))
-         (value-table (make-hash-table :test #'equal))
-         (column-block "")
-         (assign-block "")
-         (placeholder-block "")
-         (tab "    ")
-         (nl "\n")
-         (dquote "\"")
-         (first t)
-         (column "")
-         (optional-comma "")
-         (template ""))
-    (setf template "import org.apache.ibatis.annotations.*;
-import java.util.List;
+(defun tq-gen-web-xml-file ()
+  "Generate content of file web.xml."
+  (let ((lines '("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                 "<web-app version=\"3.1\"\n"
+                 "         xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\n"
+                 "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                 "         xmlns:mvc=\"http://www.springframework.org/schema/mvc\"\n"
+                 "         xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee\n"
+                 "	                     http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\">\n"
+                 "  <display-name></display-name>\n"
+                 "\n"
+                 "  <!--\n"
+                 "  <context-param>\n"
+                 "    <param-name></param-name>\n"
+                 "    <param-value></param-value>\n"
+                 "  </context-param>\n"
+                 "  \n"
+                 "  <listener>\n"
+                 "    <listener-class></listener-class>\n"
+                 "  </listener>\n"
+                 "\n"
+                 "  <filter>\n"
+                 "    <filter-name></filter-name>\n"
+                 "    <filter-class></filter-class>\n"
+                 "    <async-supported></async-supported>\n"
+                 "    <init-param>\n"
+                 "      <description></description>\n"
+                 "      <param-name></param-name>\n"
+                 "      <param-value></param-value>\n"
+                 "    </init-param>\n"
+                 "  </filter>\n"
+                 "  <filter-mapping>\n"
+                 "    <filter-name></filter-name>\n"
+                 "    <url-pattern></url-pattern>\n"
+                 "  </filter-mapping>\n"
+                 "  -->\n"
+                 "\n"
+                 "  <servlet>\n"
+                 "    <servlet-name></servlet-name>\n"
+                 "    <servlet-class></servlet-class>\n"
+                 "    <init-param>\n"
+                 "      <param-name></param-name>\n"
+                 "      <param-value></param-value>\n"
+                 "    </init-param>\n"
+                 "    <load-on-startup></load-on-startup>\n"
+                 "    <async-supported></async-supported>\n"
+                 "  </servlet>\n"
+                 "  <servlet-mapping>\n"
+                 "    <servlet-name></servlet-name>\n"
+                 "    <url-pattern>/</url-pattern>\n"
+                 "  </servlet-mapping>\n"
+                 "</web-app>\n")))
+    (apply #'concat lines)))
 
-@Mapper
-public interface ${table-name}Repository {
+(defun tq-init-web-xml-file ()
+  (interactive)
+  (let ((text (tq-gen-web-xml-file)))
+    (beginning-of-buffer)
+    (insert text)
+    (xml-mode)))
 
-    @Select(\"SELECT * FROM ${table-name}\")
-    List<${table-name}> select${table-name}();
+;; (defun tq-create-web-xml-file (filename)
+;;   (interactive "sFilename: ")
+;;   (let ((text (tq-gen-web-xml-file)))
+;;     (tq-write-file-then-open filename text)
+;;     (xml-mode)))
 
-    @Select(\"SELECT * FROM ${table-name} WHERE ${primary-key}=#{record.${primary-key}}\")
-    List<${table-name}> selectOne${table-name}(@Param(\"record\") ${table-name} ${table-name-lower});
 
-    @Delete(\"DELETE FROM ${table-name} WHERE ${primary-key}=#{record.${primary-key}}\")
-    List<${table-name}> deleteOne${table-name}(@Param(\"record\") ${table-name} ${table-name-lower});
-
-    @Insert(\"INSERT INTO ${table-name} (\" + ${column-block}
-            \") \" +
-            \"VALUES (\" + ${placeholder-block}
-            \")\")
-    void insert${table-name}(@Param(\"record\") ${table-name} record);
-
-    @Update(\"UPDATE ${table-name} SET \" + ${assign-block}
-            \"WHERE ${primary-key}=#{record.${primary-key}}\")
-    void update${table-name}(@Param(\"record\") ${table-name} record);
-}")
-    (puthash "table-name" tname value-table)
-    (puthash "table-name-lower" (downcase tname) value-table)
-    (puthash "primary-key" pk value-table)
-    (dotimes (index (length clist))
-      (setf column (nth index clist))
-      (setf optional-comma (if (< index (- (length clist) 1))
-                               "," 
-                             ""))
-      (setf column-block (concat column-block nl
-                                 tab tab tab dquote column optional-comma dquote " + "))
-      (setf placeholder-block (concat placeholder-block nl
-                                      tab tab tab dquote "#{record." column "}" optional-comma dquote " + "))
-      (setf assign-block (concat assign-block nl
-                                 tab tab tab dquote column "=#{record." column "}" optional-comma dquote " + ")))
-
-    (puthash "column-block" column-block value-table)
-    (puthash "placeholder-block" placeholder-block value-table)
-    (puthash "assign-block" assign-block value-table)
-    (tq-render-template template value-table)))
-
-(defun tq-capture-database-table-definition (start end)
-  "将区域内的数据表说明内容转换成 tq-database-table-definition。"
-  (interactive "r")
-  (let* ((region (buffer-substring-no-properties start end))
-         (words (split-string region))
-         (tname (nth 0 words))
-         (pk (nth 1 words)))
-    (pop words)
-    (pop words)
-    (make-tq-database-table-definition :table-name tname :primary-key pk :columns words)))
-
-(defun tq-capture-mybatis (start end output-format)
-  "将区域内的数据表说明内容转换成 MyBatis Mapper。
-
-参数
-output-format 输出格式。支持 annotation 和 xml。默认为 annotation。
+(defun tq-init-html-file (title)
+  "Initialize a html file, insert header lines, and switch on html-mode.
 "
-  (interactive "r\ns输出格式：")
-  (let* ((generator (if (string-equal output-format "xml")
-                        #'tq-generate-mybatis-mapper
-                      #'tq-generate-mybatis-annotation))
-         (definition (tq-capture-database-table-definition start end)))
-    (delete-region start end)
-    (insert (funcall generator definition))
-    (move-end-of-line)))
+  (interactive "sTitle: ")
+  (let ((text (tq-gen-html-file title)))
+    (beginning-of-buffer)
+    (insert text)
+    (html-mode)))
+
+(defun create-maven-project (root-path
+                             group-id
+                             artifact-id
+                             version
+                             packaging
+                             package)
+  "Create maven project"
+  (let* ((package-path (replace-regexp-in-string "\\." "/" package))
+         (paths (list (expand-file-name
+                       (concat artifact-id "/src/main/java/" package-path) root-path)
+                      (expand-file-name
+                       (concat artifact-id "/src/test/java/" package-path) root-path)))
+         (pom-file (expand-file-name
+                    (concat root-path "/" artifact-id "/pom.xml")))
+         (web-paths (list
+                     (expand-file-name
+                      (concat artifact-id "/src/main/webapp/WEB-INF/") root-path)))
+         (web-xml-file (expand-file-name
+                        (concat artifact-id "/src/main/webapp/WEB-INF/web.xml") root-path)))
+    (dolist (path paths)
+      (make-directory path t))
+    (when (file-exists-p pom-file)
+      (delete-file pom-file))
+    (append-to-file (tq-gen-pom-file group-id artifact-id version packaging)
+                    nil pom-file)
+    (when (string= packaging "war")
+      (dolist (path web-paths)
+        (make-directory path t))
+      (when (file-exists-p web-xml-file)
+        (delete-file web-xml-file))
+      (append-to-file (tq-gen-web-xml) nil web-xml-file))))
+
+;; TODO rewrite it
+
+(defun tq-gen-junit-test-class (package class-name method-name)
+  "Generate junit test class. class-name is the name of class to be tested, 
+method-name is the name of method to be tested."
+  (let* ((lines (list "/**\n"
+                      " * File: Test${className}.java\n"
+                      " * Description: Unit test for ${className}.\n"
+                      " * Author: Wang Qian\n"
+                      " * Create: ${date}\n"
+                      " * Modify: ${date}\n"
+                      " */\n"
+                      "\n"
+                      "package ${package};\n"
+                      "\n"
+                      "import junit.framework.TestCase;\n"
+                      "\n"
+                      "public class Test${className} extends TestCase {\n"
+                      "    public void test${methodName}() {\n"
+                      "    }\n"
+                      "}\n"
+                      "\n"))
+         (pairs (list  "${className}" class-name
+                       "${methodName}" (tq-upcase-first-letter method-name)
+                       "${package}" package
+                       "${date}" (format-time-string "%Y-%m-%d"))))
+    (tq-replace-regexp-pairs pairs (apply #'concat lines))))
+
+(defun init-junit-test-class (package class-name method-name)
+  "Initialize junit test class."
+  (interactive "sPackage: \nsClass: \nsMethod: ")
+  (let* ((package-path (replace-regexp-in-string "\\." "/" package))
+         (path (concat "src/test/java/" package-path))
+         (filename (concat path "/Test" class-name ".java")))
+    (make-directory path t)
+    (append-to-file
+     (tq-gen-junit-test-class package class-name method-name)
+     nil filename)
+    (find-file filename)))
+
+(defun tq-gen-html-file (title)
+  "Generate HTML file header."
+  (let* ((lines (list
+                 "<!DOCTYPE html>"
+                 "<html>"
+                 "<head>"
+                 (format "<title>%s</title>" title)
+                 "<meta charset=utf-8 />"
+                 "</head>"
+                 "<body>"
+                 "</body>"
+                 "</html>"
+                 )))
+    (apply #'concat (mapcar (lambda (x) (concat x "\n")) lines))))
+
+
+
+(defconst tq-spring-config-template "
+<beans xmlns=\"http://www.springframework.org/schema/beans\"
+       xmlns:context=\"http://www.springframework.org/schema/context\"
+       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
+       xmlns:mvc=\"http://www.springframework.org/schema/mvc\"
+       xsi:schemaLocation=\"
+                           http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/mvc
+                           http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd \">
+
+	<context:component-scan base-package=\"${Package}\" />
+
+	<bean class=\"org.springframework.web.servlet.view.InternalResourceViewResolver\">
+		<property name=\"viewClass\" value=\"org.springframework.web.servlet.view.JstlView\"/>
+		<property name=\"prefix\" value=\"/WEB-INF/views/jsp/\" />
+		<property name=\"suffix\" value=\".jsp\" />
+	</bean>
+
+	<mvc:resources mapping=\"/resources/**\" location=\"/resources/\" />
+        <context:annotation-config/>
+        <bean id=\"helloService\" class=\"${Package}.serviceprovider.HelloServiceProvider\" />        
+
+	<mvc:annotation-driven />
+
+</beans>
+")
+
+(defconst tq-spring-web-xml-content "
+<web-app version=\"3.1\"
+	 xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"
+	 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
+	 xmlns:mvc=\"http://www.springframework.org/schema/mvc\"
+	 xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee
+		 	     http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\">
+	<servlet>
+		<servlet-name>HelloServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+                <init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>/WEB-INF/spring-mvc-config.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>HelloServlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+</web-app>
+")
+
+(defconst tq-spring-web-build-gradle "
+apply plugin: 'java'
+apply plugin: 'war'
+
+repositories {
+        jcenter()
+        mavenCentral()
+}
+
+dependencies {
+        compile group: 'org.springframework', name: 'spring-core', version: '4.3.6.RELEASE'
+        compile group: 'org.springframework', name: 'spring-context', version: '4.3.6.RELEASE'
+        compile 'org.springframework:spring-webmvc:4.1.6.RELEASE'
+	compile 'javax.servlet:jstl:1.2'
+}  
+")
+
+(defconst tq-spring-web-serviceprovider-template "
+package ${Package}.serviceprovider;
+
+import ${Package}.service.HelloService;
+import ${Package}.service.HelloService.Request;
+import ${Package}.service.HelloService.Response;
+
+public class HelloServiceProvider implements HelloService {
+  public Response hello(Request request) {
+    Response response = new Response();
+    response.setMessage(\"hello, \" + request.getName());
+    return response;
+  }
+}
+")
+
+(defconst tq-spring-web-service-template "package ${Package}.service;
+
+public interface HelloService {
+
+  public class Request {
+    private String name;
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+  }
+
+  public class Response {
+    private String message;
+    public String getMessage() {
+      return message;
+    }
+
+    public void setMessage(String message) {
+      this.message = message;
+    }
+  }
+  
+  public Response hello(Request request);
+}
+")
+
+(defconst tq-spring-web-controller-template "
+package ${Package}.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import ${Package}.service.HelloService;
+import ${Package}.service.HelloService.Request;
+import ${Package}.service.HelloService.Response;
+
+@Controller
+public class Hello {
+  @Autowired
+  private HelloService helloService;
+  
+  @RequestMapping(value = \"/\", method = RequestMethod.GET)
+  @ResponseBody
+  public String hello(Request request) {
+    return helloService.hello(request).getMessage();
+  }
+}
+")
+
+(defun tq-new-spring-web (root-directory
+                          project-name
+                          package)
+  "建立Spring MVC项目。"
+  (interactive "sRootDirectory: 
+sProjectName: 
+sPackage: ")
+  
+  (let ((project-directory (expand-file-name project-name root-directory)))
+    ;; 建立目录
+    (make-directory project-directory t)
+
+    ;; 初始化gradle
+    (tq-execute-shell "gradle init" project-directory)
+
+    ;; 生成build.gradle
+    (tq-write-file (tq-join-path project-directory "build.gradle")
+                   tq-spring-web-build-gradle t)
+
+    ;; 生成Java代码
+    (tq-write-file
+     (tq-join-path project-directory
+                   "src/main/java/"
+                   (replace-regexp-in-string "\\." "/" package)
+                   "controller/Hello.java")
+     (tq-execute-template
+      (list "Package"
+            package)
+      tq-spring-web-controller-template))
+
+    (tq-write-file
+     (tq-join-path project-directory
+                   "src/main/java/"
+                   (replace-regexp-in-string "\\." "/" package)
+                   "service/HelloService.java")
+     (tq-execute-template
+      (list "Package"
+            package)
+      tq-spring-web-service-template))
+
+    (tq-write-file
+     (tq-join-path project-directory
+                   "src/main/java/"
+                   (replace-regexp-in-string "\\." "/" package)
+                   "serviceprovider/HelloServiceProvider.java")
+     (tq-execute-template
+      (list "Package"
+            package)
+      tq-spring-web-serviceprovider-template))
+    
+    ;; 生成web.xml
+    (tq-write-file (tq-join-path project-directory "src/main/webapp/WEB-INF/web.xml")
+                   tq-spring-web-xml-content 
+                   t)
+    
+    ;; 生成context config文件
+    (tq-write-file (tq-join-path project-directory "src/main/webapp/WEB-INF/spring-mvc-config.xml")
+                   (tq-execute-template (list "Package" package) tq-spring-config-template)
+                   t)
+
+    ;; 初始化git仓库
+    (tq-new-gitignore (tq-join-path project-directory ""))
+    (dolist (command (list "git init ."
+                           "git add ."
+                           "git commit -m \"initial commit\""))
+      (tq-execute-shell command project-directory))
+    
+    ;; 使用gradle 打包
+    (tq-execute-shell "gradle war" project-directory)
+
+    ;; 打开工程目录
+    (find-file project-directory)))
+
+(defconst tq-spring-boot-app-template
+  "package ${Package};
+
+public class App {
+        public static void main(String[] args) {
+                System.out.println(\"ok\");
+        }
+}
+")
+
+(defconst tq-spring-boot-app-build-gradle
+  "buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RELEASE'
+  }
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'java'
+
+bootJar {
+        mainClassName = 'com.foo.bar.App'
+}
+
+bootJar {
+        launchScript()
+}
+")
+
+(defun tq-new-spring-boot-app (root-directory
+                               project-name
+                               package)
+  "建立Spring Boot项目。"
+  (interactive "sRootDirectory: 
+sProjectName: 
+sPackage: ")
+  
+  (let ((project-directory (expand-file-name project-name root-directory)))
+    ;; 建立目录
+    (make-directory project-directory t)
+
+    ;; 初始化gradle
+    (tq-execute-shell "gradle init" project-directory)
+
+    ;; 生成build.gradle
+    (tq-write-file (tq-join-path project-directory "build.gradle")
+                   tq-spring-boot-app-build-gradle t)
+
+    ;; 生成Java代码
+    (tq-write-file
+     (tq-join-path project-directory
+                   "src/main/java/"
+                   (replace-regexp-in-string "\\." "/" package)
+                   "App.java")
+     (tq-execute-template
+      (list "Package"
+            package)
+      tq-spring-boot-app-template))
+
+    ;; 初始化git仓库
+    (tq-new-gitignore (tq-join-path project-directory ""))
+    (dolist (command (list "git init ."
+                           "git add ."
+                           "git commit -m \"initial commit\""))
+      (tq-execute-shell command project-directory))
+    
+    ;; 构建
+    (tq-execute-shell "gradle bootRun" project-directory)
+
+    ;; 打开工程目录
+    (find-file project-directory)))
+
+(defconst tq-spring-boot-web-application-template
+  "package ${Package};
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+@SpringBootApplication
+public class Application {
+
+        public static void main(String[] args) {
+                SpringApplication.run(Application.class, args);
+        }
+}
+
+")
+
+
+(defconst tq-spring-boot-web-controller-template
+  "package ${Package};
+
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@RestController
+public class Controller {
+
+        @RequestMapping(\"/\")
+        public String index() {
+                return \"hello\";
+        }
+}
+
+")
+
+(defconst tq-spring-boot-web-build-gradle-template
+  "// https://spring.io/guides/gs/spring-boot/#scratch
+buildscript {
+        repositories {
+                mavenCentral()
+        }
+        dependencies {
+                classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RELEASE'
+        }
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'java'
+
+bootJar {
+        baseName = '${ProjectName}'
+        version = '0.1.0'
+}
+
+repositories {
+        mavenCentral()
+}
+
+dependencies {
+        compile('org.springframework.boot:spring-boot-starter-web')
+        testCompile('junit:junit')
+}
+")
+
+(defun tq-new-spring-boot-web (root-directory
+                               project-name
+                               package)
+  "建立Spring Boot Web项目。"
+  (interactive "sRootDirectory: 
+sProjectName: 
+sPackage: ")
+  
+  (let ((project-directory (expand-file-name project-name root-directory)))
+    ;; 建立目录
+    (make-directory project-directory t)
+
+    ;; 初始化gradle
+    (tq-execute-shell "gradle init" project-directory)
+
+    ;; 生成build.gradle
+    (tq-write-file (tq-join-path project-directory "build.gradle")
+                   (tq-execute-template (list "ProjectName" project-name) tq-spring-boot-web-build-gradle-template)
+                   t)
+
+    ;; 生成Java代码
+    (tq-write-file
+     (tq-join-path project-directory
+                   "src/main/java/"
+                   (replace-regexp-in-string "\\." "/" package)
+                   "Application.java")
+     (tq-execute-template
+      (list "Package"
+            package)
+      tq-spring-boot-web-application-template))
+
+    (tq-write-file
+     (tq-join-path project-directory
+                   "src/main/java/"
+                   (replace-regexp-in-string "\\." "/" package)
+                   "/controller/Controller.java")
+     (tq-execute-template
+      (list "Package"
+            package)
+      tq-spring-boot-web-controller-template))
+
+    ;; 初始化git仓库
+    (tq-new-gitignore (tq-join-path project-directory ""))
+    (dolist (command (list "git init ."
+                           "git add ."
+                           "git commit -m \"initial commit\""))
+      (tq-execute-shell command project-directory))
+    
+    ;; 构建
+    (tq-execute-shell "gradle build" project-directory)
+
+    ;; 打开工程目录
+    (find-file project-directory)))
+
+
+
+(defconst tq-go-content
+  "package main
+
+import (
+        \"fmt\"
+)
+
+func main() {
+        fmt.Println(\"Hello, world!\")
+}
+")
+
+(defun tq-new-go (root-directory
+                  project-name)
+  (interactive "sroot directory: 
+sproject: ")
+  (let ((filename (tq-join-path root-directory project-name "main.go")))
+    (tq-write-file filename tq-go-content)
+    (find-file filename)))
+
+
+(defun tq-new-java-app (root-directory
+                        project-name)
+  "建立Java App项目。"
+  (interactive "sroot directory: 
+sproject name: ")
+  (let ((project-directory (tq-join-path root-directory project-name)))
+    (message "建立模块目录。")
+    (make-directory project-directory t)
+    (message "初始化gradle。")
+    (tq-execute-shell "gradle init --type java-application" project-directory)
+    (find-file (tq-join-path project-directory "src/main/java/App.java"))))
