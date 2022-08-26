@@ -544,3 +544,17 @@ string b = 2;
     (delete-region start end)
     (insert content)))
 
+
+(defun tq-set-indent (indent)
+  "设置缩进。"
+  (interactive "n缩进：")
+  (setf tab-width indent
+        c-basic-offset indent
+        indent-tabs-mode nil
+        nxml-attribute-indent indent
+        js-indent-level indent
+        nxml-child-indent indent
+        css-indent-offset indent
+        python-indent-offset indent)
+  (if (not (= indent tq-indent-offset))
+      (setf tq-indent-offset indent)))
