@@ -122,7 +122,7 @@
                                    "go" #'go-mode
                                    "xml" #'xml-mode
                                    "c" #'c-mode
-			           "c++" #'c++-mode
+			                             "c++" #'c++-mode
                                    "powershell" #'powershell-mode
                                    "shell" #'shell-mode
                                    "lisp" #'lisp-interaction-mode
@@ -133,9 +133,9 @@
                                    "css" #'css-mode
                                    "sql" #'sql-mode
                                    "gradle" #'groovy-mode
-			           "kotlin" #'kotlin-mode
-			           "dockerfile" #'dockerfile-mode
-			           "typescript" #'typescript-mode
+			                             "kotlin" #'kotlin-mode
+			                             "dockerfile" #'dockerfile-mode
+			                             "typescript" #'typescript-mode
                                    "elisp" #'lisp-interaction-mode
                                    "php" #'php-mode
                                    "" #'text-mode))
@@ -390,7 +390,7 @@ public class %s {
             pk nl
             (string-join clist nl) nl
             "-->" nl
-     head body tail)))
+            head body tail)))
 
 (defun tq-generate-mybatis-annotation (database-table-definition)
   "生成 MyBastis 接口类。"
@@ -558,3 +558,84 @@ string b = 2;
         python-indent-offset indent)
   (if (not (= indent tq-indent-offset))
       (setf tq-indent-offset indent)))
+
+
+(defcustom tq-record-directory "~/record"
+  "日志目录"
+  :type 'string
+  :group 'tq)
+
+
+
+(defun tq-season-number ()
+  "获取季度序号。"
+  (+ 1 (/ (string-to-number (format-time-string "%m")) 4)))
+
+(defun tq-open-week-record ()
+  "打开周记录文件。如果文件不存在，创建文件。
+
+周记录文件位于周记录目录中，周记录目录是tq-record-directory目录下的一个子目录。
+周记录目录名字类似2022-q3-w35，周记录文件名字类似2022-q3-w35.org。
+"
+  (interactive)
+  (let* ((year (format-time-string "%Y"))
+         (season (number-to-string (tq-season-number)))
+         (week-string (format-time-string "%Y年%V周"))
+         (week-record-directory-name 
+          (format-time-string (concat "%Y-q" season  "-w%V")))
+         (week-record-file-name
+          (concat week-record-directory-name ".org"))
+         (root-path nil))
+    ;; 保证根目录存在。
+    (dolist (sub (list tq-record-directory year (concat year "-q" season) week-record-directory-name))
+      (setf root-path (expand-file-name sub root-path)))
+    (if (not (file-exists-p root-path))
+        (make-directory root-path t))
+    (setf week-record-file-name (expand-file-name week-record-file-name root-path))
+    (if (file-exists-p week-record-file-name)
+        (find-file week-record-file-name)
+      (tq-write-file-then-open week-record-file-name
+                               (tq-render-template-from-sequence "# -*- mode: org -*-
+#+options: ^:nil
+#+todo: todo(t) | done(d@/!) canceled(c@/!)
+#+title: ${date}
+#+date: ${date}
+* todo 本周工作 [%]
+* 记录
+" "date" week-string)))))
+
+
+(defun tq-open-day-record ()
+  "打开日记录文件。如果文件不存在，创建文件。
+
+日记录文件位于周记录目录中，周记录目录是tq-record-directory目录下的一个子目录。
+周记录目录名字类似2022-q3-w35，日记录文件名字类似2022-q3-w35-20220829.org。
+"
+  (interactive)
+  (let* ((year (format-time-string "%Y"))
+         (season (number-to-string (tq-season-number)))
+         (date (format-time-string "%Y年%m月%d日"))
+         (week-record-directory-name 
+          (format-time-string (concat "%Y-q" season  "-w%V")))
+         (day-record-file-name
+          (format-time-string (concat "%Y-q" season  "-w%V-%Y%m%d.org")))
+         (root-path nil))
+    ;; 保证根目录存在。
+    (dolist (sub (list tq-record-directory year (concat year "-q" season) week-record-directory-name))
+      (setf root-path (expand-file-name sub root-path)))
+    (if (not (file-exists-p root-path))
+        (make-directory root-path t))
+    (setf day-record-file-name (expand-file-name day-record-file-name root-path))
+    (if (file-exists-p day-record-file-name)
+        (find-file day-record-file-name)
+      (tq-write-file-then-open day-record-file-name
+                             (tq-render-template-from-sequence "# -*- mode: org -*-
+#+options: ^:nil
+#+todo: todo(t) | done(d@/!) canceled(c@/!)
+#+title: ${date}
+#+date: ${date}
+* todo 今日工作 [%]
+* 记录
+" "date" date)))))
+
+
