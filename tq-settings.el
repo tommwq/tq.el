@@ -160,7 +160,7 @@
 ;; (delete-region (point-min) (point-max))
 
 ;; 设置窗口半透明
-(set-frame-parameter (selected-frame) 'alpha 75)
+(set-frame-parameter (selected-frame) 'alpha 90)
 
 
 (setf org-export-in-background nil)
