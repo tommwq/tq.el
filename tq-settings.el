@@ -167,4 +167,4 @@
 (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
 
 
-(tq-set-font)
+(tq-set-font tq-default-font-size)

@@ -485,6 +485,10 @@ output-format 输出格式。支持 annotation 和 xml。默认为 annotation。
   (dolist (charset '(kana han symbol cjk-misc bopomofo))
     (set-fontset-font t charset chinese-font)))
 
+(defcustom tq-default-font-size "tiny"
+  "默认字体大小"
+  :type 'string
+  :group 'tq)
 
 (defun tq-set-font (&optional font-size)
   "设置字体

@@ -4,3 +4,4 @@
 (setf default-directory tq-working-directory)
 (setf tq-note-directory (concat tq-working-directory "notes"))
 (setf tq-record-directory "c:/note");
+(setf tq-default-font-size "small")
