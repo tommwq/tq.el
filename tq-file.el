@@ -31,8 +31,8 @@
   "生成org文件内容。"
   (let* ((template "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) in-action(i/!) delegate(e/!) delay(y/!) | done(d/!) canceled(c/!)
-#+HTML_HEAD: <style type=\"text/css\">body {font-size: x-large;}</style>
+#+todo: todo(t) | done(d@/!) canceled(c@/!)
+#+HTML_HEAD: <style type=\"text/css\">body {font-size: x-large; font-family: 方正FW筑紫古典S明朝 简;}</style>
 #+title: ${title}
 #+date: ${date}
 "))
