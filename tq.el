@@ -9,14 +9,13 @@
 ;; 加载本目录下tq-*.el文件。
 (dolist (part '(tq-util
                 tq-string
-                tq-workflow
                 tq-java
-                tq-android
                 tq-file
                 tq-math
                 tq-command
                 tq-psp
                 tq-tmp
+                tq-settings
                 tq-local))
   (let ((file-name (format "%s.el" (prin1-to-string part))))
     (message (expand-file-name file-name (file-name-directory load-file-name)))

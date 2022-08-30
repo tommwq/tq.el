@@ -31,8 +31,8 @@
   "生成org文件内容。"
   (let* ((template "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) | done(d@/!) canceled(c@/!)
-#+HTML_HEAD: <style type=\"text/css\">body {font-size: x-large; font-family: 方正FW筑紫古典S明朝 简;}</style>
+#+todo: todo(t) in-action(i/!) delegate(e/!) delay(y/!) | done(d/!) canceled(c/!)
+#+HTML_HEAD: <style type=\"text/css\">body { font-family: \"方正FW筑紫古典S明朝 简\"; }</style>
 #+title: ${title}
 #+date: ${date}
 "))
@@ -51,5 +51,6 @@
   "建立并初始化org文件。"
   (interactive "s标题：")
   (let ((file-name (concat title ".org")))
+  (let ((file-name (format "%s.org" title)))
     (tq-write-file-then-open file-name (tq-generate-org-file-content title))
-    (end-of-buffer)))
+    (end-of-buffer))))

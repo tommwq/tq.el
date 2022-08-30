@@ -1,38 +1,13 @@
+(defcustom tq-indent-offset 2
+  "缩进。"
+  :type 'integer
+  :group 'tq)
 
-;; (defun tq-set-cmd-variable (variable value)
-;;   (setenv variable value))
-
-;; (defun tq-set-powershell-variable (variable value)
-;;   (let ((buffer (get-buffer "*PowerShell*")))
-;;     (when buffer (powershell-invoke-command-silently
-;;                   (get-buffer-process buffer)
-;;                   (format "$env:%s='%s'" variable value)))))
-
-;; (defun tq-set-cmd-variables (system-variables)
-;;   (let ((pairs system-variables)
-;;         (variable "")
-;;         (value ""))
-;;     (while pairs
-;;       (setf variable (car pairs))
-;;       (setf value (car (cdr pairs)))
-;;       (setf pairs (cdr (cdr pairs)))
-;;       (tq-set-cmd-variable (prin1-to-string variable) (prin1-to-string value)))))
-
-;; (defun tq-set-powershell-variables (system-variables)
-;;   (let ((pairs system-variables)
-;;         (variable "")
-;;         (value ""))
-;;     (while pairs
-;;       (setf variable (car pairs))
-;;       (setf value (car (cdr pairs)))
-;;       (setf pairs (cdr (cdr pairs)))
-;;       (tq-set-powershell-variable (prin1-to-string variable) (prin1-to-string value)))))
 
 (defun org-summary-todo (n-done n-not-done)
   "Switch entry to DONE when all subentries are done, to TODO otherwise."
   (let (org-log-done org-log-states)   ; turn off logging
     (org-todo (if (= n-not-done 0) "done" "todo"))))
-
 
 (defun tq-replace-regexp-pairs (pairs text)
   "Replace regexp pairs in text. 
@@ -45,171 +20,6 @@ the even ones are replacements."
       (setf replace (pop pairs))
       (setf text (replace-regexp-in-string pattern replace text)))
     text))
-
-(defun tq-gen-web-xml-file ()
-  "Generate content of file web.xml."
-  (let ((lines '("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                 "<web-app version=\"3.1\"\n"
-                 "         xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\n"
-                 "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
-                 "         xmlns:mvc=\"http://www.springframework.org/schema/mvc\"\n"
-                 "         xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee\n"
-                 "	                     http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\">\n"
-                 "  <display-name></display-name>\n"
-                 "\n"
-                 "  <!--\n"
-                 "  <context-param>\n"
-                 "    <param-name></param-name>\n"
-                 "    <param-value></param-value>\n"
-                 "  </context-param>\n"
-                 "  \n"
-                 "  <listener>\n"
-                 "    <listener-class></listener-class>\n"
-                 "  </listener>\n"
-                 "\n"
-                 "  <filter>\n"
-                 "    <filter-name></filter-name>\n"
-                 "    <filter-class></filter-class>\n"
-                 "    <async-supported></async-supported>\n"
-                 "    <init-param>\n"
-                 "      <description></description>\n"
-                 "      <param-name></param-name>\n"
-                 "      <param-value></param-value>\n"
-                 "    </init-param>\n"
-                 "  </filter>\n"
-                 "  <filter-mapping>\n"
-                 "    <filter-name></filter-name>\n"
-                 "    <url-pattern></url-pattern>\n"
-                 "  </filter-mapping>\n"
-                 "  -->\n"
-                 "\n"
-                 "  <servlet>\n"
-                 "    <servlet-name></servlet-name>\n"
-                 "    <servlet-class></servlet-class>\n"
-                 "    <init-param>\n"
-                 "      <param-name></param-name>\n"
-                 "      <param-value></param-value>\n"
-                 "    </init-param>\n"
-                 "    <load-on-startup></load-on-startup>\n"
-                 "    <async-supported></async-supported>\n"
-                 "  </servlet>\n"
-                 "  <servlet-mapping>\n"
-                 "    <servlet-name></servlet-name>\n"
-                 "    <url-pattern>/</url-pattern>\n"
-                 "  </servlet-mapping>\n"
-                 "</web-app>\n")))
-    (apply #'concat lines)))
-
-(defun tq-init-web-xml-file ()
-  (interactive)
-  (let ((text (tq-gen-web-xml-file)))
-    (beginning-of-buffer)
-    (insert text)
-    (xml-mode)))
-
-(defun tq-create-web-xml-file ()
-  (interactive "sFilename: ")
-  (let ((text (tq-gen-web-xml-file)))
-    (tq-write-file-then-open filename text)
-    (xml-mode)))
-
-
-(defun tq-init-html-file (title)
-  "Initialize a html file, insert header lines, and switch on html-mode.
-"
-  (interactive "sTitle: ")
-  (let ((text (tq-gen-html-file title)))
-    (beginning-of-buffer)
-    (insert text)
-    (html-mode)))
-
-(defun create-maven-project (root-path
-                             group-id
-                             artifact-id
-                             version
-                             packaging
-                             package)
-  "Create maven project"
-  (let* ((package-path (replace-regexp-in-string "\\." "/" package))
-         (paths (list (expand-file-name
-                       (concat artifact-id "/src/main/java/" package-path) root-path)
-                      (expand-file-name
-                       (concat artifact-id "/src/test/java/" package-path) root-path)))
-         (pom-file (expand-file-name
-                    (concat root-path "/" artifact-id "/pom.xml")))
-         (web-paths (list
-                     (expand-file-name
-                      (concat artifact-id "/src/main/webapp/WEB-INF/") root-path)))
-         (web-xml-file (expand-file-name
-                        (concat artifact-id "/src/main/webapp/WEB-INF/web.xml") root-path)))
-    (dolist (path paths)
-      (make-directory path t))
-    (when (file-exists-p pom-file)
-      (delete-file pom-file))
-    (append-to-file (tq-gen-pom-file group-id artifact-id version packaging)
-                    nil pom-file)
-    (when (string= packaging "war")
-      (dolist (path web-paths)
-        (make-directory path t))
-      (when (file-exists-p web-xml-file)
-        (delete-file web-xml-file))
-      (append-to-file (tq-gen-web-xml) nil web-xml-file))))
-
-;; TODO rewrite it
-
-(defun tq-gen-junit-test-class (package class-name method-name)
-  "Generate junit test class. class-name is the name of class to be tested, 
-method-name is the name of method to be tested."
-  (let* ((lines (list "/**\n"
-                      " * File: Test${className}.java\n"
-                      " * Description: Unit test for ${className}.\n"
-                      " * Author: Wang Qian\n"
-                      " * Create: ${date}\n"
-                      " * Modify: ${date}\n"
-                      " */\n"
-                      "\n"
-                      "package ${package};\n"
-                      "\n"
-                      "import junit.framework.TestCase;\n"
-                      "\n"
-                      "public class Test${className} extends TestCase {\n"
-                      "    public void test${methodName}() {\n"
-                      "    }\n"
-                      "}\n"
-                      "\n"))
-         (pairs (list  "${className}" class-name
-                       "${methodName}" (tq-upcase-first-letter method-name)
-                       "${package}" package
-                       "${date}" (format-time-string "%Y-%m-%d"))))
-    (tq-replace-regexp-pairs pairs (apply #'concat lines))))
-
-(defun init-junit-test-class (package class-name method-name)
-  "Initialize junit test class."
-  (interactive "sPackage: \nsClass: \nsMethod: ")
-  (let* ((package-path (replace-regexp-in-string "\\." "/" package))
-         (path (concat "src/test/java/" package-path))
-         (filename (concat path "/Test" class-name ".java")))
-    (make-directory path t)
-    (append-to-file
-     (tq-gen-junit-test-class package class-name method-name)
-     nil filename)
-    (find-file filename)))
-
-(defun tq-gen-html-file (title)
-  "Generate HTML file header."
-  (let* ((lines (list
-                 "<!DOCTYPE html>"
-                 "<html>"
-                 "<head>"
-                 (format "<title>%s</title>" title)
-                 "<meta charset=utf-8 />"
-                 "</head>"
-                 "<body>"
-                 "</body>"
-                 "</html>"
-                 )))
-    (apply #'concat (mapcar (lambda (x) (concat x "\n")) lines))))
-
 
 
 (defun tq-execute-template (variable-pairs template)
@@ -389,147 +199,6 @@ method-name is the name of method to be tested."
                   (get-buffer-process buffer)
                   (format "$env:PATH+=';%s'" path)))))
 
-(defconst tq-spring-config-template "
-<beans xmlns=\"http://www.springframework.org/schema/beans\"
-       xmlns:context=\"http://www.springframework.org/schema/context\"
-       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
-       xmlns:mvc=\"http://www.springframework.org/schema/mvc\"
-       xsi:schemaLocation=\"
-                           http://www.springframework.org/schema/beans
-                           http://www.springframework.org/schema/beans/spring-beans.xsd
-                           http://www.springframework.org/schema/mvc
-                           http://www.springframework.org/schema/mvc/spring-mvc.xsd
-                           http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context.xsd \">
-
-	<context:component-scan base-package=\"${Package}\" />
-
-	<bean class=\"org.springframework.web.servlet.view.InternalResourceViewResolver\">
-		<property name=\"viewClass\" value=\"org.springframework.web.servlet.view.JstlView\"/>
-		<property name=\"prefix\" value=\"/WEB-INF/views/jsp/\" />
-		<property name=\"suffix\" value=\".jsp\" />
-	</bean>
-
-	<mvc:resources mapping=\"/resources/**\" location=\"/resources/\" />
-        <context:annotation-config/>
-        <bean id=\"helloService\" class=\"${Package}.serviceprovider.HelloServiceProvider\" />        
-
-	<mvc:annotation-driven />
-
-</beans>
-")
-
-(defconst tq-spring-web-xml-content "
-<web-app version=\"3.1\"
-	 xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"
-	 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
-	 xmlns:mvc=\"http://www.springframework.org/schema/mvc\"
-	 xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee
-		 	     http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\">
-	<servlet>
-		<servlet-name>HelloServlet</servlet-name>
-		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-                <init-param>
-			<param-name>contextConfigLocation</param-name>
-			<param-value>/WEB-INF/spring-mvc-config.xml</param-value>
-		</init-param>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>HelloServlet</servlet-name>
-		<url-pattern>/</url-pattern>
-	</servlet-mapping>
-</web-app>
-")
-
-(defconst tq-spring-web-build-gradle "
-apply plugin: 'java'
-apply plugin: 'war'
-
-repositories {
-        jcenter()
-        mavenCentral()
-}
-
-dependencies {
-        compile group: 'org.springframework', name: 'spring-core', version: '4.3.6.RELEASE'
-        compile group: 'org.springframework', name: 'spring-context', version: '4.3.6.RELEASE'
-        compile 'org.springframework:spring-webmvc:4.1.6.RELEASE'
-	compile 'javax.servlet:jstl:1.2'
-}  
-")
-
-(defconst tq-spring-web-serviceprovider-template "
-package ${Package}.serviceprovider;
-
-import ${Package}.service.HelloService;
-import ${Package}.service.HelloService.Request;
-import ${Package}.service.HelloService.Response;
-
-public class HelloServiceProvider implements HelloService {
-  public Response hello(Request request) {
-    Response response = new Response();
-    response.setMessage(\"hello, \" + request.getName());
-    return response;
-  }
-}
-")
-
-(defconst tq-spring-web-service-template "package ${Package}.service;
-
-public interface HelloService {
-
-  public class Request {
-    private String name;
-    public String getName() {
-      return name;
-    }
-
-    public void setName(String name) {
-      this.name = name;
-    }
-  }
-
-  public class Response {
-    private String message;
-    public String getMessage() {
-      return message;
-    }
-
-    public void setMessage(String message) {
-      this.message = message;
-    }
-  }
-  
-  public Response hello(Request request);
-}
-")
-
-(defconst tq-spring-web-controller-template "
-package ${Package}.controller;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import ${Package}.service.HelloService;
-import ${Package}.service.HelloService.Request;
-import ${Package}.service.HelloService.Response;
-
-@Controller
-public class Hello {
-  @Autowired
-  private HelloService helloService;
-  
-  @RequestMapping(value = \"/\", method = RequestMethod.GET)
-  @ResponseBody
-  public String hello(Request request) {
-    return helloService.hello(request).getMessage();
-  }
-}
-")
-
 
 (defun tq-new-gitignore (&optional directory)
   "建立gitignore文件"
@@ -562,384 +231,137 @@ gradlew.bat
 *.user
 "))
 
-(defun tq-new-spring-web (root-directory
-                          project-name
-                          package)
-  "建立Spring MVC项目。"
-  (interactive "sRootDirectory: 
-sProjectName: 
-sPackage: ")
-  
-  (let ((project-directory (expand-file-name project-name root-directory)))
-    ;; 建立目录
-    (make-directory project-directory t)
-
-    ;; 初始化gradle
-    (tq-execute-shell "gradle init" project-directory)
-
-    ;; 生成build.gradle
-    (tq-write-file (tq-join-path project-directory "build.gradle")
-                   tq-spring-web-build-gradle t)
-
-    ;; 生成Java代码
-    (tq-write-file
-     (tq-join-path project-directory
-                   "src/main/java/"
-                   (replace-regexp-in-string "\\." "/" package)
-                   "controller/Hello.java")
-     (tq-execute-template
-      (list "Package"
-            package)
-      tq-spring-web-controller-template))
-
-    (tq-write-file
-     (tq-join-path project-directory
-                   "src/main/java/"
-                   (replace-regexp-in-string "\\." "/" package)
-                   "service/HelloService.java")
-     (tq-execute-template
-      (list "Package"
-            package)
-      tq-spring-web-service-template))
-
-    (tq-write-file
-     (tq-join-path project-directory
-                   "src/main/java/"
-                   (replace-regexp-in-string "\\." "/" package)
-                   "serviceprovider/HelloServiceProvider.java")
-     (tq-execute-template
-      (list "Package"
-            package)
-      tq-spring-web-serviceprovider-template))
-    
-    ;; 生成web.xml
-    (tq-write-file (tq-join-path project-directory "src/main/webapp/WEB-INF/web.xml")
-                   tq-spring-web-xml-content 
-                   t)
-    
-    ;; 生成context config文件
-    (tq-write-file (tq-join-path project-directory "src/main/webapp/WEB-INF/spring-mvc-config.xml")
-                   (tq-execute-template (list "Package" package) tq-spring-config-template)
-                   t)
-
-    ;; 初始化git仓库
-    (tq-new-gitignore (tq-join-path project-directory ""))
-    (dolist (command (list "git init ."
-                           "git add ."
-                           "git commit -m \"initial commit\""))
-      (tq-execute-shell command project-directory))
-    
-    ;; 使用gradle 打包
-    (tq-execute-shell "gradle war" project-directory)
-
-    ;; 打开工程目录
-    (find-file project-directory)))
-
-(defconst tq-spring-boot-app-template
-  "package ${Package};
-
-public class App {
-        public static void main(String[] args) {
-                System.out.println(\"ok\");
-        }
-}
-")
-
-(defconst tq-spring-boot-app-build-gradle
-  "buildscript {
-  repositories {
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RELEASE'
-  }
-}
-
-apply plugin: 'org.springframework.boot'
-apply plugin: 'java'
-
-bootJar {
-        mainClassName = 'com.foo.bar.App'
-}
-
-bootJar {
-        launchScript()
-}
-")
-
-(defun tq-new-spring-boot-app (root-directory
-                               project-name
-                               package)
-  "建立Spring Boot项目。"
-  (interactive "sRootDirectory: 
-sProjectName: 
-sPackage: ")
-  
-  (let ((project-directory (expand-file-name project-name root-directory)))
-    ;; 建立目录
-    (make-directory project-directory t)
-
-    ;; 初始化gradle
-    (tq-execute-shell "gradle init" project-directory)
-
-    ;; 生成build.gradle
-    (tq-write-file (tq-join-path project-directory "build.gradle")
-                   tq-spring-boot-app-build-gradle t)
-
-    ;; 生成Java代码
-    (tq-write-file
-     (tq-join-path project-directory
-                   "src/main/java/"
-                   (replace-regexp-in-string "\\." "/" package)
-                   "App.java")
-     (tq-execute-template
-      (list "Package"
-            package)
-      tq-spring-boot-app-template))
-
-    ;; 初始化git仓库
-    (tq-new-gitignore (tq-join-path project-directory ""))
-    (dolist (command (list "git init ."
-                           "git add ."
-                           "git commit -m \"initial commit\""))
-      (tq-execute-shell command project-directory))
-    
-    ;; 构建
-    (tq-execute-shell "gradle bootRun" project-directory)
-
-    ;; 打开工程目录
-    (find-file project-directory)))
-
-(defconst tq-spring-boot-web-application-template
-  "package ${Package};
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-
-@SpringBootApplication
-public class Application {
-
-        public static void main(String[] args) {
-                SpringApplication.run(Application.class, args);
-        }
-}
-
-")
-
-
-(defconst tq-spring-boot-web-controller-template
-  "package ${Package};
-
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-@RestController
-public class Controller {
-
-        @RequestMapping(\"/\")
-        public String index() {
-                return \"hello\";
-        }
-}
-
-")
-
-(defconst tq-spring-boot-web-build-gradle-template
-  "// https://spring.io/guides/gs/spring-boot/#scratch
-buildscript {
-        repositories {
-                mavenCentral()
-        }
-        dependencies {
-                classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RELEASE'
-        }
-}
-
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'java'
-
-bootJar {
-        baseName = '${ProjectName}'
-        version = '0.1.0'
-}
-
-repositories {
-        mavenCentral()
-}
-
-dependencies {
-        compile('org.springframework.boot:spring-boot-starter-web')
-        testCompile('junit:junit')
-}
-")
-
-(defun tq-new-spring-boot-web (root-directory
-                               project-name
-                               package)
-  "建立Spring Boot Web项目。"
-  (interactive "sRootDirectory: 
-sProjectName: 
-sPackage: ")
-  
-  (let ((project-directory (expand-file-name project-name root-directory)))
-    ;; 建立目录
-    (make-directory project-directory t)
-
-    ;; 初始化gradle
-    (tq-execute-shell "gradle init" project-directory)
-
-    ;; 生成build.gradle
-    (tq-write-file (tq-join-path project-directory "build.gradle")
-                   (tq-execute-template (list "ProjectName" project-name) tq-spring-boot-web-build-gradle-template)
-                   t)
-
-    ;; 生成Java代码
-    (tq-write-file
-     (tq-join-path project-directory
-                   "src/main/java/"
-                   (replace-regexp-in-string "\\." "/" package)
-                   "Application.java")
-     (tq-execute-template
-      (list "Package"
-            package)
-      tq-spring-boot-web-application-template))
-
-    (tq-write-file
-     (tq-join-path project-directory
-                   "src/main/java/"
-                   (replace-regexp-in-string "\\." "/" package)
-                   "/controller/Controller.java")
-     (tq-execute-template
-      (list "Package"
-            package)
-      tq-spring-boot-web-controller-template))
-
-    ;; 初始化git仓库
-    (tq-new-gitignore (tq-join-path project-directory ""))
-    (dolist (command (list "git init ."
-                           "git add ."
-                           "git commit -m \"initial commit\""))
-      (tq-execute-shell command project-directory))
-    
-    ;; 构建
-    (tq-execute-shell "gradle build" project-directory)
-
-    ;; 打开工程目录
-    (find-file project-directory)))
-
-
-
-(defconst tq-go-content
-  "package main
-
-import (
-        \"fmt\"
-)
-
-func main() {
-        fmt.Println(\"Hello, world!\")
-}
-")
-
-(defun tq-new-go (root-directory
-                  project-name)
-  (interactive "sroot directory: 
-sproject: ")
-  (let ((filename (tq-join-path root-directory project-name "main.go")))
-    (tq-write-file filename tq-go-content)
-    (find-file filename)))
-
-
-(defun tq-new-java-app (root-directory
-                        project-name)
-  "建立Java App项目。"
-  (interactive "sroot directory: 
-sproject name: ")
-  (let ((project-directory (tq-join-path root-directory project-name)))
-    (message "建立模块目录。")
-    (make-directory project-directory t)
-    (message "初始化gradle。")
-    (tq-execute-shell "gradle init --type java-application" project-directory)
-    (find-file (tq-join-path project-directory "src/main/java/App.java"))))
 
 (defun tq-c-mode-hook ()
   ;;  (message "tq-c-mode-hook")
   ;;  (c-set-style "linux")
   ;; (c-set-style "")
-  (setq tab-width 2
-        c-basic-offset 2
-        indent-tabs-mode nil)
-  (setq-default c-basic-offset 2
-                tab-width 2
-                indent-tabs-mode nil)
+  ;; (setq tab-width 4
+	;;     indent-tabs-mode nil)
   ;;  (c-toggle-auto-newline t)
-  )
+  (tq-set-indent tq-indent-offset))
 
-(defconst tq-java-style
-  '((c-tab-always-indent . t)
-    (c-basic-offset . 2)
-    (c-comment-only-line-offset . 0)
-    (c-echo-syntactic-information-p . t)
-    (c-cleanup-list . (
-                       ;; brace-else-brace
-                       ;; brace-elseif-brace
-                       ;; brace-catch-brace
-                       ;; empty-defun-braces
-                       ;; one-liner-defun
-                       ;; defun-close-semi
-                       ;; list-close-comma
-                       ;; scope-operator
-                       ;; space-before-funcall
-                       ;; compact-empty-funcall
-                       ;; comment-close-slash
-                       ))
-    (c-hanging-braces-alist . (;; (substatement-open after)
-                               ;; (inline-open after)
-                               ;; (class-open after)
-                               ;; (class-close nil)
-                               ;; (defun-open after)
-			                   ;; (defun-close nil)
-                               ;; (brace-entry-open after)
-                               ;; (statement after)
-                               ;; (case-label after)
-                               ;; (else-case)
-                               ;; (block-close before)
-                               ;; (access-label after)
-                               ;; (do-while-closure after)
-                               ;; (catch-clause after)
-                               ;; (member-init-intro after)
-                               ;; (brace-list-open after)
-                               ;; (substatement-open nil)
-                               ;; (inline-open nil)
-                               ;; (class-open nil)
-                               ;; (class-close nil)
-                               ;; (defun-open nil)
-                               ;; (defun-close nil)
-                               ;; (brace-entry-open nil)
-                               ;; (statement nil)
-                               ;; (case-label nil)
-                               ;; (else-case)
-                               ;; (block-close nil)
-                               ;; (access-label nil)
-                               ;; (do-while-closure nil)
-                               ;; (catch-clause nil)
-                               ;; (member-init-intro nil)
-                               ;; (brace-list-open nil)
-                               ))
-    (c-hanging-colons-alist .  (
-                                ;;(member-init-intro before)
-                                ;;(inher-intro)
-                                ;;(case-label after)
-                                ;;(access-label after)
-                                ))
-    (c-offsets-alist . ((substatement-open . 0)
-			            (statement-case-open . +)
-                        (label . 0)
-			            (inline-open . 0)
-                        (case-label . 0)
-                        (block-open . 0))))
-  "tq-java-style")
 
-(c-add-style "tq-java-style" tq-java-style)
+(defun print-api-gateway-configuration (path-prefix interface-list)
+  "打印 API 网关配置。
+
+path-prefix 路径前缀，如 bp、openacct 等。
+interface-list 接口名字列表。
+"
+  (dolist (x interface-list)
+    (princ (format "/%s/%s/1.0->%s
+" path-prefix x x))))
+
+
+(defun print-test-url (address path-prefix interface-list)
+  "打印测试 URL。
+
+address 服务器地址，如 127.0.0.1:443
+path-prefix 路径前缀，如 bp、openacct 等。
+interface-list 接口名字列表。
+"
+  (dolist (x interface-list)
+    (princ (format "http://%s/gsbp/%s/%s/1.0?
+" address path-prefix x))))
+
+
+
+
+;; https://stackoverflow.com/questions/9547912/emacs-calendar-show-more-than-3-months
+;; 12-MONTH CALENDAR -- SCROLLS BY MONTH (FORWARDS / BACKWARDS)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;                                                                            ;;;
+;;; Scroll a yearly calendar by month -- in a forwards or backwards direction. ;;;
+;;;                                                                            ;;;
+;;; To try out this example, evaluate the entire code snippet and type:        ;;;
+;;;                                                                            ;;;
+;;;     M-x year-calendar                                                      ;;;
+;;;                                                                            ;;;
+;;; To scroll forward by month, type the key:  >                               ;;;
+;;;                                                                            ;;;
+;;; To scroll backward by month, type the key:  <                              ;;;
+;;;                                                                            ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(eval-after-load "calendar" '(progn
+  (define-key calendar-mode-map "<" 'lawlist-scroll-year-calendar-backward)
+  (define-key calendar-mode-map ">" 'lawlist-scroll-year-calendar-forward) ))
+
+(defmacro lawlist-calendar-for-loop (var from init to final do &rest body)
+  "Execute a for loop.
+Evaluate BODY with VAR bound to successive integers from INIT to FINAL,
+inclusive.  The standard macro `dotimes' is preferable in most cases."
+  `(let ((,var (1- ,init)))
+    (while (>= ,final (setq ,var (1+ ,var)))
+      ,@body)))
+
+(defun year-calendar (&optional month year)
+  "Generate a one (1) year calendar that can be scrolled by month in each direction.
+This is a modification of:  http://homepage3.nifty.com/oatu/emacs/calendar.html
+See also:  http://ivan.kanis.fr/caly.el"
+(interactive)
+  (require 'calendar)
+  (let* ((current-year (number-to-string (nth 5 (decode-time (current-time)))))
+         (month (if month month
+           (string-to-number
+             (read-string "Please enter a month number (e.g., 1):  " nil nil "1"))))
+         (year (if year year
+           (string-to-number
+             (read-string "Please enter a year (e.g., 2014):  "
+               nil nil current-year)))))
+    (switch-to-buffer (get-buffer-create calendar-buffer))
+    (when (not (eq major-mode 'calendar-mode))
+      (calendar-mode))
+    (setq displayed-month month)
+    (setq displayed-year year)
+    (setq buffer-read-only nil)
+    (erase-buffer)
+    ;; horizontal rows
+    (lawlist-calendar-for-loop j from 0 to 3 do
+      ;; vertical columns
+      (lawlist-calendar-for-loop i from 0 to 2 do
+        (calendar-generate-month
+          ;; month
+          (cond
+            ((> (+ (* j 3) i month) 12)
+              (- (+ (* j 3) i month) 12))
+            (t
+              (+ (* j 3) i month)))
+          ;; year
+          (cond
+            ((> (+ (* j 3) i month) 12)
+             (+ year 1))
+            (t
+              year))
+          ;; indentation / spacing between months
+          (+ 5 (* 25 i))))
+      (goto-char (point-max))
+      (insert (make-string (- 10 (count-lines (point-min) (point-max))) ?\n))
+      (widen)
+      (goto-char (point-max))
+      (narrow-to-region (point-max) (point-max)))
+    (widen)
+    (goto-char (point-min))
+    (setq buffer-read-only t)))
+
+(defun lawlist-scroll-year-calendar-forward (&optional arg event)
+  "Scroll the yearly calendar by month in a forward direction."
+  (interactive (list (prefix-numeric-value current-prefix-arg)
+                     last-nonmenu-event))
+  (unless arg (setq arg 1))
+  (save-selected-window
+    (if (setq event (event-start event)) (select-window (posn-window event)))
+    (unless (zerop arg)
+      (let ((month displayed-month)
+            (year displayed-year))
+        (calendar-increment-month month year arg)
+        (year-calendar month year)))
+    (goto-char (point-min))
+    (run-hooks 'calendar-move-hook)))
+
+(defun lawlist-scroll-year-calendar-backward (&optional arg event)
+  "Scroll the yearly calendar by month in a backward direction."
+  (interactive (list (prefix-numeric-value current-prefix-arg)
+                     last-nonmenu-event))
+  (lawlist-scroll-year-calendar-forward (- (or arg 1)) event))
