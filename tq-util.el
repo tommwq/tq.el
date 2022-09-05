@@ -639,3 +639,157 @@ string b = 2;
 " "date" date)))))
 
 
+
+(defun tq-capture-entity (start end)  
+  "将区域内的文字转换成JPA Entity类。
+
+
+示例输入：
+
+User
+Long id
+String name
+String password
+
+转换后的代码：
+import javax.persistence.*;
+
+@Entity
+public class User {
+  @Id
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
+  pivate Long id;
+  private String name;
+  private String password;
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getPassword() {
+    return password;
+  } 
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+}
+"
+  (interactive "r")
+  (let* ((captured (buffer-substring-no-properties start end))
+         (sequence (split-string captured))
+         (class-name nil)
+         (members (make-hash-table :test #'equal))
+         (declare-statement "private %s %s;\n")
+         (getter-statement "
+public %s get%s() {
+    return %s;
+}
+")
+         (setter-statement "
+public void set%s(%s value) {
+    this.%s = value;
+}
+"))
+    (if (= 1 (mod (length sequence) 2))
+        (setf class-name (pop sequence)))
+    (while (> (length sequence) 0)
+      (let ((type "")
+            (field ""))
+        (setf type (pop sequence))
+        (setf field (pop sequence))
+        (setf (gethash field members) type)))
+    (let ((declare-part "")
+          (getset-part "")
+          (source "")
+          (type ""))
+      (dolist (field (hash-table-keys members))
+        (setf type (gethash field members))
+        (setf declare-part (concat declare-part (format declare-statement type field)))
+        (setf getset-part (concat getset-part (format getter-statement
+                                                      type
+                                                      (tq-upcase-first-letter field)
+                                                      field)))
+        (setf getset-part (concat getset-part (format setter-statement
+                                                      (tq-upcase-first-letter field)
+                                                      type
+                                                      field))))
+      (setf source (concat declare-part getset-part))
+      (if class-name
+          (setf source (format "
+
+import javax.persistence.*;
+
+/*
+%s
+*/
+@Entity
+public class %s {
+  @Id
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
+%s
+}
+" captured class-name (string-join (mapcar (lambda (s) (concat "  " s)) (split-string source "\n")) "\n"))))
+      (delete-region start end)
+      (insert source)
+      (move-end-of-line))))
+
+(defun tq-snake-to-camel (snake-case)
+  "将snake-case字符串转换为camelCase字符串。"
+  (let* ((blocks (split-string snake-case "_"))
+         (first (car blocks))
+         (tail (cdr blocks)))
+    (dolist (part tail)
+      (setf first (concat first (capitalize part))))
+    first))
+
+(defun tq-capture-find-view-by-id (start end)  
+  "将区域内的文字转换成findViewById代码段。
+
+示例输入：
+
+Button cancel_button
+
+转换后的代码：
+
+Button cancelButton;
+cancelButton = (Button) findViewById(R.id.switch_button);
+
+"
+  (interactive "r")
+  (let* ((captured (buffer-substring-no-properties start end))
+         (sequence (split-string captured))
+         (widgets (make-hash-table :test #'equal))
+         (widget-type "")
+         (widget-id "")
+         (widget-name "")
+         (source-code ""))
+    (while (> (length sequence) 0)
+      (setf widget-type (pop sequence))
+      (setf widget-id (pop sequence))
+      (setf (gethash widget-id widgets) widget-type))
+    (dolist (id (hash-table-keys widgets))
+      (setf widget-name (tq-snake-to-camel id))
+      (setf widget-type (gethash id widgets))
+      (setf source-code (concat source-code "\n" widget-type " " widget-name ";")))
+    (setf source-code (concat source-code "\n"))
+    (dolist (id (hash-table-keys widgets))
+      (setf widget-name (tq-snake-to-camel id))
+      (setf widget-type (gethash id widgets))
+      (setf source-code (concat source-code "\n" widget-type " " widget-name " = (" widget-type ") findViewById(R.id." widget-id ");")))
+    (delete-region start end)
+    (insert source-code)
+    (move-end-of-line)))
+
