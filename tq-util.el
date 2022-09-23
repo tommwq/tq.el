@@ -485,26 +485,37 @@ output-format 输出格式。支持 annotation 和 xml。默认为 annotation。
   (dolist (charset '(kana han symbol cjk-misc bopomofo))
     (set-fontset-font t charset chinese-font)))
 
-
 (defun tq-set-font (&optional font-size)
   "设置字体
 
 size: 3tiny ttiny tiny(default) small medium large huge"
   (interactive "s字体大小(ttiny/tiny/small/medium/large/huge): ")
-  (let* ((font '("LM Mono 12" "方正FW筑紫古典S明朝 简"))
+  (let* ((default-font-size 15)
+         (font-size-str (if (stringp font-size)
+                            font-size
+                          (prin1-to-string font-size)))
+         (chinese-font 
+          "方正FW筑紫古典S明朝 简"
+          ;; "方正博雅方刊宋简体"
+          )
+         (latin-font
+          "LM Mono 12"
+          ;; "Fantasque Sans Mono"
+          )
          (size (cond
-                ((string-equal "3tiny" font-size) 9)
-                ((string-equal "ttiny" font-size) 12)
-                ((string-equal "tiny" font-size) 15)
-                ((string-equal "small" font-size) 18)
-                ((string-equal "medium" font-size) 21)
-                ((string-equal "large" font-size) 24)
-                ((string-equal "huge" font-size) 27)
-                (t 15))))
-
+                ((string-equal "3tiny" font-size-str) 9)
+                ((string-equal "ttiny" font-size-str) 12)
+                ((string-equal "tiny" font-size-str) 15)
+                ((string-equal "small" font-size-str) 18)
+                ((string-equal "medium" font-size-str) 21)
+                ((string-equal "large" font-size-str) 24)
+                ((string-equal "huge" font-size-str) 27)
+                ((> (string-to-number font-size-str) 0)
+                 (string-to-number font-size-str))
+                (t default-font-size))))
     (tq-set-frame-font
-     (format "%s-%d" (nth 0 font) size)
-     (format "%s-%d" (nth 1 font) size))))
+     (format "%s-%d" latin-font size)
+     (format "%s-%d" chinese-font size))))
 
 (defun tq-reformat-cpp ()
   (interactive)
