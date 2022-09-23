@@ -7,7 +7,8 @@
 ;; (require 'tq)
 
 ;; 加载本目录下tq-*.el文件。
-(dolist (part '(tq-util
+(dolist (part '(tq-local
+                tq-util
                 tq-string
                 tq-java
                 tq-file
@@ -15,8 +16,7 @@
                 tq-command
                 tq-psp
                 tq-tmp
-                tq-settings
-                tq-local))
+                tq-settings))
   (let ((file-name (format "%s.el" (prin1-to-string part))))
     (message (expand-file-name file-name (file-name-directory load-file-name)))
     (load (expand-file-name file-name (file-name-directory load-file-name)))))

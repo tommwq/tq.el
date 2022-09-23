@@ -60,7 +60,7 @@ the even ones are replacements."
 
 (defconst tq-c-style
   '((c-tab-always-indent . t)
-    (c-basic-offset . 4)
+    (c-basic-offset . 2)
     (c-comment-only-line-offset . 0)
     (c-echo-syntactic-information-p . t)
     (c-cleanup-list . (
