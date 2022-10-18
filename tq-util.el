@@ -499,13 +499,15 @@ size: 3tiny ttiny tiny(default) small medium large huge"
          (font-size-str (if (stringp font-size)
                             font-size
                           (prin1-to-string font-size)))
-         (chinese-font 
+         (chinese-font
+					;; "新宋体"
           "方正FW筑紫古典S明朝 简"
           ;; "方正博雅方刊宋简体"
           )
          (latin-font
           "LM Mono 12"
           ;; "Fantasque Sans Mono"
+          ;; "Cascadia Code"
           )
          (size (cond
                 ((string-equal "3tiny" font-size-str) 9)
@@ -809,3 +811,49 @@ cancelButton = (Button) findViewById(R.id.switch_button);
     (insert source-code)
     (move-end-of-line)))
 
+
+(defun tq-capture-sqlcase (start end)  
+  "将区域内的文字转换成SQL case语句。
+
+
+示例输入：
+
+foo
+1 f
+2 g
+x
+
+转换后的代码：
+
+case foo
+  when 1 then 'f'
+  when 2 then 'g'
+  else 'x'
+end
+"
+  (interactive "r")
+  (let* ((captured (buffer-substring-no-properties start end))
+         (sequence (split-string captured))
+         (len (length sequence))
+         (n 0)
+         (k nil)
+         (v nil)
+         (result ""))
+    (if (zerop len)
+        (error "捕获区域内容为空。"))
+    (setf result (concat "case " (nth 0 sequence)))
+    (pop sequence)
+    (setf len (- len 1))
+    (while (< n len)
+      (setf k (nth n sequence))
+      (setf v nil)
+      (setf n (+ 1 n))
+      (if (< n len)
+          (setf v (nth n sequence)))
+      (if v
+          (setf result (concat result "\n  when " k " then '" v "'"))
+        (setf result (concat result "\n  else '" k "'\nend")))
+      (setf n (+ 1 n)))
+      (delete-region start end)
+      (insert result)
+      (move-end-of-line)))
