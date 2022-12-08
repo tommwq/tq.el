@@ -499,16 +499,8 @@ size: 3tiny ttiny tiny(default) small medium large huge"
          (font-size-str (if (stringp font-size)
                             font-size
                           (prin1-to-string font-size)))
-         (chinese-font
-					;; "新宋体"
-          "方正FW筑紫古典S明朝 简"
-          ;; "方正博雅方刊宋简体"
-          )
-         (latin-font
-          "LM Mono 12"
-          ;; "Fantasque Sans Mono"
-          ;; "Cascadia Code"
-          )
+         (chinese-font "方正博雅方刊宋简体")
+         (latin-font "Cascadia Code")
          (size (cond
                 ((string-equal "3tiny" font-size-str) 9)
                 ((string-equal "ttiny" font-size-str) 12)
@@ -857,3 +849,36 @@ end
       (delete-region start end)
       (insert result)
       (move-end-of-line)))
+
+(defun tq-upcase-first-char (field)
+  "将首字母改成大写字母。与capitalize不同，不会将其他字母改成小写。"
+  (if (= 0 (length field))
+      field
+    (concat (upcase (substring field 0 1))
+            (substring field 1))))
+
+(defun tq-capture-convert (start end)
+  "将区域内的文字转换成convert代码。
+
+示例输入：
+
+a b c
+
+生成的代码：
+
+to.setA(from.getA());
+to.setB(from.getB());
+to.setC(from.getC());
+"
+  (interactive "r")
+  (let* ((words (split-string
+                 (buffer-substring-no-properties start end)))
+         (code-format "to.set%s(from.get%s());\n")
+         (code ""))
+    (dolist (word words)
+      (setf code (concat code (format 
+                               code-format 
+                               (tq-upcase-first-char word)
+                               (tq-upcase-first-char word)))))
+    (delete-region start end)
+    (insert code)))
