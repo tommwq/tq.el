@@ -138,6 +138,7 @@
 			                             "typescript" #'typescript-mode
                                    "elisp" #'lisp-interaction-mode
                                    "php" #'php-mode
+                                   "plantuml" #'plantuml-mode
                                    "" #'text-mode))
          (mode-setter (gethash buffer-type mode-table)))
     (unless mode-setter (setf mode-setter #'text-mode))
@@ -499,8 +500,11 @@ size: 3tiny ttiny tiny(default) small medium large huge"
          (font-size-str (if (stringp font-size)
                             font-size
                           (prin1-to-string font-size)))
-         (chinese-font "方正博雅方刊宋简体")
-         (latin-font "Cascadia Code")
+         ;;(chinese-font "方正博雅方刊宋简体")
+         ;;(latin-font "Cascadia Code")
+         ;;(latin-font "Code New Roman")
+         (chinese-font "方正FW筑紫古典S明朝 简")
+         (latin-font "LM Mono 12")
          (size (cond
                 ((string-equal "3tiny" font-size-str) 9)
                 ((string-equal "ttiny" font-size-str) 12)
@@ -565,7 +569,8 @@ string b = 2;
         js-indent-level indent
         nxml-child-indent indent
         css-indent-offset indent
-        python-indent-offset indent)
+        python-indent-offset indent
+        plantuml-indent-level indent)
   (if (not (= indent tq-indent-offset))
       (setf tq-indent-offset indent)))
 
