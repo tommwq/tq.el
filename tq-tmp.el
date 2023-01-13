@@ -365,3 +365,13 @@ See also:  http://ivan.kanis.fr/caly.el"
   (interactive (list (prefix-numeric-value current-prefix-arg)
                      last-nonmenu-event))
   (lawlist-scroll-year-calendar-forward (- (or arg 1)) event))
+
+(defun calculate-origin-value (new-value delta-percentage)
+  (/ new-value (+ 1 (/ delta-percentage 100.0))))
+
+(defun delta-percentage (origin-value new-value)
+  (* 100 (/ (- new-value origin-value) origin-value)))
+
+(defun calculate-change (new-value delta-percentage)
+  (- new-value (calculate-origin-value new-value delta-percentage)))
+
