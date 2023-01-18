@@ -240,6 +240,11 @@ public %s get%s() {
   return %s;
 }
 ")
+         (primary-type-setter-statement "
+public void set%s(%s value) {
+  this.%s = value;
+}
+")
          (setter-statement "
 public void set%s(%s value) {
   if (value == null) {
@@ -267,11 +272,16 @@ public void set%s(%s value) {
                                                       type
                                                       (tq-upcase-first-letter field)
                                                       field)))
-        (setf getset-part (concat getset-part (format setter-statement
-                                                      (tq-upcase-first-letter field)
-                                                      type
-                                                      field
-                                                      field))))
+        (setf getset-part (concat getset-part (if (tq-java-primary-type-p type)
+                                                  (format primary-type-setter-statement
+                                                          (tq-upcase-first-letter field)
+                                                          type
+                                                          field)
+                                                (format setter-statement
+                                                        (tq-upcase-first-letter field)
+                                                        type
+                                                        field
+                                                        field)))))
       (setf source (concat declare-part getset-part))
       (if class-name
           (setf source (format "
@@ -898,3 +908,11 @@ to.setC(from.getC());
                                (tq-upcase-first-char word)))))
     (delete-region start end)
     (insert code)))
+
+(defun tq-java-primary-type-p (type-name)
+  (let ((result nil))
+    (dolist (primary-type (list "byte" "short" "char" "int"
+                                "long" "float" "double" "boolean"))
+      (if (string-equal primary-type type-name)
+          (setf result t)))
+    result))
