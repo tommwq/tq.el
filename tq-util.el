@@ -191,6 +191,9 @@ public class User {
   }
 
   public void setName(String name) {
+    if (name == null) {
+      throw new IllegalArgumentException(\"name must not be null\");
+    }
     this.name = name;
   }
 
@@ -199,6 +202,9 @@ public class User {
   } 
 
   public void setPassword(String password) {
+    if (password == null) {
+      throw new IllegalArgumentException(\"password must not be null\");
+    }
     this.password = password;
   }
 }
@@ -217,6 +223,9 @@ public String getName() {
 }
 
 public void setName(String name) {
+  if (name == null) {
+    throw new IllegalArgumentException(\"name must not be null\");
+  }
   this.name = name;
 }
 "
@@ -228,12 +237,15 @@ public void setName(String name) {
          (declare-statement "private %s %s;\n")
          (getter-statement "
 public %s get%s() {
-    return %s;
+  return %s;
 }
 ")
          (setter-statement "
 public void set%s(%s value) {
-    this.%s = value;
+  if (value == null) {
+    throw new IllegalArgumentException(\"%s must not be null\");
+  }
+  this.%s = value;
 }
 "))
     (if (= 1 (mod (length sequence) 2))
@@ -258,6 +270,7 @@ public void set%s(%s value) {
         (setf getset-part (concat getset-part (format setter-statement
                                                       (tq-upcase-first-letter field)
                                                       type
+                                                      field
                                                       field))))
       (setf source (concat declare-part getset-part))
       (if class-name
@@ -500,11 +513,10 @@ size: 3tiny ttiny tiny(default) small medium large huge"
          (font-size-str (if (stringp font-size)
                             font-size
                           (prin1-to-string font-size)))
-         ;;(chinese-font "方正博雅方刊宋简体")
-         ;;(latin-font "Cascadia Code")
-         ;;(latin-font "Code New Roman")
-         (chinese-font "方正FW筑紫古典S明朝 简")
-         (latin-font "LM Mono 12")
+         (chinese-font "方正博雅方刊宋简体")
+         (latin-font "Fantasque Sans Mono")
+         ;;(chinese-font "方正FW筑紫古典S明朝 简")
+         ;;(latin-font "LM Mono 12")
          (size (cond
                 ((string-equal "3tiny" font-size-str) 9)
                 ((string-equal "ttiny" font-size-str) 12)
@@ -649,7 +661,7 @@ string b = 2;
 #+todo: todo(t) | done(d@/!) canceled(c@/!)
 #+title: ${date}
 #+date: ${date}
-* todo 今日工作 [%]
+* todo 今日工作
 * 记录
 " "date" date)))))
 
