@@ -12,7 +12,7 @@
 ;;     (tq-write-file-then-open file-path
 ;;                              (tq-render-template-from-sequence "# -*- mode: org -*-
 ;; #+options: ^:nil
-;; #+todo: todo(t) | done(d@/!) canceled(c@/!)
+;; #+todo: todo(t) | done(d@/!) cancel(c@/!)
 ;; #+title: ${date}
 ;; #+date: ${date}
 ;; * todo 今日工作 [%]
@@ -33,7 +33,7 @@
 ;;     (tq-write-file-then-open file-path
 ;;                              (tq-render-template-from-sequence "# -*- mode: org -*-
 ;; #+options: ^:nil
-;; #+todo: todo(t) | done(d@/!) canceled(c@/!)
+;; #+todo: todo(t) | done(d@/!) cancel(c@/!)
 ;; #+title: ${date}
 ;; #+date: ${date}
 ;; * todo 本周工作 [%]
@@ -51,7 +51,7 @@
 ;;     (tq-write-file-then-open file-path
 ;;                              (tq-render-template-from-sequence "# -*- mode: org -*-
 ;; #+options: ^:nil
-;; #+todo: todo(t) in-action(i/!) delegate(e/!) delay(y/!) | done(d/!) canceled(c/!)
+;; #+todo: todo(t) in-action(i/!) delegate(e/!) delay(y/!) | done(d/!) cancel(c/!)
 ;; #+HTML_HEAD: <style type=\"text/css\">body { font-size: large; }</style>
 ;; #+title: ${title}
 ;; #+date: ${date}

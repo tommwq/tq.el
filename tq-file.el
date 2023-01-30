@@ -31,7 +31,7 @@
   "生成org文件内容。"
   (let* ((template "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) in-action(i/!) delegate(e/!) delay(y/!) | done(d/!) canceled(c/!)
+#+todo: todo(t) | done(d/!) cancel(c/!)
 #+title: ${title}
 #+date: ${date}
 "))

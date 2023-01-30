@@ -532,10 +532,8 @@ output-format 输出格式。支持 annotation 和 xml。默认为 annotation。
                       (< 0 (string-to-number font-size)))
                  (string-to-number font-size))
                 (t 15)))
-         ;;(chinese-font "方正博雅方刊宋简体")
-         ;;(chinese-font "华文中宋")
-         (chinese-font "方正宋刻本秀楷简体")
-         (latin-font "Fantasque Sans Mono"))
+         (chinese-font tq-chinese-font)
+         (latin-font tq-latin-font))
     (message font-size)
     (tq-set-frame-font
      (format "%s-%d" latin-font size)
@@ -635,7 +633,7 @@ string b = 2;
       (tq-write-file-then-open week-record-file-name
                                (tq-render-template-from-sequence "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) | done(d@/!) canceled(c@/!)
+#+todo: todo(t) | done(d/!) cancel(c/!)
 #+title: ${date}
 #+date: ${date}
 * todo 本周工作 [%]
@@ -669,10 +667,10 @@ string b = 2;
       (tq-write-file-then-open day-record-file-name
                              (tq-render-template-from-sequence "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) | done(d@/!) canceled(c@/!)
+#+todo: todo(t) | done(d/!) cancel(c/!)
 #+title: ${date}
 #+date: ${date}
-* todo 今日工作
+* 工作
 * 记录
 " "date" date)))))
 
