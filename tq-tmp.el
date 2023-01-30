@@ -140,13 +140,13 @@ the even ones are replacements."
 ;;   (setq org-todo-keywords
 ;;         '((sequence "todo(t)" "in-action(i!)" "delegate(e/!)" "delay(y/!)"
 ;;                     "|"
-;;                     "done(d/!)" "canceled(c/!)"))))
+;;                     "done(d/!)" "cancel(c/!)"))))
 (defun set-org-todo-keywords ()
   "设置org-mode中的todo阶段。"
   (setq org-todo-keywords
-        '((sequence "todo(t)" "in-action(i!)" "delegate(e!)" "delay(y!)"
+        '((sequence "todo(t)"
                     "|"
-                    "done(d!)" "canceled(c!)"))))
+                    "done(d!)" "cancel(c!)"))))
 
 (defun set-encodings ()
   "设置字符编码。"
