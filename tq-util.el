@@ -532,8 +532,9 @@ output-format 输出格式。支持 annotation 和 xml。默认为 annotation。
                       (< 0 (string-to-number font-size)))
                  (string-to-number font-size))
                 (t 15)))
-         ;;(chinese-font "方正博雅方刊宋简体")
-         (chinese-font "方正宋刻本秀楷简体")
+         (chinese-font "方正博雅方刊宋简体")
+         ;;(chinese-font "方正宋刻本秀楷简体")
+         ;;(chinese-font "方正小标宋简体")
          (latin-font "Fantasque Sans Mono"))
     (message font-size)
     (tq-set-frame-font
@@ -672,6 +673,7 @@ string b = 2;
 #+title: ${date}
 #+date: ${date}
 * 工作
+* 后续
 * 记录
 " "date" date)))))
 
