@@ -171,133 +171,109 @@ values 值列表"
   (princ "|\n"))
 
 (defun tq-capture-javabean (start end)  
-  "将区域内的文字转换成 JavaBean 类。
-
+  "将区域内的文字转换成JavaBean类。
 
 示例输入：
 
-User
-String name
-String password
+User int id String name
 
 转换后的代码：
 
+/*
+User long id String name
+*/
 public class User {
+  private long id;
   private String name;
-  private String password;
 
-  public String getName() {
-    return name;
-  }
+  public User(long id, String name) {
+    if (name == null) { throw new IllegalArgumentException(); }
 
-  public void setName(String name) {
-    if (name == null) {
-      throw new IllegalArgumentException(\"name must not be null\");
-    }
+    this.id = id;
     this.name = name;
   }
 
-  public String getPassword() {
-    return password;
-  } 
+  public static User of(long id, String name) { return new User(id, name); }
 
-  public void setPassword(String password) {
-    if (password == null) {
-      throw new IllegalArgumentException(\"password must not be null\");
-    }
-    this.password = password;
-  }
-}
-
-
-示例输入：
-
-String name
-
-转换后的代码：
-
-private String name;
-
-public String getName() {
-  return name;
-}
-
-public void setName(String name) {
-  if (name == null) {
-    throw new IllegalArgumentException(\"name must not be null\");
-  }
-  this.name = name;
+  public long getId() { return id; }
+  public String getName() { return name; }
 }
 "
   (interactive "r")
   (let* ((captured (buffer-substring-no-properties start end))
          (sequence (split-string captured))
-         (class-name nil)
-         (members (make-hash-table :test #'equal))
-         (declare-statement "private %s %s;\n")
-         (getter-statement "
-public %s get%s() {
-  return %s;
-}
-")
-         (primary-type-setter-statement "
-public void set%s(%s value) {
-  this.%s = value;
-}
-")
-         (setter-statement "
-public void set%s(%s value) {
-  if (value == null) {
-    throw new IllegalArgumentException(\"%s must not be null\");
-  }
-  this.%s = value;
-}
-"))
-    (if (= 1 (mod (length sequence) 2))
-        (setf class-name (pop sequence)))
-    (while (> (length sequence) 0)
-      (let ((type "")
-            (field ""))
-        (setf type (pop sequence))
-        (setf field (pop sequence))
-        (setf (gethash field members) type)))
-    (let ((declare-part "")
-          (getset-part "")
-          (source "")
-          (type ""))
-      (dolist (field (hash-table-keys members))
-        (setf type (gethash field members))
-        (setf declare-part (concat declare-part (format declare-statement type field)))
-        (setf getset-part (concat getset-part (format getter-statement
-                                                      type
-                                                      (tq-upcase-first-letter field)
-                                                      field)))
-        (setf getset-part (concat getset-part (if (tq-java-primary-type-p type)
-                                                  (format primary-type-setter-statement
-                                                          (tq-upcase-first-letter field)
-                                                          type
-                                                          field)
-                                                (format setter-statement
-                                                        (tq-upcase-first-letter field)
-                                                        type
-                                                        field
-                                                        field)))))
-      (setf source (concat declare-part getset-part))
-      (if class-name
-          (setf source (format "
+         (declare-statement-generator (lambda (type-and-name)
+                                        (format "  private %s %s;" (nth 0 type-and-name) (nth 1 type-and-name))))
+         (getter-statement-generator (lambda (type-and-name)
+                                       (format "  public %s get%s() { return %s; }" (nth 0 type-and-name)
+                                               (tq-upcase-first-letter (nth 1 type-and-name))
+                                               (nth 1 type-and-name))))
+         (constructor-parameter-generator (lambda (type-and-name)
+                                            (format "%s %s" (nth 0 type-and-name) (nth 1 type-and-name))))
+         (constructor-assert-generator (lambda (type-and-name)
+                                         (format "    if (%s == null) { throw new IllegalArgumentException(); }"
+                                                 (nth 1 type-and-name)
+                                                 (nth 1 type-and-name)
+                                                 (nth 1 type-and-name))))
+         (constructor-statement-generator (lambda (type-and-name)
+                                            (format "    this.%s = %s;"
+                                                    (nth 1 type-and-name)
+                                                    (nth 1 type-and-name)
+                                                    (nth 1 type-and-name))))
+         (source-code-format "
 /*
-
 %s
-
 */
 public class %s {
 %s
-}
-" captured class-name (string-join (mapcar (lambda (s) (concat "    " s)) (split-string source "\n")) "\n"))))
-      (delete-region start end)
-      (insert source)
-      (move-end-of-line))))
 
+  public %s(%s) {
+%s
+
+%s
+  }
+
+  public static %s of(%s) { return new %s(%s); }
+
+%s
+}
+")
+         (class-name nil)
+         (fields nil)
+         (non-primary-fields nil)
+         (field-type nil)
+         (field-name nil)
+         (source-code nil))
+    ;; 读取类名字。
+    (if (not (= 1 (mod (length sequence) 2)))
+        (error "you need provide a class name."))
+    (setf class-name (pop sequence))
+    ;; 读取域名字和类型。
+    (while (> (length sequence) 0)
+      (setf field-type (pop sequence))
+      (setf field-name (pop sequence))
+      (setf fields (cons (list field-type field-name) fields))
+      (if (not (tq-java-primary-type-p field-type))
+          (setf non-primary-fields (cons (list field-type field-name) non-primary-fields))))
+    (setf fields (nreverse fields))
+    (setf non-primary-fields (nreverse non-primary-fields))
+    ;; 生成Java代码。
+    (setf source-code (format source-code-format
+                              captured
+                              class-name
+                              (string-join (mapcar declare-statement-generator fields) "\n")
+                              class-name
+                              (string-join (mapcar constructor-parameter-generator fields) ", ")
+                              (string-join (mapcar constructor-assert-generator non-primary-fields) "\n")
+                              (string-join (mapcar constructor-statement-generator fields) "\n")
+                              class-name
+                              (string-join (mapcar constructor-parameter-generator fields) ", ")
+                              class-name
+                              (string-join (mapcar (lambda (type-and-name) (nth 1 type-and-name)) fields) ", ")
+                              (string-join (mapcar getter-statement-generator fields) "\n")))
+    (delete-region start end)
+    (insert source-code)
+    (move-end-of-line)))
 
 (cl-defstruct tq-database-table-definition table-name primary-key columns)
 
@@ -523,7 +499,6 @@ output-format 输出格式。支持 annotation 和 xml。默认为 annotation。
          (latin (nth 0 font-setting))
          (chinese (nth 1 font-setting))
          (size (nth 2 font-setting)))
-
     (tq-set-frame-font
      (format "%s-%d" latin size)
      (format "%s-%d" chinese size))))

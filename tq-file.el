@@ -29,9 +29,10 @@
 
 (defun tq-generate-org-file-content (title)
   "生成org文件内容。"
-  (let* ((template "# -*- mode: org -*-
+  (let ((template "# -*- mode: org -*-
 #+options: ^:nil
 #+todo: todo(t) | done(d/!) cancel(c/!)
+#+HTML_HEAD: <style>body {font-size:xx-large; font-family:monospace;/*background-color:#000000;color:#f5deb3;*/}</style>
 #+title: ${title}
 #+date: ${date}
 "))
