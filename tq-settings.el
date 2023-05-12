@@ -111,8 +111,8 @@
 
 
 ;; nxml-mode
-(setf nxml-child-indent 4)
-(setf nxml-attribute-indent 4)
+;; (setf nxml-child-indent 4)
+;; (setf nxml-attribute-indent 4)
 
 ;; 编码
 (set-encodings)
