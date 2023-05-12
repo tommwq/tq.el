@@ -509,37 +509,24 @@ output-format 输出格式。支持 annotation 和 xml。默认为 annotation。
   (dolist (charset '(kana han symbol cjk-misc bopomofo))
     (set-fontset-font t charset chinese-font)))
 
-(defcustom tq-default-font-size "tiny"
+(defcustom tq-default-font-size "medium"
   "默认字体大小"
   :type 'string
   :group 'tq)
 
 (defun tq-set-font (&optional font-size)
-  "设置字体font-size: 3tiny ttiny tiny small(default) medium large huge"
-  (interactive "s字体大小(3tiny/ttiny/tiny/small/medium/large/huge): ")
-  (let* ((font-size (or font-size tq-default-font-size))
-         (size (cond
-                ((string-equal "3tiny" font-size) 9)
-                ((string-equal "ttiny" font-size) 12)
-                ((string-equal "tiny" font-size) 15)
-                ((string-equal "small" font-size) 18)
-                ((string-equal "medium" font-size) 21)
-                ((string-equal "large" font-size) 24)
-                ((string-equal "huge" font-size) 27)
-                ((and (numberp font-size)
-                      (< 0 font-size)) font-size)
-                ((and (stringp font-size)
-                      (< 0 (string-to-number font-size)))
-                 (string-to-number font-size))
-                (t 15)))
-         (chinese-font "方正博雅方刊宋简体")
-         ;;(chinese-font "方正宋刻本秀楷简体")
-         ;;(chinese-font "方正小标宋简体")
-         (latin-font "Fantasque Sans Mono"))
-    (message font-size)
+  "设置字体font-size: tiny small(default) medium large"
+  (interactive "s字体大小(tiny small medium large): ")
+  (let* ((font-setting (or
+                        (assoc-default (intern font-size) tq-font-set)
+                        (assoc-default (intern "medium") tq-font-set)))
+         (latin (nth 0 font-setting))
+         (chinese (nth 1 font-setting))
+         (size (nth 2 font-setting)))
+
     (tq-set-frame-font
-     (format "%s-%d" latin-font size)
-     (format "%s-%d" chinese-font size))))
+     (format "%s-%d" latin size)
+     (format "%s-%d" chinese size))))
 
 (defun tq-reformat-cpp ()
   (interactive)
