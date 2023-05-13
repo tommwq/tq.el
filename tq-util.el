@@ -180,22 +180,32 @@ User int id String name
 转换后的代码：
 
 /*
-User long id String name
+User int id String name
 */
 public class User {
-  private long id;
+  private int id;
   private String name;
 
-  public User(long id, String name) {
+  public User(int id, String name) {
     if (name == null) { throw new IllegalArgumentException(); }
 
     this.id = id;
     this.name = name;
   }
 
-  public static User of(long id, String name) { return new User(id, name); }
+  public static User of(int id, String name) {
+    return new User(id, name);
+  }
 
-  public long getId() { return id; }
+  public static User create(int id, String name) {
+    return new User(id, name);
+  }
+
+  public static User copy(User other) {
+    return new User(other.id, other.name);
+  }
+
+  public int getId() { return id; }
   public String getName() { return name; }
 }
 "
@@ -233,7 +243,17 @@ public class %s {
 %s
   }
 
-  public static %s of(%s) { return new %s(%s); }
+  public static %s of(%s) {
+    return new %s(%s);
+  }
+
+  public static %s create(%s) {
+    return new %s(%s);
+  }
+
+  public static %s copy(%s other) {
+    return new %s(%s);
+  }
 
 %s
 }
@@ -261,19 +281,33 @@ public class %s {
     (setf source-code (format source-code-format
                               captured
                               class-name
+                              ;; 域声明
                               (string-join (mapcar declare-statement-generator fields) "\n")
+                              ;; 构造函数
                               class-name
                               (string-join (mapcar constructor-parameter-generator fields) ", ")
                               (string-join (mapcar constructor-assert-generator non-primary-fields) "\n")
                               (string-join (mapcar constructor-statement-generator fields) "\n")
+                              ;; of方法
                               class-name
                               (string-join (mapcar constructor-parameter-generator fields) ", ")
                               class-name
                               (string-join (mapcar (lambda (type-and-name) (nth 1 type-and-name)) fields) ", ")
+                              ;; create方法
+                              class-name
+                              (string-join (mapcar constructor-parameter-generator fields) ", ")
+                              class-name
+                              (string-join (mapcar (lambda (type-and-name) (nth 1 type-and-name)) fields) ", ")
+                              ;; copy方法
+                              class-name
+                              class-name
+                              class-name
+                              (string-join (mapcar (lambda (type-and-name) (format "other.%s" (nth 1 type-and-name))) fields) ", ")
+                              ;; get方法
                               (string-join (mapcar getter-statement-generator fields) "\n")))
     (delete-region start end)
     (insert source-code)
-    (move-end-of-line)))
+    (end-of-buffer)))
 
 (cl-defstruct tq-database-table-definition table-name primary-key columns)
 
