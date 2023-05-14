@@ -175,29 +175,29 @@ values 值列表"
 
 示例输入：
 
-User int id String name
+User long id String name
 
 转换后的代码：
 
 /*
-User int id String name
+User long id String name
 */
 public class User {
-  private int id;
+  private long id;
   private String name;
 
-  public User(int id, String name) {
+  public User(long id, String name) {
     if (name == null) { throw new IllegalArgumentException(); }
 
     this.id = id;
     this.name = name;
   }
 
-  public static User of(int id, String name) {
+  public static User of(long id, String name) {
     return new User(id, name);
   }
 
-  public static User create(int id, String name) {
+  public static User create(long id, String name) {
     return new User(id, name);
   }
 
@@ -205,7 +205,17 @@ public class User {
     return new User(other.id, other.name);
   }
 
-  public int getId() { return id; }
+  @Override public boolean equals(Object other) {
+    if (other == this) { return true; }
+    if (other == null) { return false; }
+    if (!(other instanceof User)) { return false; }
+    if (!getClass().getCanonicalName().equals(other.getClass().getCanonicalName())) { return false; }
+    if (id != ((User) other).id) { return false; }
+    if (!name.equals(((User) other).name)) { return false; }
+    return true;
+  }
+
+  public long getId() { return id; }
   public String getName() { return name; }
 }
 "
@@ -253,6 +263,15 @@ public class %s {
 
   public static %s copy(%s other) {
     return new %s(%s);
+  }
+
+  @Override public boolean equals(Object other) {
+    if (other == this) { return true; }
+    if (other == null) { return false; }
+    if (!(other instanceof %s)) { return false; }
+    if (!getClass().getCanonicalName().equals(other.getClass().getCanonicalName())) { return false; }
+%s
+    return true;
   }
 
 %s
@@ -303,6 +322,18 @@ public class %s {
                               class-name
                               class-name
                               (string-join (mapcar (lambda (type-and-name) (format "other.%s" (nth 1 type-and-name))) fields) ", ")
+                              ;; equals方法
+                              class-name
+                              (string-join (mapcar (lambda (type-and-name) 
+(let* ((field-type (nth 0 type-and-name))
+      (field-name (nth 1 type-and-name))
+      (compare-line-format (if (tq-java-primary-type-p field-type)
+            "    if (%s != ((%s) other).%s) { return false; }"
+          "    if (!%s.equals(((%s) other).%s)) { return false; }")))
+  (format compare-line-format field-name class-name field-name))
+)
+ fields) "\n")
+
                               ;; get方法
                               (string-join (mapcar getter-statement-generator fields) "\n")))
     (delete-region start end)
