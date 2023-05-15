@@ -1,3 +1,107 @@
+(defun tq-ascii-in-range-p (char first last)
+  "判断字符ASCII编码是否在区间[first,last]内。"
+  (let ((ascii (string-to-char char)))
+    (and  (<= first ascii) (<= ascii last))))
+
+(defun tq-upcase-p (char)
+  "判断字符是否为大写字母。"
+  (tq-ascii-in-range-p char #x41 #x5a))
+
+(defun tq-downcase-p (char)
+  "判断字符是否为小写字母。"
+  (tq-ascii-in-range-p char #x61 #x7a))
+
+(defun tq-digit-p (char)
+  "判断字符是否为数字。"
+  (tq-ascii-in-range-p char #x30 #x39))
+
+(defun tq-string-trim-last (string n)
+  "去除字符串尾部n个字符。"
+  (let ((position (- (length string) n)))
+    (if (< position 0)
+        ""
+      (substring string 0 position))))
+
+(defun tq-string-trim-suffix (string suffix)
+  "去除字符串后缀。"
+  (tq-string-trim-last string (length suffix)))
+
+(defun tq-string-get-last (string n)
+  "返回字符串尾部n个字符。"
+  (let ((prefix-length (- (length string) n)))
+    (if (< prefix-length 0)
+        string
+      (substring string prefix-length))))
+
+(defun tq-string-suffix-p (string suffix)
+  "判断字符串是否拥有后缀suffix。"
+  (string-equal suffix (tq-string-get-last string (length suffix))))
+
+(defun tq-string-plural (singular)
+  "如果singular以es结尾，返回singular。如果以y结尾，返回-ies。如果以s结尾，返回-es。"
+  (cond ((tq-string-suffix-p singular "y") (concat (tq-string-trim-last singular 1) "ies"))
+        ((tq-string-suffix-p singular "es") singular)
+        ((tq-string-suffix-p singular "s") (concat singular "es"))
+        (t (concat singular "s"))))
+
+(defun tq-split-pascal-case (pascal-case)
+  "分解PascalCase格式字符串，返回单词列表。"
+  (let ((words nil)
+        (begin 0))
+    (dotimes (index (length pascal-case))
+      (when (tq-upcase-p (substring pascal-case index (1+ index)))
+        (if (not (= begin index))
+            (push (substring pascal-case begin index) words))
+        (setf begin index)))
+    (push (substring pascal-case begin) words)
+    (nreverse words)))
+
+(defun tq-split-slash (slash-string)
+  "分解由斜杠分隔的字符串，返回单词列表。"
+  (let ((words nil)
+        (begin 0))
+    (dotimes (index (length slash-string))
+      (when (string-equal "/" (substring slash-string index (1+ index)))
+        (if (not (= begin index))
+            (push (substring slash-string begin index) words))
+        (setf begin (1+ index))))
+    (push (substring slash-string begin) words)
+    (nreverse words)))
+
+(defun tq-join-kebab-case (downcase-list)
+  (string-join downcase-list "-"))
+
+(defun tq-join-camel-case (downcase-list)
+  (let ((first (pop downcase-list)))
+    (concat first (string-join (mapcar (lambda (s) (capitalize s)) downcase-list) ""))))
+
+(defun tq-pascal-to-camel (pascal-case)
+  (tq-join-camel-case (mapcar #'downcase (tq-split-pascal-case pascal-case))))
+
+(defun tq-pascal-to-kebab (pascal-case)
+  (tq-join-kebab-case (mapcar #'downcase (tq-split-pascal-case pascal-case))))
+
+;; TODO
+
+;; (defun tq-split-camel-case (camel-case))
+;; (defun tq-split-kebab-case (kebab-case))
+;; (defun tq-split-snake-case (snake-case))
+;; (defun tq-join-camel-case (name-list))
+;; (defun tq-join-kebab-case (name-list))
+;; (defun tq-join-pascal-case (name-list))
+;; (defun tq-join-snake-case (name-list))
+
+
+(defun tq-remove-last (sequence)
+  "移除列表中最后一个元素。"
+  (let ((n-seq (nreverse sequence)))
+    (if (= 0 (length n-seq))
+      sequence
+    (progn
+      (pop n-seq)
+      (nreverse n-seq)))))
+
+
 (defun tq-amdahl-speedup (parallel-ratio parallel-node-count)
   "计算按照Amdahl法则可以获得的优化效果"
   (tq-round (/ 1.0 (+ (- 1.0 parallel-ratio) (/ parallel-ratio parallel-node-count))) 2))
@@ -325,14 +429,14 @@ public class %s {
                               ;; equals方法
                               class-name
                               (string-join (mapcar (lambda (type-and-name) 
-(let* ((field-type (nth 0 type-and-name))
-      (field-name (nth 1 type-and-name))
-      (compare-line-format (if (tq-java-primary-type-p field-type)
-            "    if (%s != ((%s) other).%s) { return false; }"
-          "    if (!%s.equals(((%s) other).%s)) { return false; }")))
-  (format compare-line-format field-name class-name field-name))
-)
- fields) "\n")
+                                                     (let* ((field-type (nth 0 type-and-name))
+                                                            (field-name (nth 1 type-and-name))
+                                                            (compare-line-format (if (tq-java-primary-type-p field-type)
+                                                                                     "    if (%s != ((%s) other).%s) { return false; }"
+                                                                                   "    if (!%s.equals(((%s) other).%s)) { return false; }")))
+                                                       (format compare-line-format field-name class-name field-name))
+                                                     )
+                                                   fields) "\n")
 
                               ;; get方法
                               (string-join (mapcar getter-statement-generator fields) "\n")))
@@ -694,7 +798,7 @@ string b = 2;
     (if (file-exists-p day-record-file-name)
         (find-file day-record-file-name)
       (tq-write-file-then-open day-record-file-name
-                             (tq-render-template-from-sequence "# -*- mode: org -*-
+                               (tq-render-template-from-sequence "# -*- mode: org -*-
 #+options: ^:nil
 #+todo: todo(t) | done(d/!) cancel(c/!)
 #+title: ${date}
@@ -902,9 +1006,9 @@ end
           (setf result (concat result "\n  when " k " then '" v "'"))
         (setf result (concat result "\n  else '" k "'\nend")))
       (setf n (+ 1 n)))
-      (delete-region start end)
-      (insert result)
-      (move-end-of-line)))
+    (delete-region start end)
+    (insert result)
+    (move-end-of-line)))
 
 (defun tq-upcase-first-char (field)
   "将首字母改成大写字母。与capitalize不同，不会将其他字母改成小写。"

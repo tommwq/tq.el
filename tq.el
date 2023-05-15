@@ -16,6 +16,7 @@
                 tq-command
                 tq-psp
                 tq-tmp
+                tq-quarkus
                 tq-settings))
   (let ((file-name (format "%s.el" (prin1-to-string part))))
     (message (expand-file-name file-name (file-name-directory load-file-name)))
