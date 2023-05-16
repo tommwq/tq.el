@@ -162,17 +162,6 @@
     (when work-directory
       (cd (pop stack)))))
 
-(defun tq-join-path (root &rest path-list)
-  "Join path. "
-  (expand-file-name (seq-reduce
-                     (lambda (base path)
-                       (if base
-                           (concat base "/" path)
-                         path))
-                     path-list
-                     nil)
-                    root))
-
 (defun max-window-windows ()
   "w32全屏显示。"
   (interactive)
@@ -1050,3 +1039,14 @@ to.setC(from.getC());
       (if (string-equal primary-type type-name)
           (setf result t)))
     result))
+
+
+(defun tq-path-join (root &rest path-parts)
+  "拼接文件路径。"
+  (dolist (part path-parts)
+    (setf root (expand-file-name part root)))
+  root)
+
+(defun tq-java-class-file-name (src-directory java-package class-name)
+  "生成Java类文件名。"
+  (tq-path-join src-directory (tq-java-package-to-directory java-package) (concat class-name ".java")))

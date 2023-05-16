@@ -6,7 +6,7 @@
   (let ((path-parts (mapcar #'tq-pascal-to-camel
                             (tq-remove-last (tq-split-slash full-resource-name)))))
     (if (not path-parts) ""
-      (string-join (mapcar (lambda (s) (format "@PathParam(\"%sId\") long %sId, " s s)) path-parts) ""))))
+      (string-join (mapcar (lambda (s) (format "@PathParam(\"%sId\") long %sId" s s)) path-parts) ", "))))
 
 
 (defun tq-quarkus-restful-name (resource-name)
@@ -27,6 +27,7 @@
   (let* ((resource-name (car (last (tq-split-slash full-resource-name))))
          (field-list (remove '(long id) field-list))
          (resource-parameter (tq-quarkus-resource-parameter full-resource-name))
+         (resource-parameter-sep (if (< 0 (length resource-parameter)) ", " ""))
          (source-format "
 package %s.resource;
 
@@ -56,31 +57,31 @@ public class %sResource {
 
   @Path(\"/\")
   @POST
-  public %s post(%s%s value) {
+  public %s post(%s%s%s value) {
     return %sService.create(value);
   }
 
   @Path(\"/{id}\")
   @GET
-  public %s get(%s@PathParam(\"id\") long id) {
+  public %s get(%s%s@PathParam(\"id\") long id) {
     return %sService.get(id);
   }
 
   @Path(\"/{id}\")
   @PUT
-  public void put(%s@PathParam(\"id\") long id, %s value) {
+  public void put(%s%s@PathParam(\"id\") long id, %s value) {
     return %sService.set(id, value);
   }
 
   @Path(\"/{id}\")
   @PATCH
-  public void patch(%s@PathParam(\"id\") long id, %s value) {
+  public void patch(%s%s@PathParam(\"id\") long id, %s value) {
     return %sService.update(id, value);
   }
 
   @Path(\"/{id}\")
   @DELETE
-  public void delete(%s@PathParam(\"id\") long id) {
+  public void delete(%s%s@PathParam(\"id\") long id) {
     return %sService.delete(id);
   }
 }
@@ -106,22 +107,27 @@ public class %sResource {
             ;; post
             resource-name
             resource-parameter
+            resource-parameter-sep
             resource-name
             (tq-pascal-to-camel resource-name)
             ;; get by id
             resource-name
             resource-parameter
+            resource-parameter-sep
             (tq-pascal-to-camel resource-name)
             ;; put
-            resource-name
             resource-parameter
+            resource-parameter-sep
+            resource-name
             (tq-pascal-to-camel resource-name)
             ;; patch
-            resource-name
             resource-parameter
+            resource-parameter-sep
+            resource-name
             (tq-pascal-to-camel resource-name)
             ;; delete
             resource-parameter
+            resource-parameter-sep
             resource-name)))
 
 
@@ -234,11 +240,21 @@ public class %s extends PanacheEntity {
             (string-join (mapcar (lambda (type-and-name) (format "  public %s %s;" (nth 0 type-and-name) (nth 1 type-and-name))) field-list) "\n"))))
 
 
-;; TODO
-;; (defun tq-create-restful-app (src-directory java-package resource-name field-list)
-;; ;; 生成Resource。
-;; ;; 生成Service。
-;; ;; 生成Entity。
-
-
-;; )
+(defun tq-quarkus-create-restful-class (src-directory java-package resource-name field-list &optional overwrite)
+  "生成Entity、Service和Resource类。"
+  (let* ((simple-resource-name (nth 0 (last (tq-split-slash resource-name))))
+         (entity-package (concat java-package ".entity"))
+         (entity-class-name simple-resource-name)
+         (entity-class-file-name (tq-java-class-file-name src-directory entity-package entity-class-name))
+         (service-package (concat java-package ".service"))
+         (service-class-name (concat simple-resource-name "Service"))
+         (service-class-file-name (tq-java-class-file-name src-directory service-package service-class-name))
+         (resource-package (concat java-package ".resource"))
+         (resource-class-name (concat simple-resource-name "Resource"))
+         (resource-class-file-name (tq-java-class-file-name src-directory resource-package resource-class-name)))
+  ;; 生成Entity类。
+  (tq-file-write entity-class-file-name (tq-quarkus-generate-entity-class java-package entity-class-name field-list) overwrite)
+  ;; 生成Service类。
+  (tq-file-write service-class-file-name (tq-quarkus-generate-service-class java-package service-class-name field-list) overwrite)
+  ;; 生成Resource类。
+  (tq-file-write resource-class-file-name (tq-quarkus-generate-resource-class java-package resource-class-name field-list) overwrite)))

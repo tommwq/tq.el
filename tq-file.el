@@ -9,6 +9,7 @@
     (insert-file-contents filename)
     (buffer-string)))
 
+;; TODO 重命名为tq-file-write
 (defun tq-write-file (file-name content &optional overwrite)
   "写文件。"
   (let* ((absolute-file-name (if (file-name-absolute-p file-name)
@@ -23,6 +24,30 @@
     (write-region content nil absolute-file-name)))
 
 (defun tq-write-file-then-open (file-name content &optional overwrite)
+  "写文件并打开文件。"
+  (tq-write-file file-name content overwrite)
+  (find-file file-name))
+
+(defun tq-file-read (filename)
+  "读取文件，返回内容字符串。"
+  (with-temp-buffer
+    (insert-file-contents filename)
+    (buffer-string)))
+
+(defun tq-file-write (file-name content &optional overwrite)
+  "写文件。"
+  (let* ((absolute-file-name (if (file-name-absolute-p file-name)
+                                 file-name
+                               (expand-file-name file-name default-directory)))	   
+         (path (file-name-directory absolute-file-name)))
+    (if (and (not overwrite)
+             (file-exists-p absolute-file-name))
+        (error "文件 [%s] 已存在" absolute-file-name))
+    (if (not (file-exists-p path))
+        (make-directory path t))
+    (write-region content nil absolute-file-name)))
+
+(defun tq-file-write-and-open (file-name content &optional overwrite)
   "写文件并打开文件。"
   (tq-write-file file-name content overwrite)
   (find-file file-name))
