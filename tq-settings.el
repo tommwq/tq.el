@@ -7,9 +7,9 @@
 (setq inhibit-compacting-font-caches t) 
 
 ;; 光标样式
-(setq cursor-type 'box)
-(set-default 'cursor-type 'box)
-(setq cursor-in-non-selected-windows 'box)
+(setq cursor-type 'hbar)
+(set-default 'cursor-type 'hbar)
+(setq cursor-in-non-selected-windows 'hbar)
 ;; c-basic-offset 2
 ;; tab-width 2
 ;; inhibit-startup-screen nil
@@ -88,9 +88,8 @@
 (global-set-key [f2] 'clipboard-kill-ring-save)
 (global-set-key [f3] 'isearch-forward)
 
-(set-cursor-color "orange")
+(set-cursor-color "black")
 
-;;(set-cursor-color "orange")
 
 ;; 
 (setq visible-bell t)

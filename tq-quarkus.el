@@ -258,3 +258,23 @@ public class %s extends PanacheEntity {
   (tq-file-write service-class-file-name (tq-quarkus-generate-service-class java-package service-class-name field-list) overwrite)
   ;; 生成Resource类。
   (tq-file-write resource-class-file-name (tq-quarkus-generate-resource-class java-package resource-class-name field-list) overwrite)))
+
+
+(defun tq-quarkus-create-restful-classes (src-directory java-package resource-definitions &optional overwrite)
+  "
+示例
+(tq-quarkus-create-restful-classes \"c:/myapp/src\"
+                                   \"com.test\"
+                                   '(\"Service/Function/Parameter\" ((String name) (long serviceId) (long functionId) (String defaultValue))
+                                     \"Service\" ((String name) (long serviceId) (long functionId) (String defaultValue))
+                                     \"Service/Function\" ((String name) (long serviceId) (long functionId) (String defaultValue))) 
+                                   t)
+"
+  (let ((resource-name "")
+        (field-list nil))
+    (while resource-definitions
+      (setf resource-name (pop resource-definitions))
+      (setf field-list (pop resource-definitions))
+      (tq-quarkus-create-restful-class src-directory java-package resource-name field-list overwrite))))
+
+
