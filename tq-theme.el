@@ -1,4 +1,4 @@
-;; comment lemon chiffon
+;; comment dark slate blue
 ;; background 8fbc8f
 
 (deftheme tq "A gray color theme")
@@ -14,7 +14,7 @@
  '(error ((t (:foreground "#AA0000" :weight bold))))
  '(fixed-pitch ((t nil)))
  '(font-lock-builtin-face ((t (:weight normal))))
- '(font-lock-comment-face ((t (:foreground "lemon chiffon"))))
+ '(font-lock-comment-face ((t (:foreground "dark slate blue"))))
  '(font-lock-constant-face ((t nil)))
  '(font-lock-keyword-face ((t (:weight bold))))
  '(font-lock-preprocessor-face ((t (:weight bold))))
