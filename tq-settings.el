@@ -7,9 +7,9 @@
 (setq inhibit-compacting-font-caches t) 
 
 ;; 光标样式
-(setq cursor-type 'hbar)
-(set-default 'cursor-type 'hbar)
-(setq cursor-in-non-selected-windows 'hbar)
+(setq cursor-type 'box)
+(set-default 'cursor-type 'box)
+(setq cursor-in-non-selected-windows 'box)
 ;; c-basic-offset 2
 ;; tab-width 2
 ;; inhibit-startup-screen nil
@@ -62,10 +62,11 @@
 
 ;; 高亮当前行（已通过配置实现，不再需要）
 (global-hl-line-mode 1)
-;; 下划线
 (set-face-attribute hl-line-face nil :underline nil)
+(set-face-background 'hl-line "bisque")
+;;(set-face-attribute hl-line-face nil :underline nil)
 ;;(set-face-background 'hl-line "white")
-(set-cursor-color "yellow")
+;;(set-cursor-color "yellow")
 
 
 ;; 启用自动保存
