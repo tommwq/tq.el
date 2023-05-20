@@ -1,7 +1,4 @@
-;; comment dark slate blue
-;; background 8fbc8f
-
-(deftheme tq "A gray color theme")
+(deftheme tq "A dark sea green color theme")
 
 (custom-theme-set-variables
  'tq
@@ -10,29 +7,29 @@
 
 (custom-theme-set-faces
  'tq
- '(default ((t (:inherit nil :stipple nil :background "#8FBC8F" :foreground "#000000" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal))))
- '(error ((t (:foreground "#AA0000" :weight bold))))
+ '(default ((t (:inherit nil :stipple nil :background "DarkSeaGreen" :foreground "#000000" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal))))
+ '(error ((t (:foreground "red" :weight bold))))
  '(fixed-pitch ((t nil)))
  '(font-lock-builtin-face ((t (:weight normal))))
- '(font-lock-comment-face ((t (:foreground "dark slate blue"))))
+ '(font-lock-comment-face ((t (:background "dark green" :foreground "spring green"))))
  '(font-lock-constant-face ((t nil)))
- '(font-lock-keyword-face ((t (:weight bold))))
+ '(font-lock-keyword-face ((t (:background "medium sea green"))))
  '(font-lock-preprocessor-face ((t (:weight bold))))
- '(font-lock-string-face ((t (:slant italic))))
+ '(font-lock-string-face ((t (:background "medium sea green"))))
  '(font-lock-type-face ((t nil)))
  '(font-lock-warning-face ((t (:inherit error))))
  '(font-lock-variable-name-face ((t nil)))
  '(font-lock-function-name-face ((t (:underline t))))
  '(font-lock-constant-face ((t (:slant italic :weight bold))))
- '(fringe ((t (:background "#8FBC8F"))))
+ '(fringe ((t (:background "dark sea green"))))
  '(header-line ((t (:inherit mode-line))))
  '(highlight ((t (:background "#B0B0B0"))))
  '(link ((t (:foreground "#0000AA" :underline t))))
  '(link-visited ((t (:inherit link :foreground "#440044"))))
  '(minibuffer-prompt ((t (:weight bold))))
- '(mode-line ((t (:background "#A0A0A0"))))
+ '(mode-line ((t (:background "sea green" :foreground "gold"))))
  '(mode-line-inactive ((t (:inherit mode-line))))
- '(region ((t (:background "#C0C0C0"))))
+ '(region ((t (:background "steel blue"))))
  '(secondary-selection ((t (:background "#C0C0C0"))))
  '(underline ((t nil)))
  '(variable-pitch ((t nil)))
@@ -203,7 +200,7 @@
  '(whitespace-tab ((t (:foreground "#AAAAAA"))))
  '(whitespace-trailing ((t (:inherit whitespace-space))))
  ;; window-divider
- '(window-divider ((t (:foreground "#A0A0A0"))))
+ '(window-divider ((t (:foreground "LightSalmon3"))))
  '(window-divider-first-pixel ((t (:inherit window-divider))))
  '(window-divider-last-pixel ((t (:inherit window-divider)))))
 
@@ -215,7 +212,5 @@
                   (file-name-as-directory
                    (file-name-directory load-file-name))))
 
-
 (provide-theme 'tq)
-
 
