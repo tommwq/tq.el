@@ -11,7 +11,7 @@
  '(error ((t (:foreground "red" :weight bold))))
  '(fixed-pitch ((t nil)))
  '(font-lock-builtin-face ((t (:weight normal))))
- '(font-lock-comment-face ((t (:background "dark green" :foreground "spring green"))))
+ '(font-lock-comment-face ((t (:background "dark green"))))
  '(font-lock-constant-face ((t nil)))
  '(font-lock-keyword-face ((t (:background "medium sea green"))))
  '(font-lock-preprocessor-face ((t (:weight bold))))
