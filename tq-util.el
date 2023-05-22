@@ -612,7 +612,14 @@ public interface ${table-name}Repository {
     (tq-render-template template value-table)))
 
 (defun tq-capture-database-table-definition (start end)
-  "将区域内的数据表说明内容转换成 tq-database-table-definition。"
+  "将区域内的数据表说明内容转换成 tq-database-table-definition。
+
+区域：
+
+tableName
+pkColumn
+otherColumns...
+"
   (interactive "r")
   (let* ((region (buffer-substring-no-properties start end))
          (words (split-string region))
@@ -627,6 +634,46 @@ public interface ${table-name}Repository {
 
 参数
 output-format 输出格式。支持 annotation 和 xml。默认为 annotation。
+
+输入
+User
+id
+name
+email
+
+生成
+
+import org.apache.ibatis.annotations.*;
+import java.util.List;
+
+@Mapper
+public interface UserRepository {
+
+    @Select(\"SELECT * FROM User\")
+    List<User> selectUser();
+
+    @Select(\"SELECT * FROM User WHERE id=#{record.id}\")
+    List<User> selectOneUser(@Param(\"record\") User user);
+
+    @Delete(\"DELETE FROM User WHERE id=#{record.id}\")
+    List<User> deleteOneUser(@Param(\"record\") User user);
+
+    @Insert(\"INSERT INTO User (\" + 
+            \"name,\" + 
+            \"email\" + 
+            \") \" +
+            \"VALUES (\" + 
+            \"#{record.name},\" + 
+            \"#{record.email}\" + 
+            \")\")
+    void insertUser(@Param(\"record\") User record);
+
+    @Update(\"UPDATE User SET \" + 
+            \"name=#{record.name},\" + 
+            \"email=#{record.email}\" + 
+            \"WHERE id=#{record.id}\")
+    void updateUser(@Param(\"record\") User record);
+}
 "
   (interactive "r\ns输出格式：")
   (let* ((generator (if (string-equal output-format "xml")
@@ -634,8 +681,7 @@ output-format 输出格式。支持 annotation 和 xml。默认为 annotation。
                       #'tq-generate-mybatis-annotation))
          (definition (tq-capture-database-table-definition start end)))
     (delete-region start end)
-    (insert (funcall generator definition))
-    (move-end-of-line)))
+    (insert (funcall generator definition))))
 
 (defun tq-set-frame-font (latin-font chinese-font)
   (interactive)

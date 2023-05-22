@@ -29,7 +29,7 @@
  '(minibuffer-prompt ((t (:weight bold))))
  '(mode-line ((t (:background "sea green" :foreground "navy"))))
  '(mode-line-inactive ((t (:inherit mode-line))))
- '(region ((t (:background "steel blue"))))
+ '(region ((t (:background "turquoise"))))
  '(secondary-selection ((t (:background "#C0C0C0"))))
  '(underline ((t nil)))
  '(variable-pitch ((t nil)))
