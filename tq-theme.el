@@ -27,7 +27,7 @@
  '(link ((t (:foreground "#0000AA" :underline t))))
  '(link-visited ((t (:inherit link :foreground "#440044"))))
  '(minibuffer-prompt ((t (:weight bold))))
- '(mode-line ((t (:background "sea green" :foreground "navy"))))
+ '(mode-line ((t (:background "sea green" :foreground "PaleGoldenrod"))))
  '(mode-line-inactive ((t (:inherit mode-line))))
  '(region ((t (:background "turquoise"))))
  '(secondary-selection ((t (:background "#C0C0C0"))))
