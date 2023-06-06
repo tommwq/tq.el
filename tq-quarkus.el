@@ -70,19 +70,19 @@ public class %sResource {
   @Path(\"/{id}\")
   @PUT
   public void put(%s%s@PathParam(\"id\") long id, %s value) {
-    return %sService.set(id, value);
+    %sService.set(id, value);
   }
 
   @Path(\"/{id}\")
   @PATCH
   public void patch(%s%s@PathParam(\"id\") long id, %s value) {
-    return %sService.update(id, value);
+    %sService.update(id, value);
   }
 
   @Path(\"/{id}\")
   @DELETE
   public void delete(%s%s@PathParam(\"id\") long id) {
-    return %sService.delete(id);
+    %sService.delete(id);
   }
 }
 "))
@@ -128,7 +128,7 @@ public class %sResource {
             ;; delete
             resource-parameter
             resource-parameter-sep
-            resource-name)))
+            (tq-pascal-to-camel resource-name))))
 
 
 (defun tq-quarkus-generate-service-class (java-package resource-name field-list)
@@ -255,9 +255,9 @@ public class %s extends PanacheEntity {
   ;; 生成Entity类。
   (tq-file-write entity-class-file-name (tq-quarkus-generate-entity-class java-package entity-class-name field-list) overwrite)
   ;; 生成Service类。
-  (tq-file-write service-class-file-name (tq-quarkus-generate-service-class java-package service-class-name field-list) overwrite)
+  (tq-file-write service-class-file-name (tq-quarkus-generate-service-class java-package simple-resource-name field-list) overwrite)
   ;; 生成Resource类。
-  (tq-file-write resource-class-file-name (tq-quarkus-generate-resource-class java-package resource-class-name field-list) overwrite)))
+  (tq-file-write resource-class-file-name (tq-quarkus-generate-resource-class java-package simple-resource-name field-list) overwrite)))
 
 
 (defun tq-quarkus-create-restful-classes (src-directory java-package resource-definitions &optional overwrite)
