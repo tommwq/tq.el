@@ -375,3 +375,46 @@ See also:  http://ivan.kanis.fr/caly.el"
 (defun calculate-change (new-value delta-percentage)
   (- new-value (calculate-origin-value new-value delta-percentage)))
 
+
+
+
+(defun kilocalorie-by-kilogram (kilogram)
+  "计算一个人一天需要的热量。
+
+kilogram 体重（公斤）
+
+返回一个列表，其中包含2个数字，分别是热量下限和热量上限，单位千卡。"
+  (let ((protein-low 1.2)
+        (protein-high 1.5)
+        (protein-kcal 4)
+        (carbohydrate-low 2)
+        (carbohydrate-high 3)
+        (carbohydrate-kcal 4)
+        (fat-low 0.6)
+        (fat-high 0.8)
+        (fat-kcal 9)
+        (low 0)
+        (high 0))
+    (setf low (+ (* protein-low kilogram protein-kcal)
+                 (* carbohydrate-low kilogram carbohydrate-kcal)
+                 (* fat-low kilogram fat-kcal)))
+    (setf high (+ (* protein-high kilogram protein-kcal)
+                  (* carbohydrate-high kilogram carbohydrate-kcal)
+                  (* fat-high kilogram fat-kcal)))
+    (list low high)))
+
+(defun kilocalorie-by-nutrition (protein-gram carb-gram fat-gram)
+  "计算食物热量。
+
+protein-gram 蛋白质克数
+carb-gram 碳水克数
+fat-gram 脂肪克数
+
+返回热量，单位千卡。"
+  (let ((protein-kcal 4)
+        (carb-kcal 4)
+        (fat-kcal 9))
+    (+ (* protein-kcal protein-gram)
+       (* carb-kcal carb-gram)
+       (* fat-kcal fat-gram))))
+
