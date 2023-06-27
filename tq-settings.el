@@ -168,3 +168,5 @@
 
 
 (tq-set-font tq-default-font-size)
+
+(add-hook 'dired-mode-hook 'dired-hide-details-mode)

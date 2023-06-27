@@ -6,21 +6,24 @@
 ;; (add-to-list 'load-path "/path/to//tq.el/")
 ;; (require 'tq)
 
-;; 加载本目录下tq-*.el文件。
-(dolist (part '(tq-local
-                tq-util
-                tq-string
-                tq-java
-                tq-file
-                tq-math
-                tq-command
-                tq-psp
-                tq-tmp
-                tq-quarkus
-                tq-settings))
-  (let ((file-name (format "%s.el" (prin1-to-string part))))
-    (message (expand-file-name file-name (file-name-directory load-file-name)))
-    (load (expand-file-name file-name (file-name-directory load-file-name)))))
+(let ((file-names (list "common/tq-common.el"
+                        "common/tq-str.el"
+                        "common/tq-file.el"
+                        "common/tq-util.el"
+                        "common/tq-template.el"
+                        "math/tq-math.el"
+                        "java/tq-java.el"
+                        "java/tq-quarkus.el"
+                        "android/tq-android.el"
+                        "tq-local.el"
+                        "tq-tmp.el"
+                        "tq-settings.el"))
+      (file-full-name nil))
+  (dolist (file-name file-names)
+    (setf file-full-name (expand-file-name file-name (file-name-directory load-file-name)))
+    (message (format "加载%s" file-full-name))
+    (load file-full-name)))
 
 (provide 'tq)
+
 
