@@ -103,3 +103,5 @@
   (let ((file-name (format "%s.org" title)))
     (tq-write-file-then-open file-name (tq-generate-org-file-content title))
     (end-of-buffer))))
+
+(provide 'tq-file)

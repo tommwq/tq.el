@@ -801,3 +801,5 @@ sproject name: ")
     (message "初始化gradle。")
     (tq-execute-shell "gradle init --type java-application" project-directory)
     (find-file (tq-path-join project-directory "src/main/java/App.java"))))
+
+(provide 'tq-java)

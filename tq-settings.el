@@ -133,7 +133,7 @@
 (add-hook 'powershell-mode-hook #'(lambda ()
                                     (tq-initialize-powershell-mode)
                                     (tq-add-powershell-path tq-system-path)))
-(add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
+
 (add-hook 'html-mode-hook #'(lambda ()
                               (electric-indent-mode -1)))
 ;; (add-hook 'c-mode-common-hook 'google-set-c-style)
@@ -167,6 +167,9 @@
 (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
 
 
-(tq-set-font tq-default-font-size)
+(tq-set-font)
 
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+(global-set-key (kbd "<insert>") nil)
+
+(provide 'tq-settings)

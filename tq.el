@@ -6,24 +6,43 @@
 ;; (add-to-list 'load-path "/path/to//tq.el/")
 ;; (require 'tq)
 
-(let ((file-names (list "common/tq-common.el"
-                        "common/tq-str.el"
-                        "common/tq-file.el"
-                        "common/tq-util.el"
-                        "common/tq-template.el"
-                        "math/tq-math.el"
-                        "java/tq-java.el"
-                        "java/tq-quarkus.el"
-                        "android/tq-android.el"
-                        "tq-local.el"
-                        "tq-tmp.el"
-                        "tq-settings.el"))
-      (file-full-name nil))
-  (dolist (file-name file-names)
-    (setf file-full-name (expand-file-name file-name (file-name-directory load-file-name)))
-    (message (format "加载%s" file-full-name))
-    (load file-full-name)))
+(defgroup tq nil
+  ""
+  :tag "tq")
+
+(defcustom tq-indent-offset 2
+  "缩进。"
+  :type 'integer
+  :group 'tq)
+
+(defcustom tq-record-directory "~/record"
+  "日志目录"
+  :type 'string
+  :group 'tq)
+
+(defcustom tq-font-size 12
+  "字体大小"
+  :type 'integer
+  :group 'tq)
+
+(defcustom tq-latin-font "Fantasque Sans Mono"
+  "英文字体"
+  :type 'string
+  :group 'tq)
+
+(defcustom tq-chinese-font "方正博雅方刊宋简体"
+  "汉字字体"
+  :type 'string
+  :group 'tq)
+
+(require 'tq-util)
+(require 'tq-str)
+(require 'tq-file)
+(require 'tq-template)
+(require 'tq-math)
+(require 'tq-java)
+(require 'tq-quarkus)
+(require 'tq-android)
+(require 'tq-settings)
 
 (provide 'tq)
-
-

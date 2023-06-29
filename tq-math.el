@@ -125,3 +125,5 @@
 (defun tq-r-square (vector1 vector2)
   "计算相关系数平方（R 平方）。"
   (expt (correlation-coefficient vector1 vector2) 2))
+
+(provide 'tq-math)

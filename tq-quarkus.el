@@ -278,3 +278,4 @@ public class %s extends PanacheEntity {
       (tq-quarkus-create-restful-class src-directory java-package resource-name field-list overwrite))))
 
 
+(provide 'tq-quarkus)

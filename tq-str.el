@@ -129,3 +129,5 @@
   (dolist (part path-parts)
     (setf root (expand-file-name part root)))
   root)
+
+(provide 'tq-str)
