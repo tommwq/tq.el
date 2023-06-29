@@ -660,7 +660,7 @@ string b = 2;
     (setf week-record-file-name (expand-file-name week-record-file-name root-path))
     (if (file-exists-p week-record-file-name)
         (find-file week-record-file-name)
-      (tq-write-file-then-open week-record-file-name
+      (tq-file-write-and-open week-record-file-name
                                (tq-render-template-from-sequence "# -*- mode: org -*-
 #+options: ^:nil
 #+todo: todo(t) | done(d/!) cancel(c/!)
@@ -694,7 +694,7 @@ string b = 2;
     (setf day-record-file-name (expand-file-name day-record-file-name root-path))
     (if (file-exists-p day-record-file-name)
         (find-file day-record-file-name)
-      (tq-write-file-then-open day-record-file-name
+      (tq-file-write-and-open day-record-file-name
                                (tq-render-template-from-sequence "# -*- mode: org -*-
 #+options: ^:nil
 #+todo: todo(t) | done(d/!) cancel(c/!)
@@ -1157,7 +1157,7 @@ the even ones are replacements."
   (interactive "sdirectory: ")
   (if (string-equal directory "")
       (setf path default-directory))
-  (tq-write-file (concat directory "/.gitignore") "
+  (tq-file-write (concat directory "/.gitignore") "
 .gradle
 .vs/
 build/

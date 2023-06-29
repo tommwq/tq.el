@@ -35,6 +35,16 @@
   :type 'string
   :group 'tq)
 
+(defcustom tq-resource-directory "~/"
+  "资源目录"
+  :type 'string
+  :group 'tq)
+
+(defcustom tq-template-directory "~/template"
+  "模板目录"
+  :type 'string
+  :group 'tq)
+
 (require 'tq-util)
 (require 'tq-str)
 (require 'tq-file)

@@ -1,6 +1,3 @@
-(defcustom tq-template-directory "~/template"
-  "模板目录"
-  )
 
 
 (defun tq-template-render (template hash)

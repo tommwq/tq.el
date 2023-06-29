@@ -101,7 +101,7 @@ sPackaging: ")
   (interactive "sGroupId: 
 sArtifactId "): 
   (beginning-of-buffer)
-  (tq-write-file-then-open "pom.xml" (tq-generate-pom group-id artifact-id (or version "0.1.0-SNAPSHOT") (or packaging "jar")))
+  (tq-file-write-and-open "pom.xml" (tq-generate-pom group-id artifact-id (or version "0.1.0-SNAPSHOT") (or packaging "jar")))
   (end-of-buffer))
 
 (defun tq-insert-java-class-file (package class-name description)
@@ -123,7 +123,7 @@ s类：
 s说明：")
   (let ((full-class-name (expand-file-name (concat class-name ".java")
                                            (replace-regexp-in-string "\\." "/" package))))
-    (tq-write-file-then-open full-class-name
+    (tq-file-write-and-open full-class-name
                              (tq-generate-java package class-name description))))
 
 ;; (defun tq-new-java-application (root project package)
@@ -172,11 +172,11 @@ s说明：")
     ;; 创建project-name子目录。
     (make-directory project-path t)
     ;; 创建project-name/pom.xml文件。
-    (tq-write-file pom-path (tq-generate-pom group artifact "0.1.0-SNAPSHOT" "jar"))
+    (tq-file-write pom-path (tq-generate-pom group artifact "0.1.0-SNAPSHOT" "jar"))
     ;; 创建project-name/src/resources/application.properties文件。
-    (tq-write-file prop-path "")
+    (tq-file-write prop-path "")
     ;; 创建project-name/src/main/java/{GROUP}/App.java文件。
-    (tq-write-file-then-open app-java-path (tq-generate-java group "App" "应用入口类"))))
+    (tq-file-write-and-open app-java-path (tq-generate-java group "App" "应用入口类"))))
 
 
 (defun tq-maven-add-dependency (group artifact version)
@@ -257,7 +257,7 @@ s说明：")
 ;; (defun tq-create-web-xml-file (filename)
 ;;   (interactive "sFilename: ")
 ;;   (let ((text (tq-gen-web-xml-file)))
-;;     (tq-write-file-then-open filename text)
+;;     (tq-file-write-and-open filename text)
 ;;     (xml-mode)))
 
 
@@ -516,11 +516,11 @@ sPackage: ")
     (tq-execute-shell "gradle init" project-directory)
 
     ;; 生成build.gradle
-    (tq-write-file (tq-path-join project-directory "build.gradle")
+    (tq-file-write (tq-path-join project-directory "build.gradle")
                    tq-spring-web-build-gradle t)
 
     ;; 生成Java代码
-    (tq-write-file
+    (tq-file-write
      (tq-path-join project-directory
                    "src/main/java/"
                    (replace-regexp-in-string "\\." "/" package)
@@ -530,7 +530,7 @@ sPackage: ")
             package)
       tq-spring-web-controller-template))
 
-    (tq-write-file
+    (tq-file-write
      (tq-path-join project-directory
                    "src/main/java/"
                    (replace-regexp-in-string "\\." "/" package)
@@ -540,7 +540,7 @@ sPackage: ")
             package)
       tq-spring-web-service-template))
 
-    (tq-write-file
+    (tq-file-write
      (tq-path-join project-directory
                    "src/main/java/"
                    (replace-regexp-in-string "\\." "/" package)
@@ -551,12 +551,12 @@ sPackage: ")
       tq-spring-web-serviceprovider-template))
     
     ;; 生成web.xml
-    (tq-write-file (tq-path-join project-directory "src/main/webapp/WEB-INF/web.xml")
+    (tq-file-write (tq-path-join project-directory "src/main/webapp/WEB-INF/web.xml")
                    tq-spring-web-xml-content 
                    t)
     
     ;; 生成context config文件
-    (tq-write-file (tq-path-join project-directory "src/main/webapp/WEB-INF/spring-mvc-config.xml")
+    (tq-file-write (tq-path-join project-directory "src/main/webapp/WEB-INF/spring-mvc-config.xml")
                    (tq-execute-template (list "Package" package) tq-spring-config-template)
                    t)
 
@@ -621,11 +621,11 @@ sPackage: ")
     (tq-execute-shell "gradle init" project-directory)
 
     ;; 生成build.gradle
-    (tq-write-file (tq-path-join project-directory "build.gradle")
+    (tq-file-write (tq-path-join project-directory "build.gradle")
                    tq-spring-boot-app-build-gradle t)
 
     ;; 生成Java代码
-    (tq-write-file
+    (tq-file-write
      (tq-path-join project-directory
                    "src/main/java/"
                    (replace-regexp-in-string "\\." "/" package)
@@ -729,12 +729,12 @@ sPackage: ")
     (tq-execute-shell "gradle init" project-directory)
 
     ;; 生成build.gradle
-    (tq-write-file (tq-path-join project-directory "build.gradle")
+    (tq-file-write (tq-path-join project-directory "build.gradle")
                    (tq-execute-template (list "ProjectName" project-name) tq-spring-boot-web-build-gradle-template)
                    t)
 
     ;; 生成Java代码
-    (tq-write-file
+    (tq-file-write
      (tq-path-join project-directory
                    "src/main/java/"
                    (replace-regexp-in-string "\\." "/" package)
@@ -744,7 +744,7 @@ sPackage: ")
             package)
       tq-spring-boot-web-application-template))
 
-    (tq-write-file
+    (tq-file-write
      (tq-path-join project-directory
                    "src/main/java/"
                    (replace-regexp-in-string "\\." "/" package)
@@ -786,7 +786,7 @@ func main() {
   (interactive "sroot directory: 
 sproject: ")
   (let ((filename (tq-path-join root-directory project-name "main.go")))
-    (tq-write-file filename tq-go-content)
+    (tq-file-write filename tq-go-content)
     (find-file filename)))
 
 
