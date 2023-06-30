@@ -46,7 +46,7 @@
 ;;         (tq-template-create-file template-file-name output-directory value-hash-table))))
 
 ;;   (tq-template-create "AndroidApp" "d:/test/template/" 
-;;                       (tq-make-string-hash "PackagePath" "com/foo/bar"))
+;;                       (tq-util-make-string-hash "PackagePath" "com/foo/bar"))
 ;;   )
 
 (provide 'tq-template)

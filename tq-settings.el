@@ -1,3 +1,4 @@
+(require 'tq-command)
 
 (when (eq system-type 'windows-nt)
   (setq gc-cons-threshold (* 512 1024 1024))
@@ -165,9 +166,6 @@
 
 (setf org-export-in-background nil)
 (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
-
-
-(tq-set-font)
 
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 (global-set-key (kbd "<insert>") nil)

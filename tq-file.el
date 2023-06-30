@@ -58,7 +58,7 @@
 #+title: ${title}
 #+date: ${date}
 "))
-    (tq-render-template-from-sequence template
+    (tq-template-render-sequence template
                                       "title" title
                                       "date" (format-time-string "%Y年%m月%d日"))))
 

@@ -4,7 +4,7 @@
 (tq-quarkus-resource-parameter \"Service/Function/Parameter\") => @PathParam(\"serviceId\") long serviceId, @PathParam(\"functionId\") long functionId, 
 "
   (let ((path-parts (mapcar #'tq-pascal-to-camel
-                            (tq-remove-last (tq-split-slash full-resource-name)))))
+                            (tq-util-remove-last (tq-split-slash full-resource-name)))))
     (if (not path-parts) ""
       (string-join (mapcar (lambda (s) (format "@PathParam(\"%sId\") long %sId" s s)) path-parts) ", "))))
 
@@ -19,7 +19,7 @@
   (concat (string-join (mapcar (lambda (s) (format "%s/{%sId}/"
                                                    (tq-pascal-to-kebab s)
                                                    (tq-pascal-to-camel s)))
-                               (tq-remove-last (tq-split-slash resource-name)))
+                               (tq-util-remove-last (tq-split-slash resource-name)))
                        "")
           (tq-quarkus-restful-name (car (last (tq-split-slash resource-name))))))
 

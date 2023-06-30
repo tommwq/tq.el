@@ -4,7 +4,7 @@
          (file-name (buffer-file-name buffer)))
     file-name))
 
-(defun tq-remove-last (sequence)
+(defun tq-util-remove-last (sequence)
   "移除列表中最后一个元素。"
   (let ((n-seq (nreverse sequence)))
     (if (= 0 (length n-seq))
@@ -13,57 +13,47 @@
         (pop n-seq)
         (nreverse n-seq)))))
 
-(defun tq-insert-time ()
+(defun tq-util-insert-time ()
   "在缓冲区中插入时间字符串。"
   (interactive)
   (insert (format-time-string "%H时%M分%S秒")))
 
-(defun tq-insert-date ()
+(defun tq-util-insert-date ()
   "在缓冲区中插入日期字符串。"
   (interactive)
   (insert (format-time-string "%Y年%m月%d日")))
 
-(defun tq-insert-datetime ()
+(defun tq-util-insert-datetime ()
   "在buffer中插入日期时间字符串。"
   (interactive)
   (insert (format-time-string "%Y年%m月%d日%H时%M分%S秒")))
 
-(defun tq-insert-datetime-short ()
+(defun tq-util-insert-datetime-short ()
   "在buffer中插入日期时间字符串。"
   (interactive)
   (insert (format-time-string "%d/%m %H:%M")))
 
 
-(defun tq-execute-shell (command &optional work-directory)
-  "execute shell command in work directory."
-  (let ((stack nil))
-    (when work-directory
-      (push default-directory stack)
-      (cd work-directory))
-    (shell-command command)
-    (when work-directory
-      (cd (pop stack)))))
-
-(defun max-window-windows ()
+(defun tq-util-maximize-window-windows ()
   "w32全屏显示。"
   (interactive)
   (let ((sc-maximize 61488))
     (w32-send-sys-command sc-maximize)))
 
-(defun max-window-linux ()
+(defun tq-util-maximize-window-linux ()
   "linux全屏显示。"
   (interactive)
   (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
                          '(2 "_NEW_WM_STATE_FULLSCREEN" 0)))
 
-(defun max-window ()
+(defun tq-util-maximize-window ()
   "让窗口全屏显示。"
   (interactive)
   (if (string-equal system-type "windows-nt")
-      (max-window-windows)
-    (max-window-linux)))
+      (tq-util-maximize-window-windows)
+    (tq-util-maximize-window-linux)))
 
-(defun tq-make-string-hash (&rest elements)
+(defun tq-util-make-string-hash (&rest elements)
   "从序列生成散列表。散列表的键和值都是字符串类型。序列a b c d生成的散列表是{a=>b, c=>d}。"
   (let ((key "")
         (value "")
@@ -76,7 +66,7 @@
       (setf (gethash key table) value))
     table))
 
-(defun tq-make-hash (&rest elements)
+(defun tq-util-make-hash (&rest elements)
   "从序列生成散列表。序列a b c d生成的散列表是{a=>b, c=>d}。"
   (let ((key nil)
         (value nil)
@@ -88,45 +78,6 @@
                     nil))
       (setf (gethash key table) value))
     table))
-
-(defun tq-open-buffer (buffer-type)
-  "打开新的缓冲区，并设置对应的模式。"
-  (interactive "sbuffer type: ")
-  (let* ((buffer-name (format "*temporary-%s*" buffer-type))
-         (mode-table (tq-make-hash "java" #'java-mode
-                                   "go" #'go-mode
-                                   "xml" #'xml-mode
-                                   "c" #'c-mode
-			                             "c++" #'c++-mode
-                                   "powershell" #'powershell-mode
-                                   "shell" #'shell-mode
-                                   "lisp" #'lisp-interaction-mode
-                                   "python" #'python-mode
-                                   "r" #'r-mode
-                                   "org" #'org-mode
-                                   "javascript" #'javascript-mode
-                                   "css" #'css-mode
-                                   "sql" #'sql-mode
-                                   "gradle" #'groovy-mode
-			                             "kotlin" #'kotlin-mode
-			                             "dockerfile" #'dockerfile-mode
-			                             "typescript" #'typescript-mode
-                                   "elisp" #'lisp-interaction-mode
-                                   "php" #'php-mode
-                                   "plantuml" #'plantuml-mode
-                                   "" #'text-mode))
-         (mode-setter (gethash buffer-type mode-table)))
-    (unless mode-setter (setf mode-setter #'text-mode))
-    (switch-to-buffer buffer-name)
-    (funcall mode-setter)))
-
-
-
-(defun amdahl-accelerate-ratio (processor-number parallel-ratio)
-  "根据Amdahl定律计算加速比。"
-  (let ((n processor-number)
-        (p parallel-ratio))
-    (/ 1 (+ (- 1 p) (/ p n)))))
 
 (defun tq-tablify (table-width &rest values)
   "将格式为 k1 v2 k2 v2...的list转换为org-mode的表格。
@@ -565,33 +516,6 @@ public interface UserRepository {
     (delete-region start end)
     (insert (funcall generator definition))))
 
-(defun tq-set-font (&optional font-size)
-  "设置字体大小。"
-  (interactive "n字体大小: ")
-  (let* ((size (or font-size tq-font-size))
-         (latin-font (format "%s-%d" tq-latin-font size))
-         (chinese-font (format "%s-%d" tq-chinese-font size)))
-    (set-frame-font latin-font)
-    (dolist (charset '(kana han symbol cjk-misc bopomofo))
-      (set-fontset-font t charset chinese-font))))
-
-(defun tq-reformat-cpp ()
-  (interactive)
-  (untabify (point-min) (point-max))
-  (beginning-of-buffer)
-  (replace-regexp " +" " ")
-  (beginning-of-buffer)
-  (replace-string "\n{\n" " {\n")
-  (beginning-of-buffer)
-  (replace-string "( " "(")
-  (beginning-of-buffer)
-  (replace-string " )" ")")
-  (beginning-of-buffer)
-  (replace-string " ;" ";")
-  (beginning-of-buffer)
-  (replace-regexp ")[ \n\r]+{" ") {")
-  (indent-region (point-min) (point-max)))
-
 (defun tq-capture-protobuf-fields (start end first-index)
   "将区域内的文字转换成 Protocal Buffer 域定义。
 
@@ -661,7 +585,7 @@ string b = 2;
     (if (file-exists-p week-record-file-name)
         (find-file week-record-file-name)
       (tq-file-write-and-open week-record-file-name
-                               (tq-render-template-from-sequence "# -*- mode: org -*-
+                              (tq-template-render-sequence "# -*- mode: org -*-
 #+options: ^:nil
 #+todo: todo(t) | done(d/!) cancel(c/!)
 #+title: ${date}
@@ -695,7 +619,7 @@ string b = 2;
     (if (file-exists-p day-record-file-name)
         (find-file day-record-file-name)
       (tq-file-write-and-open day-record-file-name
-                               (tq-render-template-from-sequence "# -*- mode: org -*-
+                              (tq-template-render-sequence "# -*- mode: org -*-
 #+options: ^:nil
 #+todo: todo(t) | done(d/!) cancel(c/!)
 #+title: ${date}
@@ -1033,7 +957,7 @@ the even ones are replacements."
                                ;; (class-open after)
                                ;; (class-close nil)
                                ;; (defun-open after)
-			                   ;; (defun-close nil)
+			                         ;; (defun-close nil)
                                ;; (brace-entry-open after)
                                ;; (statement after)
                                ;; (case-label after)
@@ -1068,9 +992,9 @@ the even ones are replacements."
                                 ;;(access-label after)
                                 ))
     (c-offsets-alist . ((substatement-open . 0)
-			            (statement-case-open . +)
+			                  (statement-case-open . +)
                         (label . 0)
-			            (inline-open . 0)
+			                  (inline-open . 0)
                         (case-label . 0)
                         (block-open . 0))))
   "tq c style")
@@ -1113,32 +1037,6 @@ the even ones are replacements."
   (prefer-coding-system 'utf-8-dos)
   (prefer-coding-system 'utf-8-unix))
 
-;; (defvar tq-note-path "c:/Users/WangQian/Workspace/Notes/")
-
-;; (setq org-publish-project-alist
-;;       `(
-;;         ("org-notes"
-;;          :base-directory ,tq-note-path
-;;          :base-extension "txt"
-;;          :publishing-directory ,tq-note-path
-;;          :recursive t
-;;          :publishing-function org-html-publish-to-html
-;;          :headline-levels 4          
-;;          :auto-preamble nil
-;;          :auto-sitemap t
-;;          :sitemap-filename "sitemap.txt"
-;;          :sitemap-title "sitemap"
-;;          :section-numbers nil
-;;          :table-of-contents t
-;;          :style "<link rel='stylesheet' type='text/css' href='css/org-manual.css' />"
-;;          :style-include-default nil
-;;          )
-;;         ("org"
-;;          :components ("org-notes" "org-static")
-;;          )
-;;         )
-;;       )
-
 
 (defun tq-add-cmd-path (path)
   (setenv "PATH" (concat path ";" (getenv "PATH")))
@@ -1151,39 +1049,6 @@ the even ones are replacements."
                   (get-buffer-process buffer)
                   (format "$env:PATH+=';%s'" path)))))
 
-
-(defun tq-new-gitignore (&optional directory)
-  "建立gitignore文件"
-  (interactive "sdirectory: ")
-  (if (string-equal directory "")
-      (setf path default-directory))
-  (tq-file-write (concat directory "/.gitignore") "
-.gradle
-.vs/
-build/
-gradle/
-Debug/
-Release/
-gradlew
-gradlew.bat
-*~
-\#*
-*.exe
-*.idb
-*.ilk
-*.htm
-*.log
-*.obj
-*.pch
-*.pdb
-*.swp
-*.tli
-*.tlh
-*.tlog
-*.user
-"))
-
-
 (defun tq-c-mode-hook ()
   ;;  (message "tq-c-mode-hook")
   ;;  (c-set-style "linux")
@@ -1192,31 +1057,6 @@ gradlew.bat
 	;;     indent-tabs-mode nil)
   ;;  (c-toggle-auto-newline t)
   (tq-set-indent tq-indent-offset))
-
-
-(defun print-api-gateway-configuration (path-prefix interface-list)
-  "打印 API 网关配置。
-
-path-prefix 路径前缀，如 bp、openacct 等。
-interface-list 接口名字列表。
-"
-  (dolist (x interface-list)
-    (princ (format "/%s/%s/1.0->%s
-" path-prefix x x))))
-
-
-(defun print-test-url (address path-prefix interface-list)
-  "打印测试 URL。
-
-address 服务器地址，如 127.0.0.1:443
-path-prefix 路径前缀，如 bp、openacct 等。
-interface-list 接口名字列表。
-"
-  (dolist (x interface-list)
-    (princ (format "http://%s/gsbp/%s/%s/1.0?
-" address path-prefix x))))
-
-
 
 
 ;; https://stackoverflow.com/questions/9547912/emacs-calendar-show-more-than-3-months
@@ -1237,31 +1077,31 @@ interface-list 接口名字列表。
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (eval-after-load "calendar" '(progn
-  (define-key calendar-mode-map "<" 'lawlist-scroll-year-calendar-backward)
-  (define-key calendar-mode-map ">" 'lawlist-scroll-year-calendar-forward) ))
+                               (define-key calendar-mode-map "<" 'lawlist-scroll-year-calendar-backward)
+                               (define-key calendar-mode-map ">" 'lawlist-scroll-year-calendar-forward) ))
 
 (defmacro lawlist-calendar-for-loop (var from init to final do &rest body)
   "Execute a for loop.
 Evaluate BODY with VAR bound to successive integers from INIT to FINAL,
 inclusive.  The standard macro `dotimes' is preferable in most cases."
   `(let ((,var (1- ,init)))
-    (while (>= ,final (setq ,var (1+ ,var)))
-      ,@body)))
+     (while (>= ,final (setq ,var (1+ ,var)))
+       ,@body)))
 
 (defun year-calendar (&optional month year)
   "Generate a one (1) year calendar that can be scrolled by month in each direction.
 This is a modification of:  http://homepage3.nifty.com/oatu/emacs/calendar.html
 See also:  http://ivan.kanis.fr/caly.el"
-(interactive)
+  (interactive)
   (require 'calendar)
   (let* ((current-year (number-to-string (nth 5 (decode-time (current-time)))))
          (month (if month month
-           (string-to-number
-             (read-string "Please enter a month number (e.g., 1):  " nil nil "1"))))
+                  (string-to-number
+                   (read-string "Please enter a month number (e.g., 1):  " nil nil "1"))))
          (year (if year year
-           (string-to-number
-             (read-string "Please enter a year (e.g., 2014):  "
-               nil nil current-year)))))
+                 (string-to-number
+                  (read-string "Please enter a year (e.g., 2014):  "
+                               nil nil current-year)))))
     (switch-to-buffer (get-buffer-create calendar-buffer))
     (when (not (eq major-mode 'calendar-mode))
       (calendar-mode))
@@ -1271,28 +1111,28 @@ See also:  http://ivan.kanis.fr/caly.el"
     (erase-buffer)
     ;; horizontal rows
     (lawlist-calendar-for-loop j from 0 to 3 do
-      ;; vertical columns
-      (lawlist-calendar-for-loop i from 0 to 2 do
-        (calendar-generate-month
-          ;; month
-          (cond
-            ((> (+ (* j 3) i month) 12)
-              (- (+ (* j 3) i month) 12))
-            (t
-              (+ (* j 3) i month)))
-          ;; year
-          (cond
-            ((> (+ (* j 3) i month) 12)
-             (+ year 1))
-            (t
-              year))
-          ;; indentation / spacing between months
-          (+ 5 (* 25 i))))
-      (goto-char (point-max))
-      (insert (make-string (- 10 (count-lines (point-min) (point-max))) ?\n))
-      (widen)
-      (goto-char (point-max))
-      (narrow-to-region (point-max) (point-max)))
+                               ;; vertical columns
+                               (lawlist-calendar-for-loop i from 0 to 2 do
+                                                          (calendar-generate-month
+                                                           ;; month
+                                                           (cond
+                                                            ((> (+ (* j 3) i month) 12)
+                                                             (- (+ (* j 3) i month) 12))
+                                                            (t
+                                                             (+ (* j 3) i month)))
+                                                           ;; year
+                                                           (cond
+                                                            ((> (+ (* j 3) i month) 12)
+                                                             (+ year 1))
+                                                            (t
+                                                             year))
+                                                           ;; indentation / spacing between months
+                                                           (+ 5 (* 25 i))))
+                               (goto-char (point-max))
+                               (insert (make-string (- 10 (count-lines (point-min) (point-max))) ?\n))
+                               (widen)
+                               (goto-char (point-max))
+                               (narrow-to-region (point-max) (point-max)))
     (widen)
     (goto-char (point-min))
     (setq buffer-read-only t)))

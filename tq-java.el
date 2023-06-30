@@ -2,7 +2,7 @@
 
 (defun tq-generate-pom (group artifact version packaging)
   "生成pom.xml文件内容。"
-  (tq-render-template-from-sequence "<?xml version='1.0' encoding='UTF-8'?>
+  (tq-template-render-sequence "<?xml version='1.0' encoding='UTF-8'?>
 <project xmlns='http://maven.apache.org/POM/4.0.0' 
      xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
      xsi:schemaLocation='http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd'>
@@ -80,7 +80,7 @@ public class ${className} {
     (if (and package
              (not (string-empty-p package)))
         (setf firstLine (format "package %s;" package)))
-    (tq-render-template-from-sequence tq-java-template
+    (tq-template-render-sequence tq-java-template
                                       "className" class-name
                                       "description" description
                                       "firstLine" firstLine
@@ -134,7 +134,7 @@ s说明：")
 ;;   (let* ((origin-directory default-directory)
 ;;          (package-path (replace-regexp-in-string "\\." "/" package))
 ;;          (project-directory (expand-file-name project root))
-;;          (env (tq-make-string-hash "package" package
+;;          (env (tq-util-make-string-hash "package" package
 ;;                                    "project" project
 ;;                                    "root" root))
 ;;          (command (tq-render-template
@@ -182,7 +182,7 @@ s说明：")
 (defun tq-maven-add-dependency (group artifact version)
   "在缓冲区当前位置插入 maven 依赖 <dependency> 标签。"
   (interactive "s组：\ns工件：\ns版本：")
-  (insert (tq-render-template-from-sequence "<dependency>
+  (insert (tq-template-render-sequence "<dependency>
     <groupId>${group}</groupId>
     <artifactId>${artifact}</artifactId>
     <version>${version}</version>
@@ -500,78 +500,78 @@ public class Hello {
 }
 ")
 
-(defun tq-new-spring-web (root-directory
-                          project-name
-                          package)
-  "建立Spring MVC项目。"
-  (interactive "sRootDirectory: 
-sProjectName: 
-sPackage: ")
+;; (defun tq-new-spring-web (root-directory
+;;                           project-name
+;;                           package)
+;;   "建立Spring MVC项目。"
+;;   (interactive "sRootDirectory: 
+;; sProjectName: 
+;; sPackage: ")
   
-  (let ((project-directory (expand-file-name project-name root-directory)))
-    ;; 建立目录
-    (make-directory project-directory t)
+;;   (let ((project-directory (expand-file-name project-name root-directory)))
+;;     ;; 建立目录
+;;     (make-directory project-directory t)
 
-    ;; 初始化gradle
-    (tq-execute-shell "gradle init" project-directory)
+;;     ;; 初始化gradle
+;;     (tq-execute-shell "gradle init" project-directory)
 
-    ;; 生成build.gradle
-    (tq-file-write (tq-path-join project-directory "build.gradle")
-                   tq-spring-web-build-gradle t)
+;;     ;; 生成build.gradle
+;;     (tq-file-write (tq-path-join project-directory "build.gradle")
+;;                    tq-spring-web-build-gradle t)
 
-    ;; 生成Java代码
-    (tq-file-write
-     (tq-path-join project-directory
-                   "src/main/java/"
-                   (replace-regexp-in-string "\\." "/" package)
-                   "controller/Hello.java")
-     (tq-execute-template
-      (list "Package"
-            package)
-      tq-spring-web-controller-template))
+;;     ;; 生成Java代码
+;;     (tq-file-write
+;;      (tq-path-join project-directory
+;;                    "src/main/java/"
+;;                    (replace-regexp-in-string "\\." "/" package)
+;;                    "controller/Hello.java")
+;;      (tq-execute-template
+;;       (list "Package"
+;;             package)
+;;       tq-spring-web-controller-template))
 
-    (tq-file-write
-     (tq-path-join project-directory
-                   "src/main/java/"
-                   (replace-regexp-in-string "\\." "/" package)
-                   "service/HelloService.java")
-     (tq-execute-template
-      (list "Package"
-            package)
-      tq-spring-web-service-template))
+;;     (tq-file-write
+;;      (tq-path-join project-directory
+;;                    "src/main/java/"
+;;                    (replace-regexp-in-string "\\." "/" package)
+;;                    "service/HelloService.java")
+;;      (tq-execute-template
+;;       (list "Package"
+;;             package)
+;;       tq-spring-web-service-template))
 
-    (tq-file-write
-     (tq-path-join project-directory
-                   "src/main/java/"
-                   (replace-regexp-in-string "\\." "/" package)
-                   "serviceprovider/HelloServiceProvider.java")
-     (tq-execute-template
-      (list "Package"
-            package)
-      tq-spring-web-serviceprovider-template))
+;;     (tq-file-write
+;;      (tq-path-join project-directory
+;;                    "src/main/java/"
+;;                    (replace-regexp-in-string "\\." "/" package)
+;;                    "serviceprovider/HelloServiceProvider.java")
+;;      (tq-execute-template
+;;       (list "Package"
+;;             package)
+;;       tq-spring-web-serviceprovider-template))
     
-    ;; 生成web.xml
-    (tq-file-write (tq-path-join project-directory "src/main/webapp/WEB-INF/web.xml")
-                   tq-spring-web-xml-content 
-                   t)
+;;     ;; 生成web.xml
+;;     (tq-file-write (tq-path-join project-directory "src/main/webapp/WEB-INF/web.xml")
+;;                    tq-spring-web-xml-content 
+;;                    t)
     
-    ;; 生成context config文件
-    (tq-file-write (tq-path-join project-directory "src/main/webapp/WEB-INF/spring-mvc-config.xml")
-                   (tq-execute-template (list "Package" package) tq-spring-config-template)
-                   t)
+;;     ;; 生成context config文件
+;;     (tq-file-write (tq-path-join project-directory "src/main/webapp/WEB-INF/spring-mvc-config.xml")
+;;                    (tq-execute-template (list "Package" package) tq-spring-config-template)
+;;                    t)
 
-    ;; 初始化git仓库
-    (tq-new-gitignore (tq-path-join project-directory ""))
-    (dolist (command (list "git init ."
-                           "git add ."
-                           "git commit -m \"initial commit\""))
-      (tq-execute-shell command project-directory))
+;;     ;; 初始化git仓库
+;;     (tq-new-gitignore (tq-path-join project-directory ""))
+;;     (dolist (command (list "git init ."
+;;                            "git add ."
+;;                            "git commit -m \"initial commit\""))
+;;       (tq-execute-shell command project-directory))
     
-    ;; 使用gradle 打包
-    (tq-execute-shell "gradle war" project-directory)
+;;     ;; 使用gradle 打包
+;;     (tq-execute-shell "gradle war" project-directory)
 
-    ;; 打开工程目录
-    (find-file project-directory)))
+;;     ;; 打开工程目录
+;;     (find-file project-directory)))
 
 (defconst tq-spring-boot-app-template
   "package ${Package};
@@ -605,48 +605,48 @@ bootJar {
 }
 ")
 
-(defun tq-new-spring-boot-app (root-directory
-                               project-name
-                               package)
-  "建立Spring Boot项目。"
-  (interactive "sRootDirectory: 
-sProjectName: 
-sPackage: ")
+;; (defun tq-new-spring-boot-app (root-directory
+;;                                project-name
+;;                                package)
+;;   "建立Spring Boot项目。"
+;;   (interactive "sRootDirectory: 
+;; sProjectName: 
+;; sPackage: ")
   
-  (let ((project-directory (expand-file-name project-name root-directory)))
-    ;; 建立目录
-    (make-directory project-directory t)
+;;   (let ((project-directory (expand-file-name project-name root-directory)))
+;;     ;; 建立目录
+;;     (make-directory project-directory t)
 
-    ;; 初始化gradle
-    (tq-execute-shell "gradle init" project-directory)
+;;     ;; 初始化gradle
+;;     (tq-execute-shell "gradle init" project-directory)
 
-    ;; 生成build.gradle
-    (tq-file-write (tq-path-join project-directory "build.gradle")
-                   tq-spring-boot-app-build-gradle t)
+;;     ;; 生成build.gradle
+;;     (tq-file-write (tq-path-join project-directory "build.gradle")
+;;                    tq-spring-boot-app-build-gradle t)
 
-    ;; 生成Java代码
-    (tq-file-write
-     (tq-path-join project-directory
-                   "src/main/java/"
-                   (replace-regexp-in-string "\\." "/" package)
-                   "App.java")
-     (tq-execute-template
-      (list "Package"
-            package)
-      tq-spring-boot-app-template))
+;;     ;; 生成Java代码
+;;     (tq-file-write
+;;      (tq-path-join project-directory
+;;                    "src/main/java/"
+;;                    (replace-regexp-in-string "\\." "/" package)
+;;                    "App.java")
+;;      (tq-execute-template
+;;       (list "Package"
+;;             package)
+;;       tq-spring-boot-app-template))
 
-    ;; 初始化git仓库
-    (tq-new-gitignore (tq-path-join project-directory ""))
-    (dolist (command (list "git init ."
-                           "git add ."
-                           "git commit -m \"initial commit\""))
-      (tq-execute-shell command project-directory))
+;;     ;; 初始化git仓库
+;;     (tq-new-gitignore (tq-path-join project-directory ""))
+;;     (dolist (command (list "git init ."
+;;                            "git add ."
+;;                            "git commit -m \"initial commit\""))
+;;       (tq-execute-shell command project-directory))
     
-    ;; 构建
-    (tq-execute-shell "gradle bootRun" project-directory)
+;;     ;; 构建
+;;     (tq-execute-shell "gradle bootRun" project-directory)
 
-    ;; 打开工程目录
-    (find-file project-directory)))
+;;     ;; 打开工程目录
+;;     (find-file project-directory)))
 
 (defconst tq-spring-boot-web-application-template
   "package ${Package};
@@ -713,59 +713,59 @@ dependencies {
 }
 ")
 
-(defun tq-new-spring-boot-web (root-directory
-                               project-name
-                               package)
-  "建立Spring Boot Web项目。"
-  (interactive "sRootDirectory: 
-sProjectName: 
-sPackage: ")
+;; (defun tq-new-spring-boot-web (root-directory
+;;                                project-name
+;;                                package)
+;;   "建立Spring Boot Web项目。"
+;;   (interactive "sRootDirectory: 
+;; sProjectName: 
+;; sPackage: ")
   
-  (let ((project-directory (expand-file-name project-name root-directory)))
-    ;; 建立目录
-    (make-directory project-directory t)
+;;   (let ((project-directory (expand-file-name project-name root-directory)))
+;;     ;; 建立目录
+;;     (make-directory project-directory t)
 
-    ;; 初始化gradle
-    (tq-execute-shell "gradle init" project-directory)
+;;     ;; 初始化gradle
+;;     (tq-execute-shell "gradle init" project-directory)
 
-    ;; 生成build.gradle
-    (tq-file-write (tq-path-join project-directory "build.gradle")
-                   (tq-execute-template (list "ProjectName" project-name) tq-spring-boot-web-build-gradle-template)
-                   t)
+;;     ;; 生成build.gradle
+;;     (tq-file-write (tq-path-join project-directory "build.gradle")
+;;                    (tq-execute-template (list "ProjectName" project-name) tq-spring-boot-web-build-gradle-template)
+;;                    t)
 
-    ;; 生成Java代码
-    (tq-file-write
-     (tq-path-join project-directory
-                   "src/main/java/"
-                   (replace-regexp-in-string "\\." "/" package)
-                   "Application.java")
-     (tq-execute-template
-      (list "Package"
-            package)
-      tq-spring-boot-web-application-template))
+;;     ;; 生成Java代码
+;;     (tq-file-write
+;;      (tq-path-join project-directory
+;;                    "src/main/java/"
+;;                    (replace-regexp-in-string "\\." "/" package)
+;;                    "Application.java")
+;;      (tq-execute-template
+;;       (list "Package"
+;;             package)
+;;       tq-spring-boot-web-application-template))
 
-    (tq-file-write
-     (tq-path-join project-directory
-                   "src/main/java/"
-                   (replace-regexp-in-string "\\." "/" package)
-                   "/controller/Controller.java")
-     (tq-execute-template
-      (list "Package"
-            package)
-      tq-spring-boot-web-controller-template))
+;;     (tq-file-write
+;;      (tq-path-join project-directory
+;;                    "src/main/java/"
+;;                    (replace-regexp-in-string "\\." "/" package)
+;;                    "/controller/Controller.java")
+;;      (tq-execute-template
+;;       (list "Package"
+;;             package)
+;;       tq-spring-boot-web-controller-template))
 
-    ;; 初始化git仓库
-    (tq-new-gitignore (tq-path-join project-directory ""))
-    (dolist (command (list "git init ."
-                           "git add ."
-                           "git commit -m \"initial commit\""))
-      (tq-execute-shell command project-directory))
+;;     ;; 初始化git仓库
+;;     (tq-new-gitignore (tq-path-join project-directory ""))
+;;     (dolist (command (list "git init ."
+;;                            "git add ."
+;;                            "git commit -m \"initial commit\""))
+;;       (tq-execute-shell command project-directory))
     
-    ;; 构建
-    (tq-execute-shell "gradle build" project-directory)
+;;     ;; 构建
+;;     (tq-execute-shell "gradle build" project-directory)
 
-    ;; 打开工程目录
-    (find-file project-directory)))
+;;     ;; 打开工程目录
+;;     (find-file project-directory)))
 
 
 
@@ -790,16 +790,16 @@ sproject: ")
     (find-file filename)))
 
 
-(defun tq-new-java-app (root-directory
-                        project-name)
-  "建立Java App项目。"
-  (interactive "sroot directory: 
-sproject name: ")
-  (let ((project-directory (tq-path-join root-directory project-name)))
-    (message "建立模块目录。")
-    (make-directory project-directory t)
-    (message "初始化gradle。")
-    (tq-execute-shell "gradle init --type java-application" project-directory)
-    (find-file (tq-path-join project-directory "src/main/java/App.java"))))
+;; (defun tq-new-java-app (root-directory
+;;                         project-name)
+;;   "建立Java App项目。"
+;;   (interactive "sroot directory: 
+;; sproject name: ")
+;;   (let ((project-directory (tq-path-join root-directory project-name)))
+;;     (message "建立模块目录。")
+;;     (make-directory project-directory t)
+;;     (message "初始化gradle。")
+;;     (tq-execute-shell "gradle init --type java-application" project-directory)
+;;     (find-file (tq-path-join project-directory "src/main/java/App.java"))))
 
 (provide 'tq-java)
