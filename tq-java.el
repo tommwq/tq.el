@@ -1,3 +1,5 @@
+(provide 'tq-java)
+
 (require 'tq-template)
 
 (defun tq-generate-pom (group artifact version packaging)
@@ -819,4 +821,4 @@ sproject: ")
 (defun tq-java-package-to-directory (package)
   (replace-regexp-in-string "\\." "/" package))
 
-(provide 'tq-java)
+

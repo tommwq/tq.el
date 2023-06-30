@@ -6,6 +6,8 @@
 ;; (add-to-list 'load-path "/path/to//tq.el/")
 ;; (require 'tq)
 
+(provide 'tq)
+
 (require 'tq-command)
 (require 'tq-util)
 (require 'tq-str)
@@ -31,7 +33,7 @@
   :type 'string
   :group 'tq)
 
-(defcustom tq-font-size 12
+(defcustom tq-latin-font-size 12
   "字体大小"
   :type 'integer
   :set (lambda (symbol value)
@@ -40,7 +42,16 @@
            (tq-set-font)))
   :group 'tq)
 
-(defcustom tq-latin-font "Fantasque Sans Mono"
+(defcustom tq-chinese-font-size 18
+  "字体大小"
+  :type 'integer
+  :set (lambda (symbol value)
+         (progn
+           (set-default symbol value)
+           (tq-set-font)))
+  :group 'tq)
+
+(defcustom tq-latin-font "PT Mono"
   "英文字体"
   :type 'string
   :set (lambda (symbol value)
@@ -49,7 +60,7 @@
            (tq-set-font)))
   :group 'tq)
 
-(defcustom tq-chinese-font "方正博雅方刊宋简体"
+(defcustom tq-chinese-font "方正风雅宋 简"
   "汉字字体"
   :type 'string
   :set (lambda (symbol value)
@@ -68,4 +79,4 @@
   :type 'string
   :group 'tq)
 
-(provide 'tq)
+

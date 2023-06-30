@@ -1,3 +1,5 @@
+(provide 'tq-settings)
+
 (require 'tq-command)
 
 (when (eq system-type 'windows-nt)
@@ -71,11 +73,9 @@
 
 
 ;; 启用自动保存
-(setq auto-save-mode t)
-
-;; 关闭自动备份
-;; (setq make-backup-files nil)
-;;  (setq backup-directory-alist (quote (("." . "~/.backups"))))
+(setq auto-save-mode nil)
+(setq make-backup-files nil)
+(setq backup-directory-alist (quote (("." . "~/.backups"))))
 
 ;; 鼠标指针规避光标
 (mouse-avoidance-mode 'animate)
@@ -185,5 +185,6 @@
 (prefer-coding-system 'utf-8-dos)
 (prefer-coding-system 'utf-8-unix)
 
+(tq-set-font)
 
-(provide 'tq-settings)
+

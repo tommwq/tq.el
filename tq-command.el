@@ -1,3 +1,5 @@
+(provide 'tq-command)
+
 (require 'tq-util)
 
 (defun tq-open (buffer-type)
@@ -31,19 +33,27 @@
     (switch-to-buffer buffer-name)
     (funcall mode-setter)))
 
-(defun tq-set-font (&optional font-size)
+(defun tq-set-font (&optional latin-font-size chinese-font-size)
   "设置字体大小。"
-  (interactive "n字体大小: ")
-  (if (and
-       (boundp 'tq-font-size)
-       (boundp 'tq-latin-font)
-       (boundp 'tq-chinese-font))
-      (let* ((size (or font-size tq-font-size))
-             (latin-font (format "%s-%d" tq-latin-font size))
-             (chinese-font (format "%s-%d" tq-chinese-font size)))
-        (set-frame-font latin-font)
-        (dolist (charset '(kana han symbol cjk-misc bopomofo))
-          (set-fontset-font t charset chinese-font)))))
+  (interactive "n英文字体大小: 
+n中文字体大小: ")
+  (when (and (boundp 'tq-latin-font)
+             (boundp 'tq-chinese-font))
+    (if latin-font-size (setf tq-latin-font-size latin-font-size))
+    (if chinese-font-size (setf tq-chinese-font-size chinese-font-size))
+    (tq-update-font)))
+
+(defun tq-update-font ()
+  "更新字体大小。"
+  (let* ((latin-font (format "%s-%d" tq-latin-font tq-latin-font-size))
+         (chinese-font (format "%s-%d" tq-chinese-font tq-chinese-font-size)))
+    (message (format "update font %s %s %s"
+                     latin-font
+                     chinese-font
+                     (frame-list)))
+    (set-frame-font latin-font t (frame-list))
+    (dolist (charset '(kana han symbol cjk-misc bopomofo))
+      (set-fontset-font t charset chinese-font))))
 
 (defun tq-format-cpp ()
   (interactive)
@@ -820,5 +830,3 @@ values 值列表"
       (if (= (% index table-width) 0)
           (princ "|\n"))))
   (princ "|\n"))
-
-(provide 'tq-command)
