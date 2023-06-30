@@ -43,7 +43,7 @@
         (dolist (charset '(kana han symbol cjk-misc bopomofo))
           (set-fontset-font t charset chinese-font)))))
 
-(defun tq-reformat-cpp ()
+(defun tq-format-cpp ()
   (interactive)
   (untabify (point-min) (point-max))
   (beginning-of-buffer)
@@ -60,5 +60,38 @@
   (replace-regexp ")[ \n\r]+{" ") {")
   (indent-region (point-min) (point-max)))
 
+(defun tq-record ()
+  "打开日记录文件。如果文件不存在，创建文件。
+
+日记录文件位于周记录目录中，周记录目录是tq-record-directory目录下的一个子目录。
+周记录目录名字类似2022-q3-w35，日记录文件名字类似2022-q3-w35-20220829.org。
+"
+  (interactive)
+  (let* ((year (format-time-string "%Y"))
+         (season (number-to-string (tq-season-number)))
+         (date (format-time-string "%Y年%m月%d日"))
+         (week-record-directory-name 
+          (format-time-string (concat "%Y-q" season  "-w%V")))
+         (day-record-file-name
+          (format-time-string (concat "%Y-q" season  "-w%V-%Y%m%d.org")))
+         (root-path nil))
+    ;; 保证根目录存在。
+    (dolist (sub (list tq-record-directory year (concat year "-q" season) week-record-directory-name))
+      (setf root-path (expand-file-name sub root-path)))
+    (if (not (file-exists-p root-path))
+        (make-directory root-path t))
+    (setf day-record-file-name (expand-file-name day-record-file-name root-path))
+    (if (file-exists-p day-record-file-name)
+        (find-file day-record-file-name)
+      (tq-file-write-and-open day-record-file-name
+                              (tq-template-render-sequence "# -*- mode: org -*-
+#+options: ^:nil
+#+todo: todo(t) delay(y@/!) | done(d@/!) cancel(c@/!)
+#+title: ${date}
+#+date: ${date}
+* 工作
+* 后续
+* 记录
+" "date" date)))))
 
 (provide 'tq-command)
