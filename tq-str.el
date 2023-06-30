@@ -41,15 +41,41 @@
         (t (concat singular "s"))))
 
 (defun tq-str-split-pascal-case (pascal-case)
-  "分解PascalCase格式字符串，返回单词列表。"
+  "分解PascalCase格式字符串，返回小写单词列表。"
   (let ((words nil)
         (begin 0))
     (dotimes (index (length pascal-case))
-      (when (tq-upcase-p (substring pascal-case index (1+ index)))
+      (when (tq-str-upcase-p (substring pascal-case index (1+ index)))
         (if (not (= begin index))
-            (push (substring pascal-case begin index) words))
+            (push (downcase (substring pascal-case begin index)) words))
         (setf begin index)))
-    (push (substring pascal-case begin) words)
+    (push (downcase (substring pascal-case begin)) words)
+    (nreverse words)))
+
+(defun tq-str-split-camel-case (camel-case)
+  "分解cascalCase格式字符串，返回小写单词列表。"
+  (let ((words nil)
+        (begin 0))
+    (dotimes (index (length camel-case))
+      (when (tq-str-upcase-p (substring camel-case index (1+ index)))
+        (if (not (= begin index))
+            (push (downcase (substring camel-case begin index)) words))
+        (setf begin index)))
+    (push (downcase (substring camel-case begin)) words)
+    (nreverse words)))
+
+(defun tq-str-split-kebab-case (kebab-case)
+  "分解kebab-case格式字符串，返回小写单词列表。"
+  (let ((words nil))
+    (dolist (word (split-string kebab-case "-"))
+      (push (downcase word) words))
+    (nreverse words)))
+
+(defun tq-str-split-snake-case (snake-case)
+  "分解snake_case格式字符串，返回小写单词列表。"
+  (let ((words nil))
+    (dolist (word (split-string snake-case "_"))
+      (push (downcase word) words))
     (nreverse words)))
 
 (defun tq-str-split-slash (slash-string)
@@ -64,29 +90,54 @@
     (push (substring slash-string begin) words)
     (nreverse words)))
 
-(defun tq-join-kebab-case (downcase-list)
+(defun tq-str-join-kebab-case (downcase-list)
   (string-join downcase-list "-"))
 
-(defun tq-join-camel-case (downcase-list)
+(defun tq-str-join-camel-case (downcase-list)
   (let ((first (pop downcase-list)))
     (concat first (string-join (mapcar (lambda (s) (capitalize s)) downcase-list) ""))))
 
-(defun tq-pascal-to-camel (pascal-case)
-  (tq-join-camel-case (mapcar #'downcase (tq-str-split-pascal-case pascal-case))))
+(defun tq-str-join-pascal-case (downcase-list)
+  (string-join (mapcar (lambda (s) (capitalize s)) downcase-list) ""))
 
-(defun tq-pascal-to-kebab (pascal-case)
-  (tq-join-kebab-case (mapcar #'downcase (tq-str-split-pascal-case pascal-case))))
+(defun tq-str-join-snake-case (downcase-list)
+  (string-join downcase-list "_"))
 
-;; TODO
+(defun tq-str-pascal-to-camel (pascal-case)
+  (tq-str-join-camel-case (mapcar #'downcase (tq-str-split-pascal-case pascal-case))))
 
-;; (defun tq-str-split-camel-case (camel-case))
-;; (defun tq-str-split-kebab-case (kebab-case))
-;; (defun tq-str-split-snake-case (snake-case))
-;; (defun tq-join-camel-case (name-list))
-;; (defun tq-join-kebab-case (name-list))
-;; (defun tq-join-pascal-case (name-list))
-;; (defun tq-join-snake-case (name-list))
+(defun tq-str-pascal-to-kebab (pascal-case)
+  (tq-str-join-kebab-case (mapcar #'downcase (tq-str-split-pascal-case pascal-case))))
 
+(defun tq-str-pascal-to-snake (pascal-case)
+  (tq-str-join-snake-case (mapcar #'downcase (tq-str-split-pascal-case pascal-case))))
+
+(defun tq-str-kebab-to-camel (kebab-case)
+  (tq-str-join-camel-case (mapcar #'downcase (tq-str-split-kebab-case kebab-case))))
+
+(defun tq-str-kebab-to-pascal (kebab-case)
+  (tq-str-join-pascal-case (mapcar #'downcase (tq-str-split-kebab-case kebab-case))))
+
+(defun tq-str-kebab-to-snake (kebab-case)
+  (tq-str-join-snake-case (mapcar #'downcase (tq-str-split-kebab-case kebab-case))))
+
+(defun tq-str-camel-to-kebab (camel-case)
+  (tq-str-join-kebab-case (mapcar #'downcase (tq-str-split-camel-case camel-case))))
+
+(defun tq-str-camel-to-pascal (camel-case)
+  (tq-str-join-pascal-case (mapcar #'downcase (tq-str-split-camel-case camel-case))))
+
+(defun tq-str-camel-to-snake (camel-case)
+  (tq-str-join-snake-case (mapcar #'downcase (tq-str-split-camel-case camel-case))))
+
+(defun tq-str-snake-to-kebab (snake-case)
+  (tq-str-join-kebab-case (mapcar #'downcase (tq-str-split-snake-case snake-case))))
+
+(defun tq-str-snake-to-pascal (snake-case)
+  (tq-str-join-pascal-case (mapcar #'downcase (tq-str-split-snake-case snake-case))))
+
+(defun tq-str-snake-to-camel (snake-case)
+  (tq-str-join-camel-case (mapcar #'downcase (tq-str-split-snake-case snake-case))))
 
 (defun tq-str-first-char (s)
   "返回字符串首字母。"

@@ -36,11 +36,11 @@
     </build>
 </project>
 "
-                                    "groupID" group
-                                    "artifactID" artifact
-                                    "version" version
-                                    "packaging" packaging
-                                    "mainClass" (concat group ".App")))
+                               "groupID" group
+                               "artifactID" artifact
+                               "version" version
+                               "packaging" packaging
+                               "mainClass" (concat group ".App")))
 
 
 (defconst tq-java-template "/**
@@ -81,10 +81,10 @@ public class ${className} {
              (not (string-empty-p package)))
         (setf firstLine (format "package %s;" package)))
     (tq-template-render-sequence tq-java-template
-                                      "className" class-name
-                                      "description" description
-                                      "firstLine" firstLine
-                                      "date" (format-time-string "%Y-%m-%d"))))
+                                 "className" class-name
+                                 "description" description
+                                 "firstLine" firstLine
+                                 "date" (format-time-string "%Y-%m-%d"))))
 
 (defun tq-insert-pom-file (group-id artifact-id version packaging)
   "生成pom.xml文件，插入到缓冲区。"
@@ -124,7 +124,7 @@ s说明：")
   (let ((full-class-name (expand-file-name (concat class-name ".java")
                                            (replace-regexp-in-string "\\." "/" package))))
     (tq-file-write-and-open full-class-name
-                             (tq-generate-java package class-name description))))
+                            (tq-generate-java package class-name description))))
 
 ;; (defun tq-new-java-application (root project package)
 ;;   (interactive "sRoot:
@@ -187,9 +187,9 @@ s说明：")
     <artifactId>${artifact}</artifactId>
     <version>${version}</version>
 </dependency>"
-                                            "group" group
-                                            "artifact" artifact
-                                            "version" version)))
+                                       "group" group
+                                       "artifact" artifact
+                                       "version" version)))
 
 
 
@@ -507,7 +507,7 @@ public class Hello {
 ;;   (interactive "sRootDirectory: 
 ;; sProjectName: 
 ;; sPackage: ")
-  
+
 ;;   (let ((project-directory (expand-file-name project-name root-directory)))
 ;;     ;; 建立目录
 ;;     (make-directory project-directory t)
@@ -549,12 +549,12 @@ public class Hello {
 ;;       (list "Package"
 ;;             package)
 ;;       tq-spring-web-serviceprovider-template))
-    
+
 ;;     ;; 生成web.xml
 ;;     (tq-file-write (tq-path-join project-directory "src/main/webapp/WEB-INF/web.xml")
 ;;                    tq-spring-web-xml-content 
 ;;                    t)
-    
+
 ;;     ;; 生成context config文件
 ;;     (tq-file-write (tq-path-join project-directory "src/main/webapp/WEB-INF/spring-mvc-config.xml")
 ;;                    (tq-execute-template (list "Package" package) tq-spring-config-template)
@@ -566,7 +566,7 @@ public class Hello {
 ;;                            "git add ."
 ;;                            "git commit -m \"initial commit\""))
 ;;       (tq-execute-shell command project-directory))
-    
+
 ;;     ;; 使用gradle 打包
 ;;     (tq-execute-shell "gradle war" project-directory)
 
@@ -612,7 +612,7 @@ bootJar {
 ;;   (interactive "sRootDirectory: 
 ;; sProjectName: 
 ;; sPackage: ")
-  
+
 ;;   (let ((project-directory (expand-file-name project-name root-directory)))
 ;;     ;; 建立目录
 ;;     (make-directory project-directory t)
@@ -641,7 +641,7 @@ bootJar {
 ;;                            "git add ."
 ;;                            "git commit -m \"initial commit\""))
 ;;       (tq-execute-shell command project-directory))
-    
+
 ;;     ;; 构建
 ;;     (tq-execute-shell "gradle bootRun" project-directory)
 
@@ -720,7 +720,7 @@ dependencies {
 ;;   (interactive "sRootDirectory: 
 ;; sProjectName: 
 ;; sPackage: ")
-  
+
 ;;   (let ((project-directory (expand-file-name project-name root-directory)))
 ;;     ;; 建立目录
 ;;     (make-directory project-directory t)
@@ -760,7 +760,7 @@ dependencies {
 ;;                            "git add ."
 ;;                            "git commit -m \"initial commit\""))
 ;;       (tq-execute-shell command project-directory))
-    
+
 ;;     ;; 构建
 ;;     (tq-execute-shell "gradle build" project-directory)
 
@@ -801,5 +801,22 @@ sproject: ")
 ;;     (message "初始化gradle。")
 ;;     (tq-execute-shell "gradle init --type java-application" project-directory)
 ;;     (find-file (tq-path-join project-directory "src/main/java/App.java"))))
+
+(defun tq-java-primary-type-p (type-name)
+  (let ((result nil))
+    (dolist (primary-type (list "byte" "short" "char" "int"
+                                "long" "float" "double" "boolean"))
+      (if (string-equal primary-type type-name)
+          (setf result t)))
+    result))
+
+
+(defun tq-java-class-file-name (src-directory java-package class-name)
+  "生成Java类文件名。"
+  (tq-path-join src-directory (tq-java-package-to-directory java-package) (concat class-name ".java")))
+
+
+(defun tq-java-package-to-directory (package)
+  (replace-regexp-in-string "\\." "/" package))
 
 (provide 'tq-java)

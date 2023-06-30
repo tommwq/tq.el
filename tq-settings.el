@@ -115,8 +115,6 @@
 ;; (setf nxml-child-indent 4)
 ;; (setf nxml-attribute-indent 4)
 
-;; 编码
-(set-encodings)
 
 (setq c-default-style
       '((java-mode . "tq-c-style")
@@ -125,15 +123,16 @@
         (other . "tq-c-style")))
 
 ;; 设置钩子。
-(add-hook 'shell-mode-hook 'tq-initialize-shell-mode)
+(add-hook 'shell-mode-hook #'(lambda ()
+                               (set-buffer-process-coding-system 'gbk 'gbk)))
+
 (add-hook 'c-mode-common-hook 'tq-c-mode-hook)
 (add-hook 'c-mode-hook 'hs-minor-mode)
 (add-hook 'nxml-mode-hook 'hs-minor-mode)
 (add-hook 'java-mode-hook 'hs-minor-mode)
 (add-hook 'java-mode-hook 'tq-c-mode-hook)
 (add-hook 'powershell-mode-hook #'(lambda ()
-                                    (tq-initialize-powershell-mode)
-                                    (tq-add-powershell-path tq-system-path)))
+                                    (set-buffer-process-coding-system 'utf-8 'utf-8)))
 
 (add-hook 'html-mode-hook #'(lambda ()
                               (electric-indent-mode -1)))
@@ -155,10 +154,8 @@
 ;;       indent-tabs-mode nil)
 (electric-indent-mode -1)
 
-(set-org-todo-keywords)
-;; (switch-to-buffer "*scratch*")
-;; (delete-other-windows)
-;; (delete-region (point-min) (point-max))
+(setq org-todo-keywords '((sequence "todo(t)" "delay(y@/!)" "|"
+                                    "done(d@/!)" "cancel(c@/!)")))
 
 ;; 设置窗口半透明
 (set-frame-parameter (selected-frame) 'alpha 100)
@@ -169,5 +166,24 @@
 
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 (global-set-key (kbd "<insert>") nil)
+
+
+
+(c-add-style "tq-c-style" tq-c-style)
+
+
+
+"设置字符编码。"
+(setf file-name-coding-system 'utf-8
+      default-file-name-coding-system 'utf-8-unix
+      default-buffer-file-coding-system 'utf-8-unix)
+(set-language-environment "UTF-8")
+;; 设置文件缓冲区默认保存编码。
+(set-buffer-file-coding-system 'utf-8-unix)
+(prefer-coding-system 'chinese-gbk-dos)
+(prefer-coding-system 'chinese-gbk-unix)
+(prefer-coding-system 'utf-8-dos)
+(prefer-coding-system 'utf-8-unix)
+
 
 (provide 'tq-settings)
