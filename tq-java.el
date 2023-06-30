@@ -1,4 +1,4 @@
-;; TODO dev.py 完善后删除此文件。
+(require 'tq-template)
 
 (defun tq-generate-pom (group artifact version packaging)
   "生成pom.xml文件内容。"
