@@ -80,7 +80,7 @@ n中文字体大小: ")
 "
   (interactive)
   (let* ((year (format-time-string "%Y"))
-         (season (number-to-string (tq-season-number)))
+         (season (number-to-string (tq-util-season-number)))
          (date (format-time-string "%Y年%m月%d日"))
          (week-record-directory-name 
           (format-time-string (concat "%Y-q" season  "-w%V")))
