@@ -1,30 +1,33 @@
+(require 'tq-str)
+(require 'tq-java)
+
 (defun tq-quarkus-resource-parameter (full-resource-name)
   "根据资源全名生成方法中的参数列表。
 
 (tq-quarkus-resource-parameter \"Service/Function/Parameter\") => @PathParam(\"serviceId\") long serviceId, @PathParam(\"functionId\") long functionId, 
 "
-  (let ((path-parts (mapcar #'tq-pascal-to-camel
-                            (tq-util-remove-last (tq-split-slash full-resource-name)))))
+  (let ((path-parts (mapcar #'tq-str-pascal-to-camel
+                            (tq-util-remove-last (tq-str-split-slash full-resource-name)))))
     (if (not path-parts) ""
       (string-join (mapcar (lambda (s) (format "@PathParam(\"%sId\") long %sId" s s)) path-parts) ", "))))
 
 
 (defun tq-quarkus-restful-name (resource-name)
   "根据资源名字（PascalCase命名法）生成Web资源名字，从Dictionary生成dictionaries。"
-  (tq-pascal-to-kebab (tq-string-plural resource-name)))
+  (tq-str-pascal-to-kebab (tq-str-plural resource-name)))
 
 
 (defun tq-quarkus-restful-path (resource-name)
   "根据资源名字（PascalCase命名法）生成Web资源路径。如果资源名字类似/Foo/Bar/Goo，将生成/foo/{fooId}/bar/{barId}/goo。"
   (concat (string-join (mapcar (lambda (s) (format "%s/{%sId}/"
-                                                   (tq-pascal-to-kebab s)
-                                                   (tq-pascal-to-camel s)))
-                               (tq-util-remove-last (tq-split-slash resource-name)))
+                                                   (tq-str-pascal-to-kebab s)
+                                                   (tq-str-pascal-to-camel s)))
+                               (tq-util-remove-last (tq-str-split-slash resource-name)))
                        "")
-          (tq-quarkus-restful-name (car (last (tq-split-slash resource-name))))))
+          (tq-quarkus-restful-name (car (last (tq-str-split-slash resource-name))))))
 
 (defun tq-quarkus-generate-resource-class (java-package full-resource-name field-list)
-  (let* ((resource-name (car (last (tq-split-slash full-resource-name))))
+  (let* ((resource-name (car (last (tq-str-split-slash full-resource-name))))
          (field-list (remove '(long id) field-list))
          (resource-parameter (tq-quarkus-resource-parameter full-resource-name))
          (resource-parameter-sep (if (< 0 (length resource-parameter)) ", " ""))
@@ -98,41 +101,41 @@ public class %sResource {
             resource-name
             ;; inject
             resource-name
-            (tq-pascal-to-camel resource-name)
+            (tq-str-pascal-to-camel resource-name)
             ;; method
             ;; get
             resource-name
             resource-parameter
-            (tq-pascal-to-camel resource-name)
+            (tq-str-pascal-to-camel resource-name)
             ;; post
             resource-name
             resource-parameter
             resource-parameter-sep
             resource-name
-            (tq-pascal-to-camel resource-name)
+            (tq-str-pascal-to-camel resource-name)
             ;; get by id
             resource-name
             resource-parameter
             resource-parameter-sep
-            (tq-pascal-to-camel resource-name)
+            (tq-str-pascal-to-camel resource-name)
             ;; put
             resource-parameter
             resource-parameter-sep
             resource-name
-            (tq-pascal-to-camel resource-name)
+            (tq-str-pascal-to-camel resource-name)
             ;; patch
             resource-parameter
             resource-parameter-sep
             resource-name
-            (tq-pascal-to-camel resource-name)
+            (tq-str-pascal-to-camel resource-name)
             ;; delete
             resource-parameter
             resource-parameter-sep
-            (tq-pascal-to-camel resource-name))))
+            (tq-str-pascal-to-camel resource-name))))
 
 
 (defun tq-quarkus-generate-service-class (java-package resource-name field-list)
-  (let ((resource-name (car (last (tq-split-slash resource-name))))
+  (let ((resource-name (car (last (tq-str-split-slash resource-name))))
         (field-list (remove '(long id) field-list))
         (source-format "
 package %s.service;
@@ -214,7 +217,7 @@ public class %sService {
 
 
 (defun tq-quarkus-generate-entity-class (java-package resource-name field-list)
-  (let ((resource-name (car (last (tq-split-slash resource-name))))
+  (let ((resource-name (car (last (tq-str-split-slash resource-name))))
         (field-list (remove '(long id) field-list))
         (source-format "
 package %s.entity;
@@ -242,7 +245,7 @@ public class %s extends PanacheEntity {
 
 (defun tq-quarkus-create-restful-class (src-directory java-package resource-name field-list &optional overwrite)
   "生成Entity、Service和Resource类。"
-  (let* ((simple-resource-name (nth 0 (last (tq-split-slash resource-name))))
+  (let* ((simple-resource-name (nth 0 (last (tq-str-split-slash resource-name))))
          (entity-package (concat java-package ".entity"))
          (entity-class-name simple-resource-name)
          (entity-class-file-name (tq-java-class-file-name src-directory entity-package entity-class-name))
@@ -252,12 +255,12 @@ public class %s extends PanacheEntity {
          (resource-package (concat java-package ".resource"))
          (resource-class-name (concat simple-resource-name "Resource"))
          (resource-class-file-name (tq-java-class-file-name src-directory resource-package resource-class-name)))
-  ;; 生成Entity类。
-  (tq-file-write entity-class-file-name (tq-quarkus-generate-entity-class java-package entity-class-name field-list) overwrite)
-  ;; 生成Service类。
-  (tq-file-write service-class-file-name (tq-quarkus-generate-service-class java-package simple-resource-name field-list) overwrite)
-  ;; 生成Resource类。
-  (tq-file-write resource-class-file-name (tq-quarkus-generate-resource-class java-package simple-resource-name field-list) overwrite)))
+    ;; 生成Entity类。
+    (tq-file-write entity-class-file-name (tq-quarkus-generate-entity-class java-package entity-class-name field-list) overwrite)
+    ;; 生成Service类。
+    (tq-file-write service-class-file-name (tq-quarkus-generate-service-class java-package simple-resource-name field-list) overwrite)
+    ;; 生成Resource类。
+    (tq-file-write resource-class-file-name (tq-quarkus-generate-resource-class java-package simple-resource-name field-list) overwrite)))
 
 
 (defun tq-quarkus-create-restful-classes (src-directory java-package resource-definitions &optional overwrite)
@@ -268,7 +271,7 @@ public class %s extends PanacheEntity {
                                    '(\"Service/Function/Parameter\" ((String name) (long serviceId) (long functionId) (String defaultValue))
                                      \"Service\" ((String name) (long serviceId) (long functionId) (String defaultValue))
                                      \"Service/Function\" ((String name) (long serviceId) (long functionId) (String defaultValue))) 
-                                   t)
+                                   t))
 "
   (let ((resource-name "")
         (field-list nil))
