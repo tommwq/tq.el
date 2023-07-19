@@ -195,4 +195,33 @@ the even ones are replacements."
   ;;  (c-toggle-auto-newline t)
   (tq-set-indent tq-indent-offset))
 
+(defun tq-util-ralative-luminance (rgb)
+  "计算相对流明。"
+  (let* ((r (floor (/ rgb #x10000)))
+         (g (mod (floor (/ rgb #x100)) #x100))
+         (b (mod rgb #x100))
+         (rs (/ r 255.0))
+         (gs (/ g 255.0))
+         (bs (/ b 255.0))
+         (rr (if (<= rs 0.03928) 
+                 (/ rs 12.92)
+               (expt (/ (+ rs 0.055) 1.055) 2.4)))
+         (gg (if (<= gs 0.03928) 
+                 (/ gs 12.92)
+               (expt (/ (+ gs 0.055) 1.055) 2.4)))
+         (bb (if (<= bs 0.03928) 
+                 (/ bs 12.92)
+               (expt (/ (+ bs 0.055) 1.055) 2.4))))
+    (+ (* 0.2126 rr) (* 0.7152 gg) (* 0.0722 bb))))
+
+
+(defun tq-util-color-contrast (rgb1 rgb2)
+  (let* ((l1 (tq-util-ralative-luminance rgb1))
+         (l2 (tq-util-ralative-luminance rgb2))
+         (r (/ (+ l1 0.05) (+ l2 0.05))))
+    (if (< r 1)
+        (/ 1 r)
+      r)))
+
+
 (provide 'tq-util)
