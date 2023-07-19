@@ -78,9 +78,13 @@
       (setf (gethash key table) value))
     table))
 
+(defun tq-util-season-number-by-month (month-number)
+  "获取月份所在季度。"
+  (1+ (/ (- month-number 1) 3)))
+
 (defun tq-util-season-number ()
   "获取季度序号。"
-  (+ 1 (/ (string-to-number (format-time-string "%m")) 4)))
+  (tq-util-season-number-by-month (string-to-number (format-time-string "%m"))))
 
 (defun tq-upcase-first-char (field)
   "将首字母改成大写字母。与capitalize不同，不会将其他字母改成小写。"
