@@ -1,3 +1,44 @@
+(defun tq-util-verify-china-identification-card (id-card-number)
+  "校验身份证。
+(tq-util-verify-china-identification-card "11010519491231002X")
+(tq-util-verify-china-identification-card "440524188001010014")
+"
+  (let ((A nil)
+        (B (list 1 2 4 8 5 10 9 7 3 6 1 2 4 8 5 10 9 7))
+        (ch nil)
+        (check-sum 0))
+    (if (not (eq (length id-card-number) 18))
+        nil)
+    (dotimes (i 18)
+      (setf ch (substring id-card-number i (1+ i)))
+      (push (if (string-equal "X" ch) 10 (string-to-number ch)) A))
+    (dotimes (i 18)
+      (setf check-sum (+ check-sum (* (nth i A) (nth i B)))))
+    (equal 1 (mod check-sum 11))))
+
+(defun tq-util-calculate-china-identification-card-check-sum (id-card-number)
+  "计算身份证最后一位。
+(tq-util-calculate-china-identification-card-check-sum "11010519491231002") 
+(tq-util-calculate-china-identification-card-check-sum "44052418800101001") 
+"
+  (let ((A nil)
+        (B (list 2 4 8 5 10 9 7 3 6 1 2 4 8 5 10 9 7))
+        (ch nil)
+        (check-sum 0))
+    (if (not (eq (length id-card-number) 17))
+        nil)
+    (dotimes (i 17)
+      (setf ch (substring id-card-number i (1+ i)))
+      (push (if (string-equal "X" ch) 10 (string-to-number ch)) A))
+    (dotimes (i 17)
+      (setf check-sum (+ check-sum (* (nth i A) (nth i B)))))
+    (setf check-sum (mod check-sum 11))
+    (cond 
+     ((eq 0 check-sum) "1")
+     ((eq 1 check-sum) "0")
+     ((eq 2 check-sum) "X")
+     (t (number-to-string (- 12 check-sum))))))
+
 (defun tq-util-find-definition-file (fn)
   "返回包含fn定义的文件名。"
   (let* ((buffer (car (find-definition-noselect fn nil)))
