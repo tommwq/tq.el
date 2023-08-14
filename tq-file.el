@@ -30,7 +30,7 @@
   (let ((template "# -*- mode: org -*-
 #+options: ^:nil
 #+todo: todo(t) delay(y@/!) | done(d@/!) cancel(c@/!)
-#+HTML_HEAD: <style>body {font-size:xx-large; font-family:monospace;/*background-color:#000000;color:#f5deb3;*/}</style>
+#+HTML_HEAD: <style>body {font-family:monospace;}</style>
 #+title: ${title}
 #+date: ${date}
 "))
