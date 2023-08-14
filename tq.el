@@ -51,6 +51,17 @@
            (tq-set-font)))
   :group 'tq)
 
+(defcustom tq-font-size 10
+  "字体大小"
+  :type 'integer
+  :set (lambda (symbol value)
+         (progn
+           (set-default symbol value)
+           (set-default 'tq-latin-font-size value)
+           (set-default 'tq-chinese-font-size value)
+           (tq-set-font)))
+  :group 'tq)
+
 (defcustom tq-latin-font "PT Mono"
   "英文字体"
   :type 'string
