@@ -33,32 +33,12 @@
   :type 'string
   :group 'tq)
 
-(defcustom tq-latin-font-size 12
-  "字体大小"
-  :type 'integer
-  :set (lambda (symbol value)
-         (progn
-           (set-default symbol value)
-           (tq-set-font)))
-  :group 'tq)
-
-(defcustom tq-chinese-font-size 18
-  "字体大小"
-  :type 'integer
-  :set (lambda (symbol value)
-         (progn
-           (set-default symbol value)
-           (tq-set-font)))
-  :group 'tq)
-
 (defcustom tq-font-size 10
   "字体大小"
   :type 'integer
   :set (lambda (symbol value)
          (progn
            (set-default symbol value)
-           (set-default 'tq-latin-font-size value)
-           (set-default 'tq-chinese-font-size value)
            (tq-set-font)))
   :group 'tq)
 

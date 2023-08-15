@@ -64,9 +64,9 @@
   (package-initialize))
 
 ;; 高亮当前行（已通过配置实现，不再需要）
-(global-hl-line-mode 1)
-(set-face-attribute hl-line-face nil :underline nil)
-(set-face-background 'hl-line "bisque")
+;;(global-hl-line-mode 1)
+;;(set-face-attribute hl-line-face nil :underline nil)
+;;(set-face-background 'hl-line "bisque")
 ;;(set-face-attribute hl-line-face nil :underline nil)
 ;;(set-face-background 'hl-line "white")
 ;;(set-cursor-color "yellow")
@@ -90,7 +90,9 @@
 (global-set-key [f2] 'clipboard-kill-ring-save)
 (global-set-key [f3] 'isearch-forward)
 
-(set-cursor-color "black")
+
+;; use customize
+;;(set-cursor-color "black")
 
 
 ;; 
