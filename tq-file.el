@@ -30,7 +30,8 @@
   (let ((template "# -*- mode: org -*-
 #+options: ^:nil
 #+todo: todo(t) delay(y@/!) | done(d@/!) cancel(c@/!)
-#+HTML_HEAD: <style>body {font-family:SimHei,monospace;background-color:#000000;color:#ffffff;*}</style>
+#+property: header-args :exports code
+#+HTML_HEAD: <style>body {font-family:SimHei,monospace;line-height:1.5em;font-size:large;}</style>
 #+title: ${title}
 #+date: ${date}
 "))

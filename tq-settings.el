@@ -187,6 +187,5 @@
 (prefer-coding-system 'utf-8-dos)
 (prefer-coding-system 'utf-8-unix)
 
-(tq-set-font)
 (tq-util-maximize-window)
 
