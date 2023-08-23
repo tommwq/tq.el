@@ -31,7 +31,7 @@
 #+options: ^:nil
 #+todo: todo(t) delay(y@/!) | done(d@/!) cancel(c@/!)
 #+property: header-args :exports code
-#+HTML_HEAD: <style>body {font-family:SimHei,monospace;line-height:1.5em;font-size:large;}</style>
+#+html_head: <style>body {font-family:SimHei,monospace;line-height:1.5em;font-size:x-large;background-color:#fffff0;}</style>
 #+title: ${title}
 #+date: ${date}
 "))
