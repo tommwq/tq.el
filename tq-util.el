@@ -270,7 +270,7 @@ the even ones are replacements."
 
 (defun tq-util-insert-function-parameter-table (function-name)
   "在缓冲区当前位置插入函数参数表。"
-  (interactive "s函数名: ")
+  (interactive "s函数名字: ")
   (insert (format
 "#+caption: %s
 |------+------+------+----------+----------+------|
@@ -282,5 +282,28 @@ the even ones are replacements."
 |------+------+------+----------+----------+------|
 "
 function-name)))
+
+(defun tq-util-insert-user-case (use-case-name)
+    "插入用例。"
+  (interactive "s用例名字：")
+  (insert (format
+"用例：%s
+- *主执行者* 
+- *范围* 
+- 级别 （子功能级/用户目标级/概要级）
+- *利益相关方及利益*
+  - *利益相关方1*
+  - *利益相关方2*
+- *前置条件* 
+- *最小保证* 
+- *成功保证* 
+- *主成功场景*
+   1. 
+   2. 
+   3. 
+   4. 
+- *扩展*
+"
+use-case-name)))
 
 (provide 'tq-util)
