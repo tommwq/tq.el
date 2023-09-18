@@ -29,9 +29,9 @@
   "生成org文件内容。"
   (let ((template "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) delay(y@/!) | done(d@/!) cancel(c@/!)
+#+todo: todo(t) delay(y!) | done(d!) cancel(c!)
 #+property: header-args :exports code
-#+html_head: <style>body {font-family:方正宋黑_GBK,Microsoft YaHei,monospace;line-height:1.5em;font-size:large;background-color:#fffff0;}</style>
+#+html_head: <style>body {font-family:方正宋黑_GBK,Microsoft YaHei,monospace;line-height:1.5em;background-color:#fffff0;}</style>
 #+title: ${title}
 #+date: ${date}
 "))
