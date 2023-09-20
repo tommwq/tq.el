@@ -233,10 +233,10 @@ public void set%s(%s value) {
         (setf declare-part (concat declare-part (format declare-statement type field)))
         (setf getset-part (concat getset-part (format getter-statement
                                                       type
-                                                      (tq-upcase-first-letter field)
+                                                      (tq-str-upcase-first-char field)
                                                       field)))
         (setf getset-part (concat getset-part (format setter-statement
-                                                      (tq-upcase-first-letter field)
+                                                      (tq-str-upcase-first-char field)
                                                       type
                                                       field))))
       (setf source (concat declare-part getset-part))
@@ -447,7 +447,7 @@ public class User {
                                         (format "  private %s %s;" (nth 0 type-and-name) (nth 1 type-and-name))))
          (getter-statement-generator (lambda (type-and-name)
                                        (format "  public %s get%s() { return %s; }" (nth 0 type-and-name)
-                                               (tq-upcase-first-letter (nth 1 type-and-name))
+                                               (tq-str-upcase-first-char (nth 1 type-and-name))
                                                (nth 1 type-and-name))))
          (constructor-parameter-generator (lambda (type-and-name)
                                             (format "%s %s" (nth 0 type-and-name) (nth 1 type-and-name))))
