@@ -327,7 +327,7 @@ method-name is the name of method to be tested."
                       "}\n"
                       "\n"))
          (pairs (list  "${className}" class-name
-                       "${methodName}" (tq-upcase-first-letter method-name)
+                       "${methodName}" (tq-str-upcase-first-char method-name)
                        "${package}" package
                        "${date}" (format-time-string "%Y-%m-%d"))))
     (tq-replace-regexp-pairs pairs (apply #'concat lines))))
