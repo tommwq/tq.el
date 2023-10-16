@@ -3,9 +3,10 @@
 (require 'tq-util)
 
 (defun tq-open (buffer-type)
-  "打开新的缓冲区，并设置对应的模式。"
+  "打开新的缓冲区，并设置对应的模式。缓冲区名字格式为 *temp-<LANG><n>* 。"
   (interactive "sbuffer type: ")
-  (let* ((buffer-name (format "*temporary-%s*" buffer-type))
+  (let* ((buffer-name "")
+         (number 1)
          (mode-table (tq-util-make-hash "java" #'java-mode
                                         "go" #'go-mode
                                         "xml" #'xml-mode
@@ -29,6 +30,10 @@
                                         "plantuml" #'plantuml-mode
                                         "" #'text-mode))
          (mode-setter (gethash buffer-type mode-table)))
+    (setf buffer-name (format "*temp-%s%d*" buffer-type number))
+    (while (get-buffer buffer-name)
+      (setf number (1+ number))
+      (setf buffer-name (format "*temp-%s%d*" buffer-type number)))
     (unless mode-setter (setf mode-setter #'text-mode))
     (switch-to-buffer buffer-name)
     (funcall mode-setter)))
