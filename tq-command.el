@@ -98,7 +98,7 @@
       (tq-file-write-and-open day-record-file-name
                               (tq-template-render-sequence "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) delay(y!) | done(d!) cancel(c!)
+#+todo: todo(t) delay(y) | done(d) cancel(c)
 #+property: header-args :exports code
 #+html_head: <style>body {font-family:Microsoft YaHei,monospace;line-height:1.5em;font-size:large;background-color:#fffff0;}</style>
 #+title: ${date}
@@ -151,7 +151,7 @@
       (tq-file-write-and-open week-record-file-name
                               (tq-template-render-sequence "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) | done(d/!) cancel(c/!)
+#+todo: todo(t) | done(d/) cancel(c/)
 #+title: ${date}
 #+date: ${date}
 * todo 本周工作 [%]
