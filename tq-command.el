@@ -832,3 +832,68 @@ values 值列表"
       (if (= (% index table-width) 0)
           (princ "|\n"))))
   (princ "|\n"))
+
+
+(defun tq-generate-mybatis-select-xml (java-package-name table-name column-name-list )
+  "生成MyBatis查询语句Mapper标签。"
+  (let ((head-format "    <select id=\"select%s\" resultType=\"com.guosen.openaccount.persistence.entity.%s\">
+        select * from %s where 1=1
+")
+        (condition-line-format "        <if test=\"%s != null\">AND %s=#{%s}</if>
+")
+        (tail "    </select>
+")
+        (column-name "")
+        (result ""))
+
+    (setf result (concat result (format head-format (tq-upcase-first-char table-name) table-name table-name)))
+
+    (dolist (column column-name-list)
+      (setf column-name (prin1-to-string column))
+      (setf result (concat result (format condition-line-format column-name column-name column-name))))
+
+    (setf result (concat result tail))
+    (princ result)
+    nil))
+
+(defun tq-generate-mybatis-update-xml (java-package-name table-name primary-key-column-name column-name-list)
+  "生成MyBatis更新语句Mapper标签。"
+  (let ((head-format "    <update id=\"update%s\">\n        update %s set \n")
+        (assign-line-format "        <if test=\"%s != null\">%s=#{%s},</if> \n")
+        (assign-tail-format "        %s=%s")
+        (condition-line-format "\n        where %s=#{%s} \n")
+        (tail "    </update> \n")
+        (column-name "")
+        (result ""))
+
+    (setf result (concat result (format head-format (tq-upcase-first-char table-name) table-name)))
+
+    (dolist (column column-name-list)
+      (setf column-name (prin1-to-string column))
+      (if (not (string-equal column-name primary-key-column-name))
+          (setf result (concat result (format assign-line-format column-name column-name column-name)))))
+    (setf result (concat result (format assign-tail-format primary-key-column-name primary-key-column-name)))
+
+    (setf result (concat result (format condition-line-format primary-key-column-name primary-key-column-name)))
+    (setf result (concat result tail))
+
+    (princ result)
+    nil))
+
+(defun tq-generate-mybatis-insert-xml (java-package-name table-name column-name-list)
+  "生成MyBatis更新插入Mapper标签。"
+  (let ((head-format "    <insert id=\"insert%s\">\n        insert into %s (\n")
+        (value-line "\n        ) values ( \n")
+        (tail "\n        )\n    </insert> \n")
+        (result ""))
+
+    (setf column-name-list (mapcar #'prin1-to-string column-name-list))
+
+    (setf result (concat result (format head-format (tq-upcase-first-char table-name) table-name)))
+    (setf result (concat result "        " (string-join column-name-list ",")))
+    (setf result (concat result value-line))
+    (setf result (concat result "        #{" (string-join column-name-list "},#{") "}"))
+    (setf result (concat result tail))
+
+    (princ result)
+    nil))
