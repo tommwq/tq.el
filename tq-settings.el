@@ -156,8 +156,8 @@
 ;;       indent-tabs-mode nil)
 (electric-indent-mode -1)
 
-(setq org-todo-keywords '((sequence "todo(t)" "delay(y!)" "|"
-                                    "done(d!)" "cancel(c!)")))
+(setq org-todo-keywords '((sequence "todo(t)" "delay(y)" "|"
+                                    "done(d)" "cancel(c)")))
 
 ;; 设置窗口半透明
 (set-frame-parameter (selected-frame) 'alpha 100)
