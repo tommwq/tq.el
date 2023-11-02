@@ -897,3 +897,42 @@ values 值列表"
 
     (princ result)
     nil))
+
+(defun tq-make-pojo (class-name field-list)
+  "生成POJO类。"
+  (let ((class-head-format "public class %s {\n")
+        (class-tail "}\n")
+        (field-format "    public String %s;\n")
+        (name-list (mapcar #'prin1-to-string field-list))
+        (result ""))
+    
+    (setf result (format class-head-format class-name))
+    (dolist (name name-list)
+      (setf result (concat result (format field-format name))))
+    (setf result (concat result class-tail))
+    result))
+
+
+(defun tq-make-ia-method (method-name input-parameter-list output-parameter-list)
+  "生成IA方法代码。
+
+示例：
+
+(tq-make-ia-method \"getStationManageOrg\" '(eb_area_id) '(eb_area_id province city org_code))
+"
+  (let* ((apply-name (concat (tq-upcase-first-char method-name) "Apply"))
+         (reply-name (concat (tq-upcase-first-char method-name) "Reply"))
+         (method-format "List<%s> %s(%s apply);")
+         (apply-class (tq-make-pojo apply-name input-parameter-list))
+         (reply-class (tq-make-pojo reply-name output-parameter-list)))
+    (concat (format method-format reply-name method-name apply-name) "\n" apply-class "\n" reply-class)))
+
+(defun tq-print-ia-method (method-name input-parameter-list output-parameter-list)
+  "打印生成的IA方法代码。
+
+示例：
+
+(tq-print-ia-method \"getStationManageOrg\" '(eb_area_id) '(eb_area_id province city org_code))
+"
+  (princ (tq-make-ia-method method-name input-parameter-list output-parameter-list))
+  nil)
