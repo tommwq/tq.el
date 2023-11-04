@@ -42,6 +42,16 @@
  '(org-document-info ((t (:inherit org-meta-line))))
  '(org-document-info-keyword ((t (:inherit org-meta-line))))
  '(org-document-title ((t (:inherit org-meta-line :weight bold))))
+
+ '(outline-1 ((t (:foreground "black" :background "DarkSeaGreen1"))))
+ '(outline-2 ((t (:foreground "black" :background "SeaGreen1"))))
+ '(outline-3 ((t (:foreground "black" :background "DarkSeaGreen2"))))
+ '(outline-4 ((t (:foreground "black" :background "SeaGreen2"))))
+ '(outline-5 ((t (:foreground "black" :background "DarkSeaGreen3"))))
+ '(outline-6 ((t (:foreground "black" :background "SeaGreen3"))))
+ '(outline-7 ((t (:foreground "black" :background "DarkSeaGreen4"))))
+ '(outline-8 ((t (:foreground "black" :background "SeaGreen4"))))
+
  '(org-footnote ((t (:foreground "#772277"))))
  '(org-level-1 ((t (:inherit outline-1))))
  '(org-level-2 ((t (:inherit outline-2))))
