@@ -833,7 +833,6 @@ values 值列表"
           (princ "|\n"))))
   (princ "|\n"))
 
-
 (defun tq-make-jetpack-room-dao (package-name entity-name )
   (let ((class-format
 "package %s.dao
@@ -851,7 +850,7 @@ interface %sDao {
 
   suspend fun save(entity: %sEntity) {
     if (entity.id == 0L) {
-      insert(entity)
+      entity.id = insert(entity)
     } else {
       update(entity)
     }
@@ -882,4 +881,107 @@ interface %sDao {
 
 (defun tq-print-jetpack-room-dao (package-name entity-name)
   (princ (tq-make-jetpack-room-dao package-name entity-name))
+  nil)
+
+(defun tq-generate-mybatis-select-xml (java-package-name table-name column-name-list )
+  "生成MyBatis查询语句Mapper标签。"
+  (let ((head-format "    <select id=\"select%s\" resultType=\"com.guosen.openaccount.persistence.entity.%s\">
+        select * from %s where 1=1
+")
+        (condition-line-format "        <if test=\"%s != null\">AND %s=#{%s}</if>
+")
+        (tail "    </select>
+")
+        (column-name "")
+        (result ""))
+
+    (setf result (concat result (format head-format (tq-upcase-first-char table-name) table-name table-name)))
+
+    (dolist (column column-name-list)
+      (setf column-name (prin1-to-string column))
+      (setf result (concat result (format condition-line-format column-name column-name column-name))))
+
+    (setf result (concat result tail))
+    (princ result)
+    nil))
+
+(defun tq-generate-mybatis-update-xml (java-package-name table-name primary-key-column-name column-name-list)
+  "生成MyBatis更新语句Mapper标签。"
+  (let ((head-format "    <update id=\"update%s\">\n        update %s set \n")
+        (assign-line-format "        <if test=\"%s != null\">%s=#{%s},</if> \n")
+        (assign-tail-format "        %s=%s")
+        (condition-line-format "\n        where %s=#{%s} \n")
+        (tail "    </update> \n")
+        (column-name "")
+        (result ""))
+
+    (setf result (concat result (format head-format (tq-upcase-first-char table-name) table-name)))
+
+    (dolist (column column-name-list)
+      (setf column-name (prin1-to-string column))
+      (if (not (string-equal column-name primary-key-column-name))
+          (setf result (concat result (format assign-line-format column-name column-name column-name)))))
+    (setf result (concat result (format assign-tail-format primary-key-column-name primary-key-column-name)))
+
+    (setf result (concat result (format condition-line-format primary-key-column-name primary-key-column-name)))
+    (setf result (concat result tail))
+
+    (princ result)
+    nil))
+
+(defun tq-generate-mybatis-insert-xml (java-package-name table-name column-name-list)
+  "生成MyBatis更新插入Mapper标签。"
+  (let ((head-format "    <insert id=\"insert%s\">\n        insert into %s (\n")
+        (value-line "\n        ) values ( \n")
+        (tail "\n        )\n    </insert> \n")
+        (result ""))
+
+    (setf column-name-list (mapcar #'prin1-to-string column-name-list))
+
+    (setf result (concat result (format head-format (tq-upcase-first-char table-name) table-name)))
+    (setf result (concat result "        " (string-join column-name-list ",")))
+    (setf result (concat result value-line))
+    (setf result (concat result "        #{" (string-join column-name-list "},#{") "}"))
+    (setf result (concat result tail))
+
+    (princ result)
+    nil))
+
+(defun tq-make-pojo (class-name field-list)
+  "生成POJO类。"
+  (let ((class-head-format "public class %s {\n")
+        (class-tail "}\n")
+        (field-format "    public String %s;\n")
+        (name-list (mapcar #'prin1-to-string field-list))
+        (result ""))
+    
+    (setf result (format class-head-format class-name))
+    (dolist (name name-list)
+      (setf result (concat result (format field-format name))))
+    (setf result (concat result class-tail))
+    result))
+
+
+(defun tq-make-ia-method (method-name input-parameter-list output-parameter-list)
+  "生成IA方法代码。
+
+示例：
+
+(tq-make-ia-method \"getStationManageOrg\" '(eb_area_id) '(eb_area_id province city org_code))
+"
+  (let* ((apply-name (concat (tq-upcase-first-char method-name) "Apply"))
+         (reply-name (concat (tq-upcase-first-char method-name) "Reply"))
+         (method-format "List<%s> %s(%s apply);")
+         (apply-class (tq-make-pojo apply-name input-parameter-list))
+         (reply-class (tq-make-pojo reply-name output-parameter-list)))
+    (concat (format method-format reply-name method-name apply-name) "\n" apply-class "\n" reply-class)))
+
+(defun tq-print-ia-method (method-name input-parameter-list output-parameter-list)
+  "打印生成的IA方法代码。
+
+示例：
+
+(tq-print-ia-method \"getStationManageOrg\" '(eb_area_id) '(eb_area_id province city org_code))
+"
+  (princ (tq-make-ia-method method-name input-parameter-list output-parameter-list))
   nil)
