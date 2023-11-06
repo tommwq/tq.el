@@ -970,6 +970,10 @@ interface %sDao {
     (setf result (concat result class-tail))
     result))
 
+(defun tq-print-pojo (class-name field-list)
+  "打印生成的POJO代码。"
+  (princ (tq-make-pojo class-name field-list)))
+
 
 (defun tq-make-ia-method (method-name input-parameter-list output-parameter-list)
   "生成IA方法代码。
