@@ -833,6 +833,55 @@ values 值列表"
           (princ "|\n"))))
   (princ "|\n"))
 
+(defun tq-make-jetpack-room-dao (package-name entity-name )
+  (let ((class-format
+"package %s.dao
+
+import androidx.room.*
+import %s.entity.*
+
+@Dao
+interface %sDao {
+  @Insert
+  suspend fun insert(entity: %sEntity): Long
+
+  @Update
+  suspend fun update(entity: %sEntity)
+
+  suspend fun save(entity: %sEntity) {
+    if (entity.id == 0L) {
+      entity.id = insert(entity)
+    } else {
+      update(entity)
+    }
+  }
+
+  @Query(\"select * from %s where id=:id\")
+  suspend fun select(id: Long): %sEntity
+
+  @Query(\"select * from %s\")
+  suspend fun select(): List<%sEntity>
+
+  @Delete
+  suspend fun delete(entity: %sEntity)
+}
+"))
+    (format class-format
+            package-name
+            package-name
+            entity-name
+            entity-name
+            entity-name
+            entity-name
+            entity-name
+            entity-name
+            entity-name
+            entity-name
+            entity-name)))
+
+(defun tq-print-jetpack-room-dao (package-name entity-name)
+  (princ (tq-make-jetpack-room-dao package-name entity-name))
+  nil)
 
 (defun tq-generate-mybatis-select-xml (java-package-name table-name column-name-list )
   "生成MyBatis查询语句Mapper标签。"
