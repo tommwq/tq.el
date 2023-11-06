@@ -838,6 +838,7 @@ values 值列表"
 "package %s.dao
 
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 import %s.entity.*
 
 @Dao
@@ -850,17 +851,20 @@ interface %sDao {
 
   suspend fun save(entity: %sEntity) {
     if (entity.id == 0L) {
-      entity.id = insert(entity)
+      val newId = insert(entity)
+      if (newId != -1) {
+        entity.id = newId
+      }
     } else {
       update(entity)
     }
   }
 
   @Query(\"select * from %s where id=:id\")
-  suspend fun select(id: Long): %sEntity
+  fun select(id: Long): Flow<%sEntity>
 
   @Query(\"select * from %s\")
-  suspend fun select(): List<%sEntity>
+  fun select(): Flow<List<%sEntity>>
 
   @Delete
   suspend fun delete(entity: %sEntity)
@@ -883,7 +887,7 @@ interface %sDao {
   (princ (tq-make-jetpack-room-dao package-name entity-name))
   nil)
 
-(defun tq-generate-mybatis-select-xml (java-package-name table-name column-name-list )
+(defun tq-make-mybatis-select-xml (java-package-name table-name column-name-list)
   "生成MyBatis查询语句Mapper标签。"
   (let ((head-format "    <select id=\"select%s\" resultType=\"com.guosen.openaccount.persistence.entity.%s\">
         select * from %s where 1=1
@@ -901,11 +905,13 @@ interface %sDao {
       (setf column-name (prin1-to-string column))
       (setf result (concat result (format condition-line-format column-name column-name column-name))))
 
-    (setf result (concat result tail))
-    (princ result)
-    nil))
+    (setf result (concat result tail))))
 
-(defun tq-generate-mybatis-update-xml (java-package-name table-name primary-key-column-name column-name-list)
+(defun tq-print-mybatis-select-xml (java-package-name table-name column-name-list)
+    (princ (tq-make-mybatis-select-xml java-package-name table-name column-name-list))
+    nil)
+
+(defun tq-make-mybatis-update-xml (java-package-name table-name primary-key-column-name column-name-list)
   "生成MyBatis更新语句Mapper标签。"
   (let ((head-format "    <update id=\"update%s\">\n        update %s set \n")
         (assign-line-format "        <if test=\"%s != null\">%s=#{%s},</if> \n")
@@ -924,12 +930,14 @@ interface %sDao {
     (setf result (concat result (format assign-tail-format primary-key-column-name primary-key-column-name)))
 
     (setf result (concat result (format condition-line-format primary-key-column-name primary-key-column-name)))
-    (setf result (concat result tail))
+    (setf result (concat result tail))))
 
-    (princ result)
-    nil))
+(defun tq-print-mybatis-update-xml (java-package-name table-name primary-key-column-name column-name-list)
+    (princ (tq-make-mybatis-update-xml java-package-name table-name primary-key-column-name column-name-list))
+    nil)
 
-(defun tq-generate-mybatis-insert-xml (java-package-name table-name column-name-list)
+
+(defun tq-make-mybatis-insert-xml (java-package-name table-name column-name-list)
   "生成MyBatis更新插入Mapper标签。"
   (let ((head-format "    <insert id=\"insert%s\">\n        insert into %s (\n")
         (value-line "\n        ) values ( \n")
@@ -942,10 +950,11 @@ interface %sDao {
     (setf result (concat result "        " (string-join column-name-list ",")))
     (setf result (concat result value-line))
     (setf result (concat result "        #{" (string-join column-name-list "},#{") "}"))
-    (setf result (concat result tail))
+    (setf result (concat result tail))))
 
-    (princ result)
-    nil))
+(defun tq-print-mybatis-insert-xml (java-package-name table-name column-name-list)
+    (princ (tq-make-mybatis-insert-xml java-package-name table-name column-name-list))
+    nil)
 
 (defun tq-make-pojo (class-name field-list)
   "生成POJO类。"
