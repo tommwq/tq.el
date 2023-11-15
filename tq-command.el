@@ -844,7 +844,7 @@ import %s.entity.*
 
 @Dao
 interface %sDao {
-  @Insert
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun insert(entity: %sEntity): Long
 
   @Update
