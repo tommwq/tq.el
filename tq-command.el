@@ -28,6 +28,7 @@
                                         "elisp" #'lisp-interaction-mode
                                         "php" #'php-mode
                                         "plantuml" #'plantuml-mode
+                                        "groovy" #'groovy-mode
                                         "" #'text-mode))
          (mode-setter (gethash buffer-type mode-table)))
     (setf buffer-name (format "*temp-%s%d*" buffer-type number))
@@ -892,7 +893,7 @@ interface %sDao {
   (let ((head-format "    <select id=\"select%s\" resultType=\"com.guosen.openaccount.persistence.entity.%s\">
         select * from %s where 1=1
 ")
-        (condition-line-format "        <if test=\"%s != null\">AND %s=#{%s}</if>
+        (condition-line-format "        <if test=\"%s != null\"> AND %s=#{%s} </if>
 ")
         (tail "    </select>
 ")
@@ -914,7 +915,7 @@ interface %sDao {
 (defun tq-make-mybatis-update-xml (java-package-name table-name primary-key-column-name column-name-list)
   "生成MyBatis更新语句Mapper标签。"
   (let ((head-format "    <update id=\"update%s\">\n        update %s set \n")
-        (assign-line-format "        <if test=\"%s != null\">%s=#{%s},</if> \n")
+        (assign-line-format "        <if test=\"%s != null\"> %s=#{%s}, </if> \n")
         (assign-tail-format "        %s=%s")
         (condition-line-format "\n        where %s=#{%s} \n")
         (tail "    </update> \n")
