@@ -1032,3 +1032,56 @@ vector1，以及other-vectors的元素都是一个列表，标识不同的维度
           (setf (nth pos index) 0))
         (setf pos (- pos 1))))
     nil))
+
+(defun tq-compose-dropdown-menu (list-name value-name)
+  (let ((expand-value-name (concat value-name "Expand")))
+    (format 
+     "
+var %s by remember { mutableStateOf(false) }
+var %s by remember { mutableStateOf(\"\") }
+
+ExposedDropdownMenuBox(
+        expanded = %s,
+        onExpandedChange = { %s = !%s },
+        modifier = Modifier.fillMaxWidth()
+) {
+
+    TextField(
+            value = %s,
+            onValueChange = {},
+            label = { Text(text=label) },
+            modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth(),
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = scriptExpand) },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            readOnly = true
+    )
+
+    ExposedDropdownMenu(
+            expanded = %s,
+            onDismissRequest = {
+                %s = false
+            },
+    ) {
+        %s.forEach { item ->
+            DropdownMenuItem(
+                    text = { Text(item) },
+                    onClick = {
+                        %s = item
+                        %s = false
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+            )
+        }
+    }
+}
+"
+     expand-value-name value-name expand-value-name expand-value-name
+     expand-value-name value-name expand-value-name expand-value-name
+     list-name value-name expand-value-name)))
+
+(defun tq-compose-dropdown-menu-print (list-name value-name)
+  (princ (tq-compose-dropdown-menu list-name value-name))
+  nil)
+
