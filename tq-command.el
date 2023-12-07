@@ -999,3 +999,36 @@ interface %sDao {
 "
   (princ (tq-make-ia-method method-name input-parameter-list output-parameter-list))
   nil)
+
+
+(defun tq-print-table (vector1 &rest other-vectors)
+  "打印表格。
+
+vector1，以及other-vectors的元素都是一个列表，标识不同的维度。"
+  (let* ((vectors (cons vector1 other-vectors))
+         (len (length vectors))
+         (sizes (mapcar #'length vectors))
+         (break nil)
+         (pos 0)
+         (x 0)
+         (index (make-list len 0))
+         (total (seq-reduce #'(lambda (multiplier vector) (* multiplier (length vector))) vectors 1)))
+
+    (dotimes (ignore total)
+      ;; 打印元素组合
+      (dotimes (i len)
+        (princ (format "| %s " (nth (nth i index)  (nth i vectors)))))
+      (princ "|\n")
+
+      ;; 计算下一个组合
+      (setf pos (- len 1))
+      (setf break nil)
+      (while (and (not break) (<= 0 pos))
+        (setf x (1+ (nth pos index)))
+        (if (< x (nth pos sizes))
+            (progn
+              (setf (nth pos index) x)
+              (setf break t))
+          (setf (nth pos index) 0))
+        (setf pos (- pos 1))))
+    nil))
