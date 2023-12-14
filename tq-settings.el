@@ -165,7 +165,7 @@
 (setf org-export-in-background nil)
 (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
 
-;;(add-hook 'dired-mode-hook 'dired-hide-details-mode)
+(add-hook 'dired-mode-hook 'dired-hide-details-mode)
 (global-set-key (kbd "<insert>") nil)
 
 
