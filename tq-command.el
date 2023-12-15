@@ -101,7 +101,7 @@
 #+options: ^:nil
 #+todo: todo(t) delegate(e) | done(d) cancel(c)
 #+property: header-args :exports code
-#+html_head: <style>body {font-family:Microsoft YaHei,monospace;line-height:1.5em;font-size:large;background-color:#fffff0;}</style>
+#+html_head: <style>body {font-size:large;line-height:1.5em;background-color:#fffff0;}</style>
 #+title: ${date}
 #+date: ${date}
 * 工作
@@ -153,6 +153,8 @@
                               (tq-template-render-sequence "# -*- mode: org -*-
 #+options: ^:nil
 #+todo: todo(t) delegate(e) | done(d/) cancel(c/)
+#+property: header-args :exports code
+#+html_head: <style>body {font-size:large;line-height:1.5em;background-color:#fffff0;}</style>
 #+title: ${date}
 #+date: ${date}
 * todo 本周工作 [%]
