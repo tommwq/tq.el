@@ -99,7 +99,7 @@
       (tq-file-write-and-open day-record-file-name
                               (tq-template-render-sequence "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) delay(y) | done(d) cancel(c)
+#+todo: todo(t) delegate(e) | done(d) cancel(c)
 #+property: header-args :exports code
 #+html_head: <style>body {font-family:Microsoft YaHei,monospace;line-height:1.5em;font-size:large;background-color:#fffff0;}</style>
 #+title: ${date}
@@ -152,7 +152,7 @@
       (tq-file-write-and-open week-record-file-name
                               (tq-template-render-sequence "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) | done(d/) cancel(c/)
+#+todo: todo(t) delegate(e) | done(d/) cancel(c/)
 #+title: ${date}
 #+date: ${date}
 * todo 本周工作 [%]
@@ -1001,6 +1001,38 @@ interface %sDao {
   nil)
 
 
+(defun tq-print-table (vector1 &rest other-vectors)
+  "打印表格。
+
+vector1，以及other-vectors的元素都是一个列表，标识不同的维度。"
+  (let* ((vectors (cons vector1 other-vectors))
+         (len (length vectors))
+         (sizes (mapcar #'length vectors))
+         (break nil)
+         (pos 0)
+         (x 0)
+         (index (make-list len 0))
+         (total (seq-reduce #'(lambda (multiplier vector) (* multiplier (length vector))) vectors 1)))
+
+    (dotimes (ignore total)
+      ;; 打印元素组合
+      (dotimes (i len)
+        (princ (format "| %s " (nth (nth i index)  (nth i vectors)))))
+      (princ "|\n")
+
+      ;; 计算下一个组合
+      (setf pos (- len 1))
+      (setf break nil)
+      (while (and (not break) (<= 0 pos))
+        (setf x (1+ (nth pos index)))
+        (if (< x (nth pos sizes))
+            (progn
+              (setf (nth pos index) x)
+              (setf break t))
+          (setf (nth pos index) 0))
+        (setf pos (- pos 1))))
+    nil))
+
 (defun tq-compose-dropdown-menu (list-name value-name)
   (let ((expand-value-name (concat value-name "Expand")))
     (format 
@@ -1053,3 +1085,4 @@ ExposedDropdownMenuBox(
 (defun tq-compose-dropdown-menu-print (list-name value-name)
   (princ (tq-compose-dropdown-menu list-name value-name))
   nil)
+

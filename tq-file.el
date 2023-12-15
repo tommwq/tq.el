@@ -29,7 +29,7 @@
   "生成org文件内容。"
   (let ((template "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) delay(y) | done(d) cancel(c)
+#+todo: todo(t) delegate(e) | done(d) cancel(c)
 #+property: header-args :exports code
 #+html_head: <style>body {font-size:large;line-height:1.5em;background-color:#fffff0;}</style>
 #+title: ${title}
