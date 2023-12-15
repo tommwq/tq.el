@@ -1017,11 +1017,11 @@ ExposedDropdownMenuBox(
     TextField(
             value = %s,
             onValueChange = {},
-            label = { Text(text=label) },
+            label = { Text(text=%s) },
             modifier = Modifier
                     .menuAnchor()
                     .fillMaxWidth(),
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = scriptExpand) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = %s) },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             readOnly = true
     )
@@ -1046,8 +1046,9 @@ ExposedDropdownMenuBox(
 }
 "
      expand-value-name value-name expand-value-name expand-value-name
-     expand-value-name value-name expand-value-name expand-value-name
-     list-name value-name expand-value-name)))
+     expand-value-name value-name value-name expand-value-name 
+     expand-value-name expand-value-name list-name value-name
+     expand-value-name)))
 
 (defun tq-compose-dropdown-menu-print (list-name value-name)
   (princ (tq-compose-dropdown-menu list-name value-name))
