@@ -916,10 +916,10 @@ interface %sDao {
 
 (defun tq-make-mybatis-update-xml (java-package-name table-name primary-key-column-name column-name-list)
   "生成MyBatis更新语句Mapper标签。"
-  (let ((head-format "    <update id=\"update%s\">\n        update %s set \n")
+  (let ((head-format "    <update id=\"update%s\">\n        UPDATE %s SET \n")
         (assign-line-format "        <if test=\"%s != null\"> %s=#{%s}, </if> \n")
         (assign-tail-format "        %s=%s")
-        (condition-line-format "\n        where %s=#{%s} \n")
+        (condition-line-format "\n        WHERE %s=#{%s} \n")
         (tail "    </update> \n")
         (column-name "")
         (result ""))
@@ -942,8 +942,8 @@ interface %sDao {
 
 (defun tq-make-mybatis-insert-xml (java-package-name table-name column-name-list)
   "生成MyBatis更新插入Mapper标签。"
-  (let ((head-format "    <insert id=\"insert%s\">\n        insert into %s (\n")
-        (value-line "\n        ) values ( \n")
+  (let ((head-format "    <insert id=\"insert%s\">\n        INSERT INTO %s (\n")
+        (value-line "\n        ) VALUES ( \n")
         (tail "\n        )\n    </insert> \n")
         (result ""))
 
