@@ -31,7 +31,7 @@
 #+options: ^:nil
 #+todo: todo(t) delegate(e) | done(d) cancel(c)
 #+property: header-args :exports code
-#+html_head: <style>body {font-family:"Iosevka Extralight","新宋体"; line-height:1.5em; background-color:#fffff0;}</style>
+#+html_head: <style>body {font-family:Iosevka Extralight,新宋体; line-height:1.5em; background-color:#fffff0;}</style>
 #+title: ${title}
 #+date: ${date}
 "))
