@@ -104,9 +104,7 @@
 #+html_head: <style>body {font-size:large; font-family:Iosevka,新宋体; line-height:1.5em; background-color:#fffff0;}</style>
 #+title: ${date}
 #+date: ${date}
-* 工作
-* 后续
-* 记录
+
 " "date" date)))))
 
 (defun tq-set-indent (indent)
@@ -158,7 +156,7 @@
 #+title: ${date}
 #+date: ${date}
 * todo 本周工作 [%]
-* 记录
+
 " "date" week-string)))))
 
 (defun tq-capture-entity (start end)  
