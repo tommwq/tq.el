@@ -101,7 +101,7 @@
 #+options: ^:nil
 #+todo: todo(t) delegate(e) | done(d) cancel(c)
 #+property: header-args :exports code
-#+html_head: <style>body {font-size:large; font-family:"Iosevka","新宋体"; line-height:1.5em; background-color:#fffff0;}</style>
+#+html_head: <style>body {font-size:large; font-family:Iosevka,新宋体; line-height:1.5em; background-color:#fffff0;}</style>
 #+title: ${date}
 #+date: ${date}
 * 工作
@@ -154,7 +154,7 @@
 #+options: ^:nil
 #+todo: todo(t) delegate(e) | done(d/) cancel(c/)
 #+property: header-args :exports code
-#+html_head: <style>body {font-size:large; font-family:"Iosevka","新宋体"; line-height:1.5em; background-color:#fffff0;}</style>
+#+html_head: <style>body {font-size:large; font-family:Iosevka,新宋体; line-height:1.5em; background-color:#fffff0;}</style>
 #+title: ${date}
 #+date: ${date}
 * todo 本周工作 [%]
@@ -836,59 +836,6 @@ values 值列表"
           (princ "|\n"))))
   (princ "|\n"))
 
-(defun tq-make-jetpack-room-dao (package-name entity-name )
-  (let ((class-format
-"package %s.dao
-
-import androidx.room.*
-import kotlinx.coroutines.flow.Flow
-import %s.entity.*
-
-@Dao
-interface %sDao {
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  suspend fun insert(entity: %sEntity): Long
-
-  @Update
-  suspend fun update(entity: %sEntity)
-
-  suspend fun save(entity: %sEntity) {
-    if (entity.id == 0L) {
-      val newId = insert(entity)
-      if (newId != -1) {
-        entity.id = newId
-      }
-    } else {
-      update(entity)
-    }
-  }
-
-  @Query(\"select * from %s where id=:id\")
-  fun select(id: Long): Flow<%sEntity>
-
-  @Query(\"select * from %s\")
-  fun select(): Flow<List<%sEntity>>
-
-  @Delete
-  suspend fun delete(entity: %sEntity)
-}
-"))
-    (format class-format
-            package-name
-            package-name
-            entity-name
-            entity-name
-            entity-name
-            entity-name
-            entity-name
-            entity-name
-            entity-name
-            entity-name
-            entity-name)))
-
-(defun tq-print-jetpack-room-dao (package-name entity-name)
-  (princ (tq-make-jetpack-room-dao package-name entity-name))
-  nil)
 
 (defun tq-make-mybatis-select-xml (java-package-name table-name column-name-list)
   "生成MyBatis查询语句Mapper标签。"
@@ -1088,3 +1035,57 @@ ExposedDropdownMenuBox(
   (princ (tq-compose-dropdown-menu list-name value-name))
   nil)
 
+(defun tq-make-jetpack-room-dao (package-name table-name &optional id-field-name)
+"
+生成Jetpack Room DAO类代码。
+
+package-name Java包名字，不含“.dao”。
+table-name 数据表名字。
+id-field-name ID列名字，默认为“id”。
+"
+  (let ((java-file-template
+"package ${package-name}.dao
+
+import androidx.room.*
+import kotlinx.coroutines.flow.Flow
+import ${package-name}.entity.*
+
+@Dao
+interface ${table-name}Dao {
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insert(record: ${table-name})
+
+  @Query(\"SELECT * FROM ${table-name} WHERE ${id-field-name}=:id\")
+  suspend fun select(id: Long): ${table-name}
+
+  @Query(\"SELECT * FROM ${table-name}\")
+  suspend fun select(): List<${table-name}>
+
+  @Update
+  suspend fun update(record: ${table-name})
+
+  @Delete
+  suspend fun delete(record: ${table-name})
+
+  suspend fun save(record: ${table-name}) {
+    if (record.${id-field-name} == 0L) insert(record) else update(record)
+  }
+
+  @Query(\"SELECT * FROM ${table-name} WHERE ${id-field-name}=:id\")
+  fun watch(id: Long): Flow<${table-name}>
+
+  @Query(\"SELECT * FROM ${table-name}\")
+  fun watch(): Flow<List<${table-name}>>
+}
+")
+        (values (make-hash-table :test 'equal)))
+    (puthash "package-name" package-name values)
+    (puthash "table-name" table-name values)
+    (puthash "id-field-name" (or id-field-name "id") values)
+    (tq-template-render java-file-template values)))
+
+
+(defun tq-print-jetpack-room-dao (package-name table-name &optional id-field-name)
+  "生成并打印Jetpack Room DAO类代码。"
+  (princ (tq-make-jetpack-room-dao package-name table-name id-field-name))
+  nil)
