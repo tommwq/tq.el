@@ -158,7 +158,7 @@
     (concat (upcase (substring word 0 1))
             (substring word 1))))
 
-(defun tq-str-downcase-first-letter (word)
+(defun tq-str-downcase-first-char (word)
   "将字符串首字母改为小写。"
   (if (zerop (length word))
       word

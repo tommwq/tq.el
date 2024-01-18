@@ -1087,3 +1087,117 @@ interface ${table-name}Dao {
   "生成并打印Jetpack Room DAO类代码。"
   (princ (tq-make-jetpack-room-dao package-name table-name id-field-name))
   nil)
+
+(defun tq-print-jetpack-room-repository (package-name room-database-class aggregate-root &optional id-field-name entity-names)
+  (princ (tq-make-jetpack-room-repository package-name room-database-class aggregate-root id-field-name entity-names))
+  nil)
+
+(defun tq-make-jetpack-room-repository (package-name room-database-class aggregate-root &optional id-field-name entity-names)
+  "
+生成Jetpack Room Repository代码。
+
+pakcage-name Java包名字，不含“.database...”。
+room-database-class RoomDatabase派生类名字。
+aggregate-root 聚合根类名字。
+id-field-name ID列名字。
+entity-names 聚合中除聚合根之外的实体名字列表。
+
+示例：
+
+(tq-print-jetpack-room-repository
+ \"com.example\"
+ \"MyDatabase\"
+ \"AggregateRoot\"
+ \"id\"
+ '(\"Entity1\"
+   \"Entity2\"
+   \"Entity3\"))
+"
+  (let ((values (make-hash-table :test 'equal))
+        (template "
+package ${package-name}.database.repository
+
+import androidx.room.withTransaction
+import ${package-name}.database.${room-database-class}
+import ${package-name}.database.dao.*
+import ${package-name}.database.entity.*
+import ${package-name}.domain.*
+import javax.inject.*
+
+@Singleton
+class ${aggregate-root}Repository @Inject constructor(
+    private val database: ${room-database-class},
+    private val ${aggregate-root-camel}Dao: ${aggregate-root}Dao
+${entity-dao-block}
+) {
+    suspend fun get(id: Long) = from(${aggregate-root-camel}Dao.select(id))
+
+    suspend fun all() = ${aggregate-root-camel}Dao.select().map { from(it) }
+
+    suspend fun add(${aggregate-root-camel}: ${aggregate-root}) {
+        database.withTransaction {
+            // TODO 添加${aggregate-root}。
+        }
+    }
+
+    suspend fun remove(${aggregate-root-camel}: ${aggregate-root}) {
+        database.withTransaction {
+            // TODO 删除${aggregate-root}。
+        }
+    }
+
+    suspend fun save(${aggregate-root-camel}: ${aggregate-root}) {
+        database.withTransaction {
+            // TODO 保存${aggregate-root}。
+        }
+    }
+
+    fun watch(id: Long): Flow<${aggregate-root}> {
+        return ${aggregate-root-camel}Dao.flow(id).map { from(it) }
+    }
+
+    fun watch(): Flow<List<${aggregate-root}>> {
+        return ${aggregate-root-camel}Dao.flow().map { it.map { item -> from(item) } }
+    }
+
+    suspend fun from(entity: ${package-name}.entity.${aggregate-root}): ${aggregate-root} {
+        // TODO
+        return ${aggregate-root}()
+    }
+
+    suspend fun to(record: ${aggregate-root}): ${package-name}.entity.${aggregate-root} {
+        // TODO
+        return ${package-name}.entity.${aggregate-root}()
+    }
+
+${entity-converter-block}
+}
+"))
+    (puthash "package-name" package-name values)
+    (puthash "room-database-class" room-database-class values)
+    (puthash "aggregate-root" aggregate-root values)
+    (puthash "aggregate-root-camel" (tq-str-downcase-first-char aggregate-root) values)
+    (puthash "entity-dao-block" 
+             (string-join 
+              (mapcar
+               (lambda (x)
+                 (format "    private val %sDao: %sDao" (tq-str-downcase-first-char x) x))
+               entity-names) ",\n") values)
+    (puthash "entity-converter-block" 
+             (string-join
+              (mapcar
+               (lambda (x)
+                 (puthash "entity-name" x values)
+                 (tq-template-render 
+"
+    suspend fun from(entity: ${package-name}.entity.${entity-name}): ${entity-name} {
+        // TODO
+        return ${entity-name}()
+    }
+
+    suspend fun to(record: ${entity-name}): ${package-name}.entity.${entity-name} {
+        // TODO
+        return ${package-name}.entity.${entity-name}()
+    }
+" values)) entity-names) "\n") values)
+    (tq-template-render template values)))
