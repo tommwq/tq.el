@@ -1046,7 +1046,7 @@ id-field-name ID列名字，默认为“id”。
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
-import ${package-name}.entity.*
+import ${package-name}.record.*
 
 @Dao
 interface ${table-name}Dao {
@@ -1120,7 +1120,7 @@ package ${package-name}.database.repository
 import androidx.room.withTransaction
 import ${package-name}.database.${room-database-class}
 import ${package-name}.database.dao.*
-import ${package-name}.database.entity.*
+import ${package-name}.database.record.*
 import ${package-name}.domain.*
 import javax.inject.*
 
@@ -1130,9 +1130,11 @@ class ${aggregate-root}Repository @Inject constructor(
     private val ${aggregate-root-camel}Dao: ${aggregate-root}Dao
 ${entity-dao-block}
 ) {
+    suspend fun create(/* TODO */) = ${aggregate-root}(/* TODO */)
+
     suspend fun get(id: Long) = from(${aggregate-root-camel}Dao.select(id))
 
-    suspend fun all() = ${aggregate-root-camel}Dao.select().map { from(it) }
+    suspend fun get() = ${aggregate-root-camel}Dao.select().map { from(it) }
 
     suspend fun add(${aggregate-root-camel}: ${aggregate-root}) {
         database.withTransaction {
@@ -1160,14 +1162,14 @@ ${entity-dao-block}
         return ${aggregate-root-camel}Dao.flow().map { it.map { item -> from(item) } }
     }
 
-    suspend fun from(entity: ${package-name}.entity.${aggregate-root}): ${aggregate-root} {
+    suspend fun from(record: ${package-name}.record.${aggregate-root}): ${aggregate-root} {
         // TODO
         return ${aggregate-root}()
     }
 
-    suspend fun to(record: ${aggregate-root}): ${package-name}.entity.${aggregate-root} {
+    suspend fun to(record: ${aggregate-root}): ${package-name}.record.${aggregate-root} {
         // TODO
-        return ${package-name}.entity.${aggregate-root}()
+        return ${package-name}.record.${aggregate-root}()
     }
 
 ${entity-converter-block}
@@ -1190,14 +1192,14 @@ ${entity-converter-block}
                  (puthash "entity-name" x values)
                  (tq-template-render 
 "
-    suspend fun from(entity: ${package-name}.entity.${entity-name}): ${entity-name} {
+    suspend fun from(record: ${package-name}.record.${entity-name}): ${entity-name} {
         // TODO
         return ${entity-name}()
     }
 
-    suspend fun to(record: ${entity-name}): ${package-name}.entity.${entity-name} {
+    suspend fun to(record: ${entity-name}): ${package-name}.record.${entity-name} {
         // TODO
-        return ${package-name}.entity.${entity-name}()
+        return ${package-name}.record.${entity-name}()
     }
 " values)) entity-names) "\n") values)
     (tq-template-render template values)))
