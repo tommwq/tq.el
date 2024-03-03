@@ -1213,16 +1213,13 @@ slot-names 槽名字列表"
         (slot-format "
       (%s :initarg :%s
           :initform \"\"
-          :type string)
-"))
+          :type string)"))
     (dolist (slot-name slot-names)
       (setf slot-part (concat slot-part (format slot-format slot-name slot-name))))
     (format
      "
   (defclass %s ()
-    (
-%s
-    )
+    (%s)
     \"%s\")
 " class-name slot-part comment-string)))
 
@@ -1231,5 +1228,5 @@ slot-names 槽名字列表"
 class-name 类名字
 comment-string 类注释
 slot-names 槽名字列表"
-  (princ (make-defclass class-name comment-string slot-names))
+  (princ (tq-make-defclass class-name comment-string slot-names))
   nil)
