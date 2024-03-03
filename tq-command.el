@@ -1203,3 +1203,33 @@ ${entity-converter-block}
     }
 " values)) entity-names) "\n") values)
     (tq-template-render template values)))
+
+(defun tq-make-defclass (class-name comment-string slot-names)
+  "生成类定义代码。
+class-name 类名字
+comment-string 类注释
+slot-names 槽名字列表"
+  (let ((slot-part "")
+        (slot-format "
+      (%s :initarg :%s
+          :initform \"\"
+          :type string)
+"))
+    (dolist (slot-name slot-names)
+      (setf slot-part (concat slot-part (format slot-format slot-name slot-name))))
+    (format
+     "
+  (defclass %s ()
+    (
+%s
+    )
+    \"%s\")
+" class-name slot-part comment-string)))
+
+(defun tq-print-defclass (class-name comment-string slot-names)
+  "打印类定义代码。
+class-name 类名字
+comment-string 类注释
+slot-names 槽名字列表"
+  (princ (make-defclass class-name comment-string slot-names))
+  nil)
