@@ -134,7 +134,12 @@
     (concat (upcase (substring field 0 1))
             (substring field 1))))
 
-
+(defun tq-downcase-first-char (field)
+  "将首字母改成小写字母。"
+  (if (= 0 (length field))
+      field
+    (concat (downcase (substring field 0 1))
+            (substring field 1))))
 
 (defun tq-path-join (root &rest path-parts)
   "拼接文件路径。"

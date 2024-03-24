@@ -1204,6 +1204,7 @@ ${entity-converter-block}
 " values)) entity-names) "\n") values)
     (tq-template-render template values)))
 
+
 (defun tq-make-defclass (class-name comment-string slot-names)
   "生成类定义代码。
 class-name 类名字
@@ -1213,15 +1214,33 @@ slot-names 槽名字列表"
         (slot-format "
       (%s :initarg :%s
           :initform \"\"
-          :type string)"))
+          :type string)")
+        (method-part "")
+        (method-format "
+(cl-defmethod to-sql ((object %s))
+  (format \"INSERT INTO %s (%s) VALUES (%s);\" %s))
+"))
+
     (dolist (slot-name slot-names)
       (setf slot-part (concat slot-part (format slot-format slot-name slot-name))))
+    (setf slot-part (string-trim slot-part))
+
+    (setf method-part (format method-format 
+                              class-name
+                              (tq-str-kebab-to-pascal (prin1-to-string class-name))
+                              (string-join (mapcar (lambda (x) (tq-str-kebab-to-camel (prin1-to-string x))) slot-names) ",")
+                              (string-join (mapcar (lambda (x) "'%s'") slot-names) ",")
+                              (string-join (mapcar (lambda (x) (format "(oref object %s)" x)) slot-names) " ")
+                              ))
+
     (format
      "
   (defclass %s ()
     (%s)
     \"%s\")
-" class-name slot-part comment-string)))
+
+%s
+" class-name slot-part comment-string method-part)))
 
 (defun tq-print-defclass (class-name comment-string slot-names)
   "打印类定义代码。
