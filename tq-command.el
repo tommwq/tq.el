@@ -99,7 +99,7 @@
       (tq-file-write-and-open day-record-file-name
                               (tq-template-render-sequence "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) delegate(e) | done(d) cancel(c)
+#+todo: todo(t) delegate(e@/!) | done(d@/!) cancel(c@/!)
 #+property: header-args :exports code
 #+html_head: <style>body {font-size:large; font-family:Iosevka,新宋体; line-height:1.5em; background-color:#fffff0;}</style>
 #+title: ${date}
@@ -150,7 +150,7 @@
       (tq-file-write-and-open week-record-file-name
                               (tq-template-render-sequence "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t) delegate(e) | done(d/) cancel(c/)
+#+todo: todo(t) delegate(e@/!) | done(d@/!) cancel(c@/!)
 #+property: header-args :exports code
 #+html_head: <style>body {font-size:large; font-family:Iosevka,新宋体; line-height:1.5em; background-color:#fffff0;}</style>
 #+title: ${date}
