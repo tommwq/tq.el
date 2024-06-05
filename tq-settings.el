@@ -125,8 +125,8 @@
         (other . "tq-c-style")))
 
 ;; 设置钩子。
-(add-hook 'shell-mode-hook #'(lambda ()
-                               (set-buffer-process-coding-system 'gbk 'gbk)))
+;; (add-hook 'shell-mode-hook #'(lambda ()
+;;                                (set-buffer-process-coding-system 'gbk 'gbk)))
 
 (add-hook 'c-mode-common-hook 'tq-c-mode-hook)
 (add-hook 'c-mode-hook 'hs-minor-mode)
@@ -174,7 +174,7 @@
 
 
 
-"设置字符编码。"
+;; "设置字符编码。"
 (setf file-name-coding-system 'utf-8
       default-file-name-coding-system 'utf-8-unix
       default-buffer-file-coding-system 'utf-8-unix)
@@ -187,4 +187,8 @@
 (prefer-coding-system 'utf-8-unix)
 
 (tq-util-maximize-window)
+
+(set-default-coding-systems 'utf-8)
+(modify-coding-system-alist 'process "[cC][mM][dD][pP][rR][oO][xX][yY]" '(chinese-gbk-dos . chinese-gbk-dos))
+
 
