@@ -42,15 +42,12 @@
 (setq inhibit-startup-message t)
 (setq gnus-inhibit-startup-message t)
 
-;; 显示行号
+;; 显示行号列号
 (global-linum-mode t)
-
-;; 显示列号
 (setq column-number-mode t)
 
 ;; (setf magit-git-executable tq-git-program)
 ;; (setf python-shell-interpreter tq-python-program)
-
 
 ;; 设置命令搜索路径
 ;; (add-to-list 'exec-path "C:\\Program Files\\Git\\bin")
@@ -62,15 +59,6 @@
         '(("gnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
           ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
   (package-initialize))
-
-;; 高亮当前行（已通过配置实现，不再需要）
-;;(global-hl-line-mode 1)
-;;(set-face-attribute hl-line-face nil :underline nil)
-;;(set-face-background 'hl-line "bisque")
-;;(set-face-attribute hl-line-face nil :underline nil)
-;;(set-face-background 'hl-line "white")
-;;(set-cursor-color "yellow")
-
 
 ;; 启用自动保存
 (setq auto-save-mode nil)
@@ -89,11 +77,6 @@
 ;; 设置快捷键
 (global-set-key [f2] 'clipboard-kill-ring-save)
 (global-set-key [f3] 'isearch-forward)
-
-
-;; use customize
-;;(set-cursor-color "black")
-
 
 ;; 
 (setq visible-bell t)
@@ -156,8 +139,7 @@
 ;;       indent-tabs-mode nil)
 (electric-indent-mode -1)
 
-(setq org-todo-keywords '((sequence "todo(t)" "delay(y)" "|"
-                                    "done(d)" "cancel(c)")))
+(setq org-todo-keywords '((sequence "todo(t)" "delay(y)" "|" "done(d)" "cancel(c)")))
 
 ;; 设置窗口半透明
 (set-frame-parameter (selected-frame) 'alpha 100)
@@ -168,18 +150,26 @@
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 (global-set-key (kbd "<insert>") nil)
 
-
-
 (c-add-style "tq-c-style" tq-c-style)
 
+<<<<<<< HEAD
 
 
 ;; "设置字符编码。"
+=======
+;; 设置字符编码
+>>>>>>> dd029fb7baf5ca77cb6a3298eef948b3fb69f991
 (setf file-name-coding-system 'utf-8
       default-file-name-coding-system 'utf-8-unix
       default-buffer-file-coding-system 'utf-8-unix)
-(set-language-environment "UTF-8")
-;; 设置文件缓冲区默认保存编码。
+
+(set-language-environment 'Chinese-GBK)
+
+(set-default buffer-file-coding-system 'utf-8-unix)
+(set-default-coding-systems 'utf-8-unix)
+;; (setq-default pathname-coding-system 'euc-cn)
+;; (setq file-name-coding-system 'euc-cn)
+
 (set-buffer-file-coding-system 'utf-8-unix)
 (prefer-coding-system 'chinese-gbk-dos)
 (prefer-coding-system 'chinese-gbk-unix)
@@ -190,5 +180,3 @@
 
 (set-default-coding-systems 'utf-8)
 (modify-coding-system-alist 'process "[cC][mM][dD][pP][rR][oO][xX][yY]" '(chinese-gbk-dos . chinese-gbk-dos))
-
-
