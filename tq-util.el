@@ -135,6 +135,13 @@
             (substring field 1))))
 
 (defun tq-downcase-first-char (field)
+  "将首字母改成小写字母。不会改变其他字母。"
+  (if (= 0 (length field))
+      field
+    (concat (downcase (substring field 0 1))
+            (substring field 1))))
+
+(defun tq-downcase-first-char (field)
   "将首字母改成小写字母。"
   (if (= 0 (length field))
       field
