@@ -152,13 +152,7 @@
 
 (c-add-style "tq-c-style" tq-c-style)
 
-<<<<<<< HEAD
-
-
-;; "设置字符编码。"
-=======
 ;; 设置字符编码
->>>>>>> dd029fb7baf5ca77cb6a3298eef948b3fb69f991
 (setf file-name-coding-system 'utf-8
       default-file-name-coding-system 'utf-8-unix
       default-buffer-file-coding-system 'utf-8-unix)
