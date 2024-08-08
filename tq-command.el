@@ -99,7 +99,7 @@
       (tq-file-write-and-open day-record-file-name
                               (tq-template-render-sequence "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t@/!) delegate(e@/!) | done(d@/!) cancel(c@/!)
+#+todo: todo(t) delegate(e) | done(d) cancel(c)
 #+property: header-args :exports code
 #+html_head: <style>body {font-size:large; font-family:Iosevka,新宋体; line-height:1.5em; background-color:#fffff0;}</style>
 #+title: ${date}
@@ -150,7 +150,7 @@
       (tq-file-write-and-open week-record-file-name
                               (tq-template-render-sequence "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t@/!) delegate(e@/!) | done(d@/!) cancel(c@/!)
+#+todo: todo(t) delegate(e) | done(d) cancel(c)
 #+property: header-args :exports code
 #+html_head: <style>body {font-size:large; font-family:Iosevka,新宋体; line-height:1.5em; background-color:#fffff0;}</style>
 #+title: ${date}
@@ -1249,3 +1249,24 @@ comment-string 类注释
 slot-names 槽名字列表"
   (princ (tq-make-defclass class-name comment-string slot-names))
   nil)
+
+(defun tq-print-android-add-table-todo (table-name)
+  "打印在Room中新增表的子任务。"
+  (interactive "s表名：")
+  (insert
+   (format "
+* todo 新增%s表
+** todo 编写%s表SQL语句。
+** todo 执行SQL，更新.db文件。
+** todo 新增%sEntity类。
+** todo 新增%s类。
+** todo 新增%sDao类。
+** todo 新增%sRepo类。
+** todo 修改Database类，增加迁移类。
+** todo 修改Database类，支持%sEntity。
+** todo 修改Database类，支持%sDao。
+** todo 修改Module类，支持%sDao。
+"
+           table-name table-name table-name table-name
+           table-name table-name table-name table-name
+           table-name)))
