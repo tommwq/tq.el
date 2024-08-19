@@ -33,6 +33,7 @@
 #+property: header-args :exports code
 #+html_head: <style>body { font-family: NSimSun; line-height: 1.5em; background-color: #fffff0 }</style>
 #+html_head_extra: <style> figure { text-align: center; }</style>
+#+html_head_extra: <style> video { display: block; margin: 0 auto; }</style>
 #+language: zh-CN
 #+title: ${title}
 #+date: ${date}
