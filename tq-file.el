@@ -31,7 +31,8 @@
 #+options: ^:nil
 #+todo: todo(t@/!) delegate(e@/!) | done(d@/!) cancel(c@/!)
 #+property: header-args :exports code
-#+html_head: <style>body { font-size: x-large; font-family: 仿宋; line-height: 1.5em;}</style>
+#+html_head: <style>body { font-family: NSimSun; line-height: 1.5em; background-color: #fffff0 }</style>
+#+html_head_extra: <style> figure { text-align: center; }</style>
 #+language: zh-CN
 #+title: ${title}
 #+date: ${date}
