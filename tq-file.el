@@ -29,9 +29,8 @@
   "生成org文件内容。"
   (let ((template "# -*- mode: org -*-
 #+options: ^:nil
-#+todo: todo(t@/!) delegate(e@/!) | done(d@/!) cancel(c@/!)
 #+property: header-args :exports code
-#+html_head: <style>body { font-family: FontSong; font-size: x-large; line-height: 2em; background-color: #fffff0 }</style>
+#+html_head: <style>body { line-height: 2em; background-color: #fffff0 }</style>
 #+html_head_extra: <style> figure { text-align: center; }</style>
 #+html_head_extra: <style> video { display: block; margin: 0 auto; }</style>
 #+language: zh-CN
@@ -40,7 +39,7 @@
 "))
     (tq-template-render-sequence template
                                       "title" title
-                                      "date" (format-time-string "%Y年%m月%d日"))))
+                                      "date" (format-time-string "%Y-%m-%d"))))
 
 (defun tq-file-insert-org-header (title)
   "生成org文件，插入到缓冲区。"
