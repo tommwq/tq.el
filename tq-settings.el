@@ -181,3 +181,6 @@
   (let (org-log-done org-log-states)
     (org-todo (if (= n-not-done 0) "done" "todo"))))
 (add-hook 'org-after-todo-statistics-hook 'tq-org-summary-todo)
+
+(org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+(add-hook 'org-label-after-execute-hook 'org-display-inline-images)
