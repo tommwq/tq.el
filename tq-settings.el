@@ -43,7 +43,9 @@
 (setq gnus-inhibit-startup-message t)
 
 ;; 显示行号列号
-(global-linum-mode t)
+;; Emacs 26-
+;; (global-linum-mode t)
+(global-display-line-numbers-mode 1)
 (setq column-number-mode t)
 
 ;; (setf magit-git-executable tq-git-program)
@@ -139,7 +141,7 @@
 ;;       indent-tabs-mode nil)
 (electric-indent-mode -1)
 
-(setq org-todo-keywords '((sequence "todo(t)" "delay(y)" "|" "done(d)" "cancel(c)")))
+;; (setq org-todo-keywords '((sequence "todo(t)" "delay(y)" "|" "done(d)" "cancel(c)")))
 
 ;; 设置窗口半透明
 (set-frame-parameter (selected-frame) 'alpha 100)
@@ -179,8 +181,20 @@
 (defun tq-org-summary-todo (n-done n-not-done)
   "Switch entry to DONE when all subentries are done, to TODO otherwise."
   (let (org-log-done org-log-states)
-    (org-todo (if (= n-not-done 0) "done" "todo"))))
+    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
 (add-hook 'org-after-todo-statistics-hook 'tq-org-summary-todo)
+
 
 (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
 (add-hook 'org-label-after-execute-hook 'org-display-inline-images)
+
+(global-hl-line-mode 1)
+;; (set-face-attribute hl-line-face nil :underline nil)
+;; (set-face-background 'highlight nil)
+
+
+
+
+;; 自动加载 ox-hugo
+(with-eval-after-load 'org
+  (require 'ox-hugo))

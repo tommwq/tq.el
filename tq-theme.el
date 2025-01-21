@@ -31,7 +31,7 @@
  '(font-lock-warning-face ((t (:inherit error))))
  '(fringe ((t (:background "dark sea green"))))
  '(header-line ((t (:inherit mode-line))))
- '(highlight ((t (:background "#B0B0B0"))))
+ '(highlight ((t (:underline nil :background "medium sea green"))))
  '(link ((t (:foreground "#0000AA" :underline t))))
  '(link-visited ((t (:inherit link :foreground "#440044"))))
  '(minibuffer-prompt ((t (:weight bold))))
@@ -81,7 +81,15 @@
  '(window-divider ((t (:foreground "LightSalmon3"))))
  '(window-divider-first-pixel ((t (:inherit window-divider))))
  '(window-divider-last-pixel ((t (:inherit window-divider))))
-)
+
+ ;; 设置已完成任务的标题样式
+ '(org-headline-done ((t (:foreground "black" :weight normal))))
+ ;; 设置 DONE 关键字的样式
+ '(org-done ((t (:foreground "dark green" :weight bold))))
+ ;; 设置所有任务状态的通用样式
+ '(org-todo ((t (:foreground "pale green" :weight bold))))
+ ;; 专门设置 DONE 关键字的样式
+ '(org-todo-keyword-done ((t (:foreground "green" :weight bold :italic t)))))
 
 ;; Add theme directory to `custom-theme-load-path'
 ;;;###autoload

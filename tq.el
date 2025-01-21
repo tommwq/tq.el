@@ -18,6 +18,7 @@
 (require 'tq-quarkus)
 (require 'tq-android)
 (require 'tq-settings)
+(require 'tq-ai)
 
 (defgroup tq nil
   ""
@@ -69,5 +70,3 @@
   "模板目录"
   :type 'string
   :group 'tq)
-
-
