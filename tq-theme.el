@@ -82,6 +82,7 @@
  '(window-divider-first-pixel ((t (:inherit window-divider))))
  '(window-divider-last-pixel ((t (:inherit window-divider))))
 
+ '(org-code ((t (:foreground "dark slate blue"))))
  ;; 设置已完成任务的标题样式
  '(org-headline-done ((t (:foreground "black" :weight normal))))
  ;; 设置 DONE 关键字的样式
