@@ -166,6 +166,19 @@
 ;; (setq-default pathname-coding-system 'euc-cn)
 ;; (setq file-name-coding-system 'euc-cn)
 
+;; 设置键盘输入的编码系统
+(set-keyboard-coding-system 'utf-8-unix)
+
+;; 设置终端输出的编码系统
+(set-terminal-coding-system 'utf-8)
+
+;; 设置剪贴板的编码系统。若不适用utf-16le，将导致复制乱码。
+(set-selection-coding-system 'utf-16le)
+
+;; 设置子进程 I/O 的默认编码系统
+(setq default-process-coding-system '(utf-8-unix . utf-8-unix))
+
+
 (set-buffer-file-coding-system 'utf-8-unix)
 (prefer-coding-system 'chinese-gbk-dos)
 (prefer-coding-system 'chinese-gbk-unix)
@@ -198,3 +211,6 @@
 ;; 自动加载 ox-hugo
 (with-eval-after-load 'org
   (require 'ox-hugo))
+
+
+(global-set-key (kbd "C-c a") 'aider-transient-menu)
